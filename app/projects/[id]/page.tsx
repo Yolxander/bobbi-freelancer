@@ -193,72 +193,59 @@ export default function ProjectDetailsPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (user) {
+      if (user && projectId) {
         setLoading(true)
         setError(null)
 
         try {
-          // Check if the project ID is a temporary ID
-          if (projectId.startsWith("temp-")) {
-            setError("Invalid project ID. Please go back to the projects page.")
-            setLoading(false)
-            return
-          }
-
           // Fetch project details
           const projectResult = await getProject(projectId)
+          console.log('Project Result:', projectResult)
 
-          if (projectResult.success && projectResult.data) {
+          if (projectResult && projectResult.data) {
+            console.log('Fetched Project Details:', projectResult.data)
             setProject(projectResult.data)
             setEditedProject(projectResult.data)
 
-            // Fetch client details if needed
-            if (projectResult.data.client_id) {
+            // Fetch tasks
+            const tasksResult = await getTasks(projectId)
+            if (tasksResult && tasksResult.data) {
+              setTasks(tasksResult.data)
+            }
+
+            // Fetch client
+            if (projectResult.data?.client_id) {
               const clientResult = await getClient(projectResult.data.client_id)
-              if (clientResult.success) {
+              if (clientResult && clientResult.data) {
                 setClient(clientResult.data)
               }
             }
-
-            // Fetch tasks for this project
-            const tasksResult = await getTasks(user.id, projectId)
-            if (tasksResult.success) {
-              setTasks(tasksResult.data || [])
-            }
+            setError(null)
           } else {
-            setError(projectResult.error || "Project not found")
+            setError('Project not found')
           }
-        } catch (err) {
-          console.error("Error fetching project data:", err)
-          setError("Failed to load project details")
+        } catch (error) {
+          console.error('Error fetching project:', error)
+          setError('Failed to fetch project details')
         } finally {
           setLoading(false)
         }
       }
     }
 
-    if (user) {
+    if (user && projectId) {
       fetchData()
     }
   }, [user, projectId])
 
-  // Fetch team members when project loads or client changes
-  useEffect(() => {
-    if (project) {
-      fetchTeamMembers()
-      if (project.client_id) {
-        fetchAvailableTeamMembers()
-      }
-    }
-  }, [project, fetchTeamMembers, fetchAvailableTeamMembers])
-
+  // Fetch clients when user is available
   useEffect(() => {
     const fetchClients = async () => {
       if (user) {
         try {
           const result = await getClients(user.id)
-          if (result.success) {
-            setClients(result.data || [])
+          if (result && result.data) {
+            setClients(result.data)
           }
         } catch (err) {
           console.error("Error fetching clients:", err)
@@ -577,8 +564,7 @@ export default function ProjectDetailsPage() {
     )
   }
 
-  // Update the error check to include access denied
-  if (error || !project || (!projectAccess.isOwner && !projectAccess.isCollaborator)) {
+  if (error) {
     return (
       <div className="flex h-screen bg-white">
         <Sidebar />
@@ -588,14 +574,8 @@ export default function ProjectDetailsPage() {
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Briefcase className="w-8 h-8 text-gray-400" />
               </div>
-              <h3 className="text-lg font-medium text-gray-700">
-                {!projectAccess.isOwner && !projectAccess.isCollaborator && !error
-                  ? "You don't have access to this project"
-                  : "Project not found"}
-              </h3>
-              <p className="text-gray-500 mt-2">
-                {error || "The project you're looking for doesn't exist or you don't have permission to view it."}
-              </p>
+              <h3 className="text-lg font-medium text-gray-700">Project not found</h3>
+              <p className="text-gray-500 mt-2">{error}</p>
               <Link href="/projects">
                 <button className="mt-4 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium">
                   Back to Projects
@@ -945,7 +925,13 @@ export default function ProjectDetailsPage() {
                     <div key={task.id} className="flex gap-3">
                       <div
                         className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          task?.status === "completed" ? "bg-green-100" : "bg-blue-100"
+                          task?.status === "completed"
+                            ? "bg-green-100"
+                            : task?.status === "in-progress"
+                              ? "bg-blue-100"
+                              : task?.status === "review"
+                                ? "bg-yellow-100"
+                                : "bg-gray-100"
                         }`}
                       >
                         {task?.status === "completed" ? (
@@ -1366,7 +1352,7 @@ export default function ProjectDetailsPage() {
                                     ? "bg-red-100 text-red-800"
                                     : task?.priority === "medium"
                                       ? "bg-yellow-100 text-yellow-800"
-                                      : task?.priority === "green-100 text-green-800"
+                                      : "bg-green-100 text-green-800"
                                 }`}
                               >
                                 {task?.priority}
