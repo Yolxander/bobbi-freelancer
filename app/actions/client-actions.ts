@@ -64,7 +64,7 @@ export async function getClients(providerId: string) {
     return { success: true, data: data }
   } catch (error) {
     console.error("Error getting clients:", error)
-    return { success: false, error: error.message, data: [] }
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error", data: [] }
   }
 }
 
@@ -88,7 +88,7 @@ export async function getClient(clientId: string) {
     return { success: true, data: data }
   } catch (error) {
     console.error("Error getting client:", error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
 }
 
@@ -123,7 +123,7 @@ export async function createClient(data: ClientData) {
     return { success: true, data: responseData }
   } catch (error) {
     console.error("Error creating client:", error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
 }
 
@@ -150,7 +150,7 @@ export async function updateClient(clientId: string, data: Partial<ClientData>) 
     return { success: true }
   } catch (error) {
     console.error("Error updating client:", error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
 }
 
@@ -175,6 +175,6 @@ export async function deleteClient(clientId: string) {
     return { success: true }
   } catch (error) {
     console.error("Error deleting client:", error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
 }

@@ -6,7 +6,7 @@ import Link from "next/link"
 import { Users, Plus, Search, Phone, MapPin, MoreHorizontal, Edit, Trash, X, Key, Copy } from "lucide-react"
 import Sidebar from "@/components/sidebar"
 import { useAuth } from "@/lib/auth-context"
-import { createClient, deleteClient } from "@/app/actions/client-actions"
+import { createClient, deleteClient, getClients } from "@/app/actions/client-actions"
 import { sendClientCredentials } from "@/app/actions/email-actions"
 
 export default function ClientsPage() {
@@ -34,47 +34,34 @@ export default function ClientsPage() {
   const [showCredentials, setShowCredentials] = useState(false)
   const [copiedField, setCopiedField] = useState(null)
 
-  useEffect(() => {
-    const fetchClients = async () => {
-      if (user) {
-        if (!user.providerId) {
-          setError("Provider information not found. Please refresh or log in again.")
-          setLoading(false)
-          return
-        }
+  const fetchClients = async () => {
+    try {
+      setLoading(true)
+      setError(null)
 
-        setLoading(true)
-        setError(null)
-
-        try {
-          // Fetch clients from the Laravel API using the CORRECT provider ID
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clients?provider_id=${user.providerId}`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          })
-
-          if (!response.ok) {
-            throw new Error(`Failed to fetch clients: ${response.statusText}`)
-          }
-
-          const data = await response.json()
-
-          if (Array.isArray(data)) {
-            setClients(data)
-          } else {
-            setError("Invalid client data format from API")
-          }
-        } catch (err) {
-          console.error("Error fetching clients:", err)
-          setError("Failed to load clients")
-        } finally {
-          setLoading(false)
-        }
+      if (!user || !user.providerId) {
+        setError("User or provider ID not available")
+        setLoading(false)
+        return
       }
-    }
 
+      // Use the server action to fetch clients
+      const result = await getClients(user.providerId)
+      
+      if (result.success) {
+        setClients(result.data)
+      } else {
+        setError(result.error || "Failed to fetch clients")
+      }
+    } catch (err) {
+      console.error("Error fetching clients:", err)
+      setError("An unexpected error occurred while fetching clients")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
     if (user) {
       fetchClients()
     }
