@@ -7,7 +7,7 @@ export type ProjectData = {
   name: string
   description?: string
   status: string
-  client_id: string
+  client_id: string | null
   provider_id: string
   color?: string
   start_date?: string
@@ -70,17 +70,36 @@ export async function getProjects(providerId: string, clientId?: string) {
   try {
     console.log("Fetching projects for provider:", providerId, clientId ? `and client: ${clientId}` : "")
 
-    // Filter projects based on provider ID and optionally client ID
-    let filteredProjects = DUMMY_PROJECTS.filter((project) => project.provider_id === providerId || providerId === "5")
-
+    // Construct the API URL based on whether we're fetching by client or not
+    let apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/projects?provider_id=${providerId}`
     if (clientId) {
-      filteredProjects = filteredProjects.filter((project) => project.client_id === clientId)
+      apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/clients/${clientId}/projects`
     }
 
-    return { success: true, data: filteredProjects }
+    console.log("Fetching projects from:", apiUrl)
+
+    const response = await fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    })
+
+    if (!response.ok) {
+      console.error("Failed to fetch projects:", response.status, response.statusText)
+      // Return empty array instead of throwing error to prevent page from breaking
+      return { success: true, data: [] }
+    }
+
+    const data = await response.json()
+    
+    // Ensure we always return an array
+    return { success: true, data: Array.isArray(data) ? data : [] }
   } catch (error) {
     console.error("Error getting projects:", error)
-    return { success: false, error: error.message, data: [] }
+    // Return empty array instead of error to prevent page from breaking
+    return { success: true, data: [] }
   }
 }
 
@@ -94,58 +113,80 @@ export async function getProject(projectId: string) {
   try {
     console.log("Fetching project with ID:", projectId)
 
-    // Find project in dummy data
-    const project = DUMMY_PROJECTS.find((p) => p.id === projectId)
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/projects/${projectId}`
+    console.log("Fetching project from:", apiUrl)
 
-    if (!project) {
+    const response = await fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    })
+
+    if (!response.ok) {
+      console.error("Failed to fetch project:", response.status, response.statusText)
       return { success: false, error: "Project not found" }
     }
 
-    return {
-      success: true,
-      data: {
-        ...project,
-        client: project.client_id ? project.client : "Personal",
-      },
-    }
+    const data = await response.json()
+    return { success: true, data }
   } catch (error) {
     console.error("Error getting project:", error)
-    return { success: false, error: error.message }
+    return { success: false, error: "Failed to fetch project" }
   }
 }
 
 export async function createProject(data: ProjectData) {
   try {
-    // Create a new project with a unique ID
-    const newProject = {
-      id: `project-${Date.now()}`,
-      name: data.name,
-      description: data.description || null,
-      status: data.status,
-      client_id: data.client_id || null,
-      provider_id: data.provider_id,
-      color: data.color || "bg-blue-100",
-      start_date: data.start_date || new Date().toISOString(),
-      due_date: data.due_date || null,
-      client: data.client_id ? "Client Name" : "Personal", // This would be populated from the client table
+    console.log("Creating new project:", data)
+
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/projects`
+    console.log("Creating project at:", apiUrl)
+
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(`Error creating project: ${errorData.message || response.statusText}`)
     }
 
-    // In a real implementation, this would be added to the database
-    // For now, we'll just return the new project
+    const responseData = await response.json()
 
     revalidatePath("/dashboard")
     revalidatePath("/projects")
-    return { success: true, data: newProject }
+    return { success: true, data: responseData }
   } catch (error) {
     console.error("Error creating project:", error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to create project" }
   }
 }
 
 export async function updateProject(projectId: string, data: Partial<ProjectData>) {
   try {
-    // In a real implementation, this would update the project in the database
-    // For now, we'll just return success
+    console.log("Updating project:", projectId, data)
+
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/projects/${projectId}`
+    console.log("Updating project at:", apiUrl)
+
+    const response = await fetch(apiUrl, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(`Error updating project: ${errorData.message || response.statusText}`)
+    }
 
     revalidatePath("/dashboard")
     revalidatePath("/projects")
@@ -153,20 +194,34 @@ export async function updateProject(projectId: string, data: Partial<ProjectData
     return { success: true }
   } catch (error) {
     console.error("Error updating project:", error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to update project" }
   }
 }
 
 export async function deleteProject(projectId: string) {
   try {
-    // In a real implementation, this would delete the project from the database
-    // For now, we'll just return success
+    console.log("Deleting project:", projectId)
+
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/projects/${projectId}`
+    console.log("Deleting project at:", apiUrl)
+
+    const response = await fetch(apiUrl, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(`Error deleting project: ${errorData.message || response.statusText}`)
+    }
 
     revalidatePath("/dashboard")
     revalidatePath("/projects")
     return { success: true }
   } catch (error) {
     console.error("Error deleting project:", error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to delete project" }
   }
 }

@@ -22,12 +22,12 @@ export default function ProjectsPage() {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      if (user) {
+      if (user && user.providerId) {
         setIsLoading(true)
         setError(null)
 
         try {
-          const result = await getProjects(user.id)
+          const result = await getProjects(user.providerId)
           if (result.success) {
             setProjects(result.data)
           } else {
@@ -44,9 +44,9 @@ export default function ProjectsPage() {
     }
 
     const fetchClients = async () => {
-      if (user) {
+      if (user && user.providerId) {
         try {
-          const result = await getClients(user.id)
+          const result = await getClients(user.providerId)
           if (result.success) {
             setClients(result.data)
           } else {
@@ -58,7 +58,7 @@ export default function ProjectsPage() {
       }
     }
 
-    if (user) {
+    if (user && user.providerId) {
       fetchProjects()
       fetchClients()
     }
@@ -83,7 +83,7 @@ export default function ProjectsPage() {
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-gray-200 border-t-gray-800 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-500">Loading projects...</p>
@@ -93,7 +93,7 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="flex h-screen bg-white">
+    <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Left Sidebar */}
       <Sidebar />
 
@@ -101,34 +101,34 @@ export default function ProjectsPage() {
       <div className="flex-1 overflow-auto">
         <div className="p-6 max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-2xl font-bold">Projects</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
             <div className="flex items-center gap-3">
               <div className="relative">
                 <input
                   type="text"
                   placeholder="Search projects..."
-                  className="w-64 bg-gray-100 rounded-full px-4 py-2 pl-10 text-sm focus:outline-none"
+                  className="w-64 bg-white rounded-full px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
               </div>
               <button
-                className={`p-2 rounded-full ${isFilterOpen ? "bg-gray-200" : "hover:bg-gray-100"}`}
+                className={`p-2 rounded-full ${isFilterOpen ? "bg-gray-200" : "hover:bg-gray-100"} transition-colors shadow-sm`}
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
               >
                 <Filter className="w-5 h-5 text-gray-500" />
               </button>
-              <div className="flex border border-gray-200 rounded-lg">
+              <div className="flex border border-gray-200 rounded-lg shadow-sm">
                 <button
-                  className={`p-2 ${viewMode === "grid" ? "bg-gray-100" : "bg-white"}`}
+                  className={`p-2 ${viewMode === "grid" ? "bg-gray-100" : "bg-white"} transition-colors`}
                   onClick={() => setViewMode("grid")}
                   aria-label="Grid view"
                 >
                   <LayoutGrid className="w-5 h-5 text-gray-500" />
                 </button>
                 <button
-                  className={`p-2 ${viewMode === "list" ? "bg-gray-100" : "bg-white"}`}
+                  className={`p-2 ${viewMode === "list" ? "bg-gray-100" : "bg-white"} transition-colors`}
                   onClick={() => setViewMode("list")}
                   aria-label="List view"
                 >
@@ -136,7 +136,7 @@ export default function ProjectsPage() {
                 </button>
               </div>
               <button
-                className="flex items-center gap-2 bg-gray-900 text-white rounded-full px-4 py-2 hover:bg-gray-800 transition-colors"
+                className="flex items-center gap-2 bg-gray-900 text-white rounded-full px-4 py-2 hover:bg-gray-800 transition-colors shadow-sm hover:shadow-md"
                 onClick={() => setIsAddProjectModalOpen(true)}
               >
                 <Plus className="w-4 h-4" />
@@ -147,9 +147,9 @@ export default function ProjectsPage() {
 
           {/* Filter dropdown */}
           {isFilterOpen && (
-            <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <div className="mb-6 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
               <div className="flex justify-between items-center mb-3">
-                <h3 className="font-medium">Filters</h3>
+                <h3 className="font-medium text-gray-900">Filters</h3>
                 <button onClick={() => setIsFilterOpen(false)} className="text-gray-500 hover:text-gray-700">
                   <X className="w-4 h-4" />
                 </button>
@@ -161,7 +161,7 @@ export default function ProjectsPage() {
                   </label>
                   <select
                     id="client-filter"
-                    className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    className="w-full bg-gray-50 border-none rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
                     value={selectedClient}
                     onChange={(e) => setSelectedClient(e.target.value)}
                   >
@@ -190,7 +190,7 @@ export default function ProjectsPage() {
           )}
 
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 text-red-700">
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 text-red-700 shadow-sm">
               <AlertCircle className="w-5 h-5" />
               <p>{error}</p>
             </div>
@@ -198,13 +198,13 @@ export default function ProjectsPage() {
 
           {!error && filteredProjects.length === 0 && (
             <div className="text-center py-12">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
                 <Briefcase className="w-8 h-8 text-gray-400" />
               </div>
-              <h3 className="text-lg font-medium mb-1">No projects found</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-1">No projects found</h3>
               <p className="text-gray-500 mb-6">Get started by creating your first project</p>
               <button
-                className="inline-flex items-center gap-2 bg-gray-900 text-white rounded-full px-5 py-2 hover:bg-gray-800 transition-colors"
+                className="inline-flex items-center gap-2 bg-gray-900 text-white rounded-full px-5 py-2 hover:bg-gray-800 transition-colors shadow-sm hover:shadow-md"
                 onClick={() => setIsAddProjectModalOpen(true)}
               >
                 <Plus className="w-4 h-4" />
@@ -218,7 +218,7 @@ export default function ProjectsPage() {
               {/* Recent Projects Section */}
               {recentProjects.length > 0 && (
                 <div className="mb-10">
-                  <h2 className="text-lg font-semibold mb-4">Recently Updated Projects</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Recently Updated Projects</h2>
                   <div
                     className={
                       viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"
@@ -233,7 +233,7 @@ export default function ProjectsPage() {
 
               {/* All Projects Section */}
               <div>
-                <h2 className="text-lg font-semibold mb-4">All Projects</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">All Projects</h2>
                 <div
                   className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}
                 >
@@ -243,17 +243,17 @@ export default function ProjectsPage() {
 
                   <div
                     className={`
-                      bg-gray-50 border border-dashed border-gray-200 rounded-xl p-6 
+                      bg-white border border-dashed border-gray-200 rounded-xl p-6 
                       flex flex-col items-center justify-center text-center 
-                      hover:bg-gray-100 transition-colors cursor-pointer
+                      hover:bg-gray-50 transition-colors cursor-pointer shadow-sm hover:shadow-md
                       ${viewMode === "grid" ? "h-full" : "py-8"}
                     `}
                     onClick={() => setIsAddProjectModalOpen(true)}
                   >
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-3">
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-3 shadow-sm">
                       <Plus className="w-6 h-6 text-gray-500" />
                     </div>
-                    <h3 className="font-medium mb-1">Create New Project</h3>
+                    <h3 className="font-medium text-gray-900 mb-1">Create New Project</h3>
                     <p className="text-sm text-gray-500">Start working on something new</p>
                   </div>
                 </div>
@@ -274,11 +274,11 @@ function ProjectCard({ project, viewMode }) {
   if (viewMode === "grid") {
     return (
       <Link href={`/projects/${project.id}`}>
-        <div className="bg-white rounded-xl shadow-sm hover:shadow transition-shadow cursor-pointer h-full">
+        <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer h-full">
           <div className="p-6">
             <div className="flex items-center gap-3 mb-4">
               <div
-                className={`w-12 h-12 rounded-lg ${project.color || "bg-blue-100"} flex items-center justify-center`}
+                className={`w-12 h-12 rounded-lg ${project.color || "bg-blue-100"} flex items-center justify-center shadow-sm`}
               >
                 {project.client_id ? (
                   <Briefcase className="w-6 h-6 text-blue-600" />
@@ -287,7 +287,7 @@ function ProjectCard({ project, viewMode }) {
                 )}
               </div>
               <div>
-                <h3 className="font-medium text-lg">{project.name}</h3>
+                <h3 className="font-medium text-lg text-gray-900">{project.name}</h3>
                 <div className="flex items-center">
                   {project.client_id ? (
                     <p className="text-sm text-gray-500">{project.client || "No client"}</p>
@@ -325,11 +325,11 @@ function ProjectCard({ project, viewMode }) {
     // List view
     return (
       <Link href={`/projects/${project.id}`}>
-        <div className="bg-white rounded-xl shadow-sm hover:shadow transition-shadow cursor-pointer">
+        <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
           <div className="p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div
-                className={`w-10 h-10 rounded-lg ${project.color || "bg-blue-100"} flex items-center justify-center`}
+                className={`w-10 h-10 rounded-lg ${project.color || "bg-blue-100"} flex items-center justify-center shadow-sm`}
               >
                 {project.client_id ? (
                   <Briefcase className="w-5 h-5 text-blue-600" />
@@ -338,7 +338,7 @@ function ProjectCard({ project, viewMode }) {
                 )}
               </div>
               <div>
-                <h3 className="font-medium">{project.name}</h3>
+                <h3 className="font-medium text-gray-900">{project.name}</h3>
                 <div className="flex items-center">
                   {project.client_id ? (
                     <p className="text-xs text-gray-500">{project.client || "No client"}</p>
