@@ -46,6 +46,8 @@ import CollaborationInvites from "@/components/collaboration-invites"
 // Add the import for the ProjectTimeline component at the top of the file
 import ProjectTimeline from "@/components/project-timeline"
 import { checkProjectAccess } from "@/app/actions/access-actions"
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function ProjectDetailsPage() {
   const params = useParams()
@@ -1410,12 +1412,17 @@ export default function ProjectDetailsPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
-                <input
-                  type="date"
-                  value={newTask.due_date}
-                  onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                  required
+                <DatePicker
+                  selected={newTask.due_date ? new Date(newTask.due_date) : null}
+                  onChange={(date) => {
+                    setNewTask({
+                      ...newTask,
+                      due_date: date ? date.toISOString().split("T")[0] : null,
+                    })
+                  }}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
+                  dateFormat="yyyy-MM-dd"
+                  placeholderText="Select a due date"
                 />
               </div>
 
@@ -1699,17 +1706,17 @@ export default function ProjectDetailsPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
-                <input
-                  type="date"
-                  value={editedProject?.due_date ? new Date(editedProject.due_date).toISOString().split("T")[0] : ""}
-                  onChange={(e) => {
+                <DatePicker
+                  selected={editedProject?.due_date ? new Date(editedProject.due_date) : null}
+                  onChange={(date) => {
                     setEditedProject({
                       ...editedProject,
-                      due_date: e.target.value ? new Date(e.target.value).toISOString() : null,
+                      due_date: date ? date.toISOString() : null,
                     })
                   }}
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
-                  required
+                  dateFormat="yyyy-MM-dd"
+                  placeholderText="Select a due date"
                 />
               </div>
 
