@@ -6,7 +6,7 @@ import Link from "next/link"
 import { Users, Plus, Search, Phone, MapPin, MoreHorizontal, Edit, Trash, X, Key, Copy } from "lucide-react"
 import Sidebar from "@/components/sidebar"
 import { useAuth } from "@/lib/auth-context"
-import { createClient, deleteClient, getClients } from "@/app/actions/client-actions"
+import { createClient, deleteClient, getClients, getClientInfo } from "@/app/actions/client-actions"
 import { sendClientCredentials } from "@/app/actions/email-actions"
 
 export default function ClientsPage() {
@@ -225,6 +225,28 @@ export default function ClientsPage() {
     })
   }
 
+  const handleViewDetails = async (clientId) => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      // Fetch client details using the new info endpoint
+      const result = await getClientInfo(clientId)
+      
+      if (result.success) {
+        // Navigate to the client detail page
+        router.push(`/clients/${clientId}`)
+      } else {
+        setError(result.error || "Failed to fetch client details")
+      }
+    } catch (err) {
+      console.error("Error fetching client details:", err)
+      setError("An unexpected error occurred while fetching client details")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const filteredClients = clients.filter(
     (client) =>
       client.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -296,8 +318,8 @@ export default function ClientsPage() {
                         <Users className="w-6 h-6 text-indigo-600" />
                       </div>
                       <div>
-                        <h3 className="font-medium">{client.name}</h3>
-                        <p className="text-sm text-gray-500">{client.email || "No email"}</p>
+                        <h3 className="font-medium text-gray-900">{client.name}</h3>
+                        <p className="text-sm text-gray-600">{client.email || "No email"}</p>
                       </div>
                     </div>
                     <div className="relative">
@@ -346,20 +368,20 @@ export default function ClientsPage() {
                   <div className="space-y-3">
                     {client.phone && (
                       <div className="flex items-center gap-2 text-sm">
-                        <Phone className="w-4 h-4 text-gray-400" />
-                        <span>{client.phone}</span>
+                        <Phone className="w-4 h-4 text-gray-500" />
+                        <span className="text-gray-900">{client.phone}</span>
                       </div>
                     )}
 
                     {client.address && (
                       <div className="flex items-start gap-2 text-sm">
-                        <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
-                        <span className="text-gray-700">{client.address}</span>
+                        <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
+                        <span className="text-gray-600">{client.address}</span>
                       </div>
                     )}
 
                     {client.description && (
-                      <div className="text-sm text-gray-700 mt-2">
+                      <div className="text-sm text-gray-600 mt-2">
                         <p className="line-clamp-2">{client.description}</p>
                       </div>
                     )}
@@ -367,13 +389,19 @@ export default function ClientsPage() {
 
                   <div className="flex items-center gap-2 mt-4">
                     <Link href={`/clients/${client.id}`} className="flex-1">
-                      <button className="w-full py-2 text-sm bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-1">
+                      <button 
+                        className="w-full py-2 text-gray-500 hover:text-gray-900 text-sm bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-1"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          handleViewDetails(client.id)
+                        }}
+                      >
                         <Edit className="w-4 h-4" />
                         <span>Details</span>
                       </button>
                     </Link>
                     <button
-                      className="flex-1 py-2 text-sm bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-1"
+                      className="flex-1 text-gray-500 hover:text-gray-900  py-2 text-sm bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-1"
                       onClick={() => {
                         setSelectedClient(client)
                         setShowCredentialModal(true)

@@ -178,3 +178,40 @@ export async function deleteClient(clientId: string) {
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
 }
+
+export async function getClientInfo(clientId: string) {
+  try {
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/clients/info/${clientId}`
+    console.log("Fetching client info from:", apiUrl)
+
+    const response = await fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    })
+
+    const contentType = response.headers.get("content-type")
+
+    const responseBody = contentType?.includes("application/json")
+      ? await response.json()
+      : await response.text()
+
+    if (!response.ok) {
+      console.error("API error response body:", responseBody)
+      throw new Error(
+        `Failed to fetch client info: ${response.status} ${response.statusText}`
+      )
+    }
+
+    return { success: true, data: responseBody }
+  } catch (error) {
+    console.error("Error getting client info:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    }
+  }
+}
+

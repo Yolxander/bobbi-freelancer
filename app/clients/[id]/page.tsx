@@ -20,7 +20,7 @@ import {
 } from "lucide-react"
 import Sidebar from "@/components/sidebar"
 import { useAuth } from "@/lib/auth-context"
-import { getClient, updateClient, deleteClient } from "@/app/actions/client-actions"
+import { getClient, updateClient, deleteClient, getClientInfo } from "@/app/actions/client-actions"
 import { getProjects } from "@/app/actions/project-actions"
 import { sendClientCredentials } from "@/app/actions/email-actions"
 import ProjectModal from "@/components/projects/project-modal"
@@ -47,8 +47,8 @@ export default function ClientDetailPage() {
       if (user && clientId) {
         setLoading(true)
         try {
-          // Fetch client details
-          const clientResult = await getClient(clientId)
+          // Fetch client details using the new info endpoint
+          const clientResult = await getClientInfo(clientId)
           if (clientResult.success) {
             setClient(clientResult.data)
             setEditedClient(clientResult.data)
