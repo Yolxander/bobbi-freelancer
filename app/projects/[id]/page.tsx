@@ -243,14 +243,16 @@ export default function ProjectDetailsPage() {
   // Fetch clients when user is available
   useEffect(() => {
     const fetchClients = async () => {
-      if (user) {
+      if (user && user.providerId) {
         try {
-          const result = await getClients(user.id)
-          if (result && result.data) {
+          const result = await getClients(user.providerId)
+          if (result.success) {
             setClients(result.data)
+          } else {
+            console.error("Error fetching clients:", result.error)
           }
         } catch (err) {
-          console.error("Error fetching clients:", err)
+          console.error("Exception fetching clients:", err)
         }
       }
     }
@@ -1696,9 +1698,9 @@ export default function ProjectDetailsPage() {
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
                 >
                   <option value="personal">Personal (No Client)</option>
-                  {clients?.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
+                  {clients.map((client) => (
+                    <option key={client.id} value={client.id}>
+                      {client.name}
                     </option>
                   ))}
                 </select>
