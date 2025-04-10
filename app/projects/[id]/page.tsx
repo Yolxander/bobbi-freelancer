@@ -1428,83 +1428,81 @@ export default function ProjectDetailsPage() {
 
       {/* Add Task Modal */}
       {showAddTaskModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-xl">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold">Add New Task</h2>
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-xl">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-xl font-bold text-gray-900">Add New Task</h2>
               <button
-                className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center"
+                className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
                 onClick={() => setShowAddTaskModal(false)}
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 text-gray-400" />
               </button>
             </div>
 
-            <form onSubmit={handleAddTask}>
-              <div className="space-y-5">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Task Title</label>
-                  <input
-                    type="text"
-                    value={newTask.title}
-                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200"
-                    placeholder="Enter task title"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                  <textarea
-                    value={newTask.description}
-                    onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200"
-                    placeholder="Enter task description"
-                    rows={3}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                  <select
-                    value={newTask.status}
-                    onChange={(e) => setNewTask({ ...newTask, status: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200"
-                  >
-                    <option value="todo">To Do</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="review">Review</option>
-                    <option value="completed">Completed</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-                  <select
-                    value={newTask.priority}
-                    onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200"
-                  >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
-                  <input
-                    type="date"
-                    value={newTask.due_date}
-                    onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200"
-                    required
-                  />
-                </div>
+            <form onSubmit={handleAddTask} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Task Title</label>
+                <input
+                  type="text"
+                  value={newTask.title}
+                  onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  placeholder="Enter task title"
+                  required
+                />
               </div>
 
-              <div className="flex justify-end gap-3 mt-8">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea
+                  value={newTask.description}
+                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  placeholder="Enter task description"
+                  rows={4}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select
+                  value={newTask.status}
+                  onChange={(e) => setNewTask({ ...newTask, status: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                >
+                  <option value="todo">To Do</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="review">Review</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+                <select
+                  value={newTask.priority}
+                  onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
+                <input
+                  type="date"
+                  value={newTask.due_date}
+                  onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div className="flex justify-end gap-4 mt-8">
                 <button
                   type="button"
                   className="px-5 py-3 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors"
@@ -1514,9 +1512,10 @@ export default function ProjectDetailsPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-3 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors"
+                  className="px-5 py-3 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
                 >
-                  Add Task
+                  <Plus className="w-4 h-4" />
+                  <span>Add Task</span>
                 </button>
               </div>
             </form>
@@ -1648,7 +1647,7 @@ export default function ProjectDetailsPage() {
                     type="text"
                     value={newTeamMember.name}
                     onChange={(e) => setNewTeamMember({ ...newTeamMember, name: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                     placeholder="Enter team member name"
                     required
                   />
@@ -1660,7 +1659,7 @@ export default function ProjectDetailsPage() {
                     type="email"
                     value={newTeamMember.email}
                     onChange={(e) => setNewTeamMember({ ...newTeamMember, email: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                     placeholder="Enter email address"
                     required
                   />
@@ -1672,7 +1671,7 @@ export default function ProjectDetailsPage() {
                     type="text"
                     value={newTeamMember.role}
                     onChange={(e) => setNewTeamMember({ ...newTeamMember, role: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                     placeholder="E.g. Project Manager, Designer"
                   />
                 </div>
@@ -1683,7 +1682,7 @@ export default function ProjectDetailsPage() {
                     type="tel"
                     value={newTeamMember.phone}
                     onChange={(e) => setNewTeamMember({ ...newTeamMember, phone: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                     placeholder="Enter phone number"
                   />
                 </div>
