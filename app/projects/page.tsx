@@ -1,0 +1,376 @@
+"use client"
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import { Briefcase, Plus, Search, Filter, ChevronRight, AlertCircle, User, LayoutGrid, List, X } from "lucide-react"
+import Sidebar from "@/components/sidebar"
+import { useAuth } from "@/lib/auth-context"
+import { getProjects } from "../actions/project-actions"
+import ProjectModal from "@/components/projects/project-modal"
+import { getClients } from "../actions/client-actions"
+
+export default function ProjectsPage() {
+  const { user, isLoading: authLoading } = useAuth()
+  const [projects, setProjects] = useState([])
+  const [clients, setClients] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedClient, setSelectedClient] = useState("")
+  const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false)
+  const [viewMode, setViewMode] = useState("grid") // "grid" or "list"
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      if (user) {
+        setIsLoading(true)
+        setError(null)
+
+        try {
+          const result = await getProjects(user.id)
+          if (result.success) {
+            setProjects(result.data)
+          } else {
+            setError(result.error || "Failed to fetch projects")
+            console.error("Error fetching projects:", result.error)
+          }
+        } catch (err) {
+          setError("An unexpected error occurred")
+          console.error("Exception fetching projects:", err)
+        } finally {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    const fetchClients = async () => {
+      if (user) {
+        try {
+          const result = await getClients(user.id)
+          if (result.success) {
+            setClients(result.data)
+          } else {
+            console.error("Error fetching clients:", result.error)
+          }
+        } catch (err) {
+          console.error("Exception fetching clients:", err)
+        }
+      }
+    }
+
+    if (user) {
+      fetchProjects()
+      fetchClients()
+    }
+  }, [user])
+
+  // Filter projects based on search query and selected client
+  const filteredProjects = projects.filter(
+    (project) =>
+      project.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      (selectedClient === "" || project.client_id === selectedClient),
+  )
+
+  // Get recent projects based on last update time
+  const recentProjects = [...filteredProjects]
+    .sort((a, b) => {
+      // Compare by updated_at dates (most recent first)
+      const dateA = new Date(a.updated_at || a.created_at)
+      const dateB = new Date(b.updated_at || b.created_at)
+      return dateB.getTime() - dateA.getTime()
+    })
+    .slice(0, 3) // Show only the 3 most recently updated projects
+
+  if (authLoading || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-gray-200 border-t-gray-800 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500">Loading projects...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex h-screen bg-white">
+      {/* Left Sidebar */}
+      <Sidebar />
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto">
+        <div className="p-6 max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-2xl font-bold">Projects</h1>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search projects..."
+                  className="w-64 bg-gray-100 rounded-full px-4 py-2 pl-10 text-sm focus:outline-none"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+              </div>
+              <button
+                className={`p-2 rounded-full ${isFilterOpen ? "bg-gray-200" : "hover:bg-gray-100"}`}
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+              >
+                <Filter className="w-5 h-5 text-gray-500" />
+              </button>
+              <div className="flex border border-gray-200 rounded-lg">
+                <button
+                  className={`p-2 ${viewMode === "grid" ? "bg-gray-100" : "bg-white"}`}
+                  onClick={() => setViewMode("grid")}
+                  aria-label="Grid view"
+                >
+                  <LayoutGrid className="w-5 h-5 text-gray-500" />
+                </button>
+                <button
+                  className={`p-2 ${viewMode === "list" ? "bg-gray-100" : "bg-white"}`}
+                  onClick={() => setViewMode("list")}
+                  aria-label="List view"
+                >
+                  <List className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+              <button
+                className="flex items-center gap-2 bg-gray-900 text-white rounded-full px-4 py-2 hover:bg-gray-800 transition-colors"
+                onClick={() => setIsAddProjectModalOpen(true)}
+              >
+                <Plus className="w-4 h-4" />
+                <span className="text-sm font-medium">New Project</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Filter dropdown */}
+          {isFilterOpen && (
+            <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-medium">Filters</h3>
+                <button onClick={() => setIsFilterOpen(false)} className="text-gray-500 hover:text-gray-700">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="client-filter" className="block text-sm font-medium text-gray-700 mb-1">
+                    Client
+                  </label>
+                  <select
+                    id="client-filter"
+                    className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    value={selectedClient}
+                    onChange={(e) => setSelectedClient(e.target.value)}
+                  >
+                    <option value="">All Clients</option>
+                    <option value="">Personal Projects</option>
+                    {clients.map((client) => (
+                      <option key={client.id} value={client.id}>
+                        {client.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex items-end">
+                  <button
+                    className="text-sm text-gray-600 hover:text-gray-900 underline"
+                    onClick={() => {
+                      setSelectedClient("")
+                      setSearchQuery("")
+                    }}
+                  >
+                    Clear all filters
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 text-red-700">
+              <AlertCircle className="w-5 h-5" />
+              <p>{error}</p>
+            </div>
+          )}
+
+          {!error && filteredProjects.length === 0 && (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Briefcase className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium mb-1">No projects found</h3>
+              <p className="text-gray-500 mb-6">Get started by creating your first project</p>
+              <button
+                className="inline-flex items-center gap-2 bg-gray-900 text-white rounded-full px-5 py-2 hover:bg-gray-800 transition-colors"
+                onClick={() => setIsAddProjectModalOpen(true)}
+              >
+                <Plus className="w-4 h-4" />
+                <span className="text-sm font-medium">New Project</span>
+              </button>
+            </div>
+          )}
+
+          {!error && filteredProjects.length > 0 && (
+            <>
+              {/* Recent Projects Section */}
+              {recentProjects.length > 0 && (
+                <div className="mb-10">
+                  <h2 className="text-lg font-semibold mb-4">Recently Updated Projects</h2>
+                  <div
+                    className={
+                      viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"
+                    }
+                  >
+                    {recentProjects.map((project) => (
+                      <ProjectCard key={`recent-${project.id}`} project={project} viewMode={viewMode} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* All Projects Section */}
+              <div>
+                <h2 className="text-lg font-semibold mb-4">All Projects</h2>
+                <div
+                  className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}
+                >
+                  {filteredProjects.map((project) => (
+                    <ProjectCard key={project.id} project={project} viewMode={viewMode} />
+                  ))}
+
+                  <div
+                    className={`
+                      bg-gray-50 border border-dashed border-gray-200 rounded-xl p-6 
+                      flex flex-col items-center justify-center text-center 
+                      hover:bg-gray-100 transition-colors cursor-pointer
+                      ${viewMode === "grid" ? "h-full" : "py-8"}
+                    `}
+                    onClick={() => setIsAddProjectModalOpen(true)}
+                  >
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-3">
+                      <Plus className="w-6 h-6 text-gray-500" />
+                    </div>
+                    <h3 className="font-medium mb-1">Create New Project</h3>
+                    <p className="text-sm text-gray-500">Start working on something new</p>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Project Modal */}
+      <ProjectModal isOpen={isAddProjectModalOpen} onClose={() => setIsAddProjectModalOpen(false)} clientId="" />
+    </div>
+  )
+}
+
+// Project Card Component
+function ProjectCard({ project, viewMode }) {
+  if (viewMode === "grid") {
+    return (
+      <Link href={`/projects/${project.id}`}>
+        <div className="bg-white rounded-xl shadow-sm hover:shadow transition-shadow cursor-pointer h-full">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div
+                className={`w-12 h-12 rounded-lg ${project.color || "bg-blue-100"} flex items-center justify-center`}
+              >
+                {project.client_id ? (
+                  <Briefcase className="w-6 h-6 text-blue-600" />
+                ) : (
+                  <User className="w-6 h-6 text-purple-600" />
+                )}
+              </div>
+              <div>
+                <h3 className="font-medium text-lg">{project.name}</h3>
+                <div className="flex items-center">
+                  {project.client_id ? (
+                    <p className="text-sm text-gray-500">{project.client || "No client"}</p>
+                  ) : (
+                    <span className="text-sm bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Personal</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div
+                className={`
+                  text-xs font-medium px-2.5 py-0.5 rounded
+                  ${
+                    project.status === "In Progress"
+                      ? "bg-green-100 text-green-700"
+                      : project.status === "Review"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-blue-100 text-blue-700"
+                  }
+                `}
+              >
+                {project.status}
+              </div>
+              <div className="text-sm text-gray-500">
+                <ChevronRight className="w-5 h-5" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </Link>
+    )
+  } else {
+    // List view
+    return (
+      <Link href={`/projects/${project.id}`}>
+        <div className="bg-white rounded-xl shadow-sm hover:shadow transition-shadow cursor-pointer">
+          <div className="p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div
+                className={`w-10 h-10 rounded-lg ${project.color || "bg-blue-100"} flex items-center justify-center`}
+              >
+                {project.client_id ? (
+                  <Briefcase className="w-5 h-5 text-blue-600" />
+                ) : (
+                  <User className="w-5 h-5 text-purple-600" />
+                )}
+              </div>
+              <div>
+                <h3 className="font-medium">{project.name}</h3>
+                <div className="flex items-center">
+                  {project.client_id ? (
+                    <p className="text-xs text-gray-500">{project.client || "No client"}</p>
+                  ) : (
+                    <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Personal</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div
+                className={`
+                  text-xs font-medium px-2.5 py-0.5 rounded
+                  ${
+                    project.status === "In Progress"
+                      ? "bg-green-100 text-green-700"
+                      : project.status === "Review"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-blue-100 text-blue-700"
+                  }
+                `}
+              >
+                {project.status}
+              </div>
+              <div className="text-sm text-gray-500">
+                <ChevronRight className="w-5 h-5" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </Link>
+    )
+  }
+}

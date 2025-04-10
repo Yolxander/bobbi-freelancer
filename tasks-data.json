@@ -1,0 +1,211 @@
+{
+  "categories": [
+    { "id": "all", "name": "All Tasks", "count": 15 },
+    { "id": "work", "name": "Work", "count": 8, "color": "bg-blue-100 text-blue-700" },
+    { "id": "personal", "name": "Personal", "count": 3, "color": "bg-purple-100 text-purple-700" },
+    { "id": "meetings", "name": "Meetings", "count": 4, "color": "bg-green-100 text-green-700" }
+  ],
+  "filters": [
+    { "id": "all", "name": "All" },
+    { "id": "todo", "name": "To Do" },
+    { "id": "in-progress", "name": "In Progress" },
+    { "id": "review", "name": "Review" },
+    { "id": "completed", "name": "Completed" }
+  ],
+  "projects": [
+    "Website Redesign",
+    "Mobile App",
+    "Brand Identity",
+    "Social Media Campaign",
+    "Internal",
+    "Professional Development"
+  ],
+  "clients": ["Acme Inc.", "TechStart", "GreenGrow", "BlueSky Media", "Internal"],
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Finalize design mockups",
+      "description": "Complete all design mockups for the website redesign project and prepare for client review.",
+      "dueDate": "2023-04-15",
+      "priority": "high",
+      "category": "work",
+      "project": "Website Redesign",
+      "client": "Acme Inc.",
+      "status": "in-progress",
+      "subtasks": [
+        { "id": 1, "title": "Homepage design", "completed": true },
+        { "id": 2, "title": "About page design", "completed": true },
+        { "id": 3, "title": "Services page design", "completed": false },
+        { "id": 4, "title": "Contact page design", "completed": false }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Client feedback meeting",
+      "description": "Review the mobile app wireframes with the client and gather feedback for the next iteration.",
+      "dueDate": "2023-04-12",
+      "priority": "medium",
+      "category": "meetings",
+      "project": "Mobile App",
+      "client": "TechStart",
+      "status": "todo",
+      "subtasks": [
+        { "id": 1, "title": "Prepare presentation", "completed": false },
+        { "id": 2, "title": "Review wireframes", "completed": false }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Send invoice",
+      "description": "Prepare and send the invoice for the completed brand identity project.",
+      "dueDate": "2023-04-10",
+      "priority": "medium",
+      "category": "work",
+      "project": "Brand Identity",
+      "client": "GreenGrow",
+      "status": "todo",
+      "subtasks": [
+        { "id": 1, "title": "Calculate hours", "completed": true },
+        { "id": 2, "title": "Generate invoice", "completed": false },
+        { "id": 3, "title": "Send to client", "completed": false }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Update portfolio",
+      "description": "Add the recently completed projects to the company portfolio website.",
+      "dueDate": "2023-04-20",
+      "priority": "low",
+      "category": "work",
+      "project": "Internal",
+      "client": "Internal",
+      "status": "todo",
+      "subtasks": []
+    },
+    {
+      "id": 5,
+      "title": "Team weekly sync",
+      "description": "Weekly team meeting to discuss project progress and upcoming tasks.",
+      "dueDate": "2023-04-11",
+      "priority": "medium",
+      "category": "meetings",
+      "project": "Internal",
+      "client": "Internal",
+      "status": "todo",
+      "subtasks": [
+        { "id": 1, "title": "Prepare agenda", "completed": true },
+        { "id": 2, "title": "Send calendar invites", "completed": true }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Research new design tools",
+      "description": "Explore and evaluate new design tools that could improve our workflow.",
+      "dueDate": "2023-04-25",
+      "priority": "low",
+      "category": "personal",
+      "project": "Professional Development",
+      "client": "Internal",
+      "status": "todo",
+      "subtasks": []
+    },
+    {
+      "id": 7,
+      "title": "Prepare client presentation",
+      "description": "Create a presentation for the upcoming client meeting to showcase the social media campaign results.",
+      "dueDate": "2023-04-14",
+      "priority": "high",
+      "category": "work",
+      "project": "Social Media Campaign",
+      "client": "BlueSky Media",
+      "status": "in-progress",
+      "subtasks": [
+        { "id": 1, "title": "Gather analytics data", "completed": true },
+        { "id": 2, "title": "Create slides", "completed": false },
+        { "id": 3, "title": "Review with team", "completed": false }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Website launch preparation",
+      "description": "Finalize all details for the website launch, including testing and content review.",
+      "dueDate": "2023-04-18",
+      "priority": "high",
+      "category": "work",
+      "project": "Website Redesign",
+      "client": "Acme Inc.",
+      "status": "todo",
+      "subtasks": [
+        { "id": 1, "title": "Final QA testing", "completed": false },
+        { "id": 2, "title": "Content review", "completed": false },
+        { "id": 3, "title": "SEO check", "completed": false },
+        { "id": 4, "title": "Performance optimization", "completed": false }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Logo refinement",
+      "description": "Make final adjustments to the logo based on client feedback.",
+      "dueDate": "2023-04-13",
+      "priority": "medium",
+      "category": "work",
+      "project": "Brand Identity",
+      "client": "GreenGrow",
+      "status": "review",
+      "subtasks": [
+        { "id": 1, "title": "Adjust colors", "completed": true },
+        { "id": 2, "title": "Refine typography", "completed": true },
+        { "id": 3, "title": "Prepare final files", "completed": false }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "App prototype testing",
+      "description": "Conduct user testing sessions for the mobile app prototype.",
+      "dueDate": "2023-04-19",
+      "priority": "high",
+      "category": "work",
+      "project": "Mobile App",
+      "client": "TechStart",
+      "status": "in-progress",
+      "subtasks": [
+        { "id": 1, "title": "Recruit testers", "completed": true },
+        { "id": 2, "title": "Prepare test scenarios", "completed": true },
+        { "id": 3, "title": "Conduct sessions", "completed": false },
+        { "id": 4, "title": "Analyze results", "completed": false }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Content calendar planning",
+      "description": "Develop a content calendar for the next quarter's social media posts.",
+      "dueDate": "2023-04-22",
+      "priority": "medium",
+      "category": "work",
+      "project": "Social Media Campaign",
+      "client": "BlueSky Media",
+      "status": "todo",
+      "subtasks": [
+        { "id": 1, "title": "Research trends", "completed": false },
+        { "id": 2, "title": "Draft post ideas", "completed": false },
+        { "id": 3, "title": "Schedule content", "completed": false }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Website analytics review",
+      "description": "Analyze website performance metrics and prepare a report for the client.",
+      "dueDate": "2023-04-16",
+      "priority": "low",
+      "category": "work",
+      "project": "Website Redesign",
+      "client": "Acme Inc.",
+      "status": "completed",
+      "subtasks": [
+        { "id": 1, "title": "Gather data", "completed": true },
+        { "id": 2, "title": "Create visualizations", "completed": true },
+        { "id": 3, "title": "Write report", "completed": true }
+      ]
+    }
+  ]
+}
