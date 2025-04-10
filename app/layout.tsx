@@ -11,7 +11,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>Jointri - Provider Dashboard</title>
+        <title>Bobbi - Provider Dashboard</title>
       </head>
       <body className="bg-white">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>

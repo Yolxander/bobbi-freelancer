@@ -92,7 +92,7 @@ export default function Sidebar() {
         <div className="mb-12 mt-8 md:mt-0">
           <Link href="/dashboard">
             <button className="p-3 bg-gray-100 rounded-xl">
-              <div className="w-5 h-5 flex items-center justify-center font-bold text-gray-800">JT</div>
+              <div className="w-5 h-5 flex items-center justify-center font-bold text-gray-800">Bobbi</div>
             </button>
           </Link>
         </div>

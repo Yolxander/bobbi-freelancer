@@ -607,37 +607,7 @@ export default function ProjectDetailsPage() {
 
             <div className="bg-white rounded-3xl p-6 shadow-sm">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                {isEditing ? (
-                  <div className="flex-1">
-                    <input
-                      type="text"
-                      value={editedProject?.name}
-                      onChange={(e) => setEditedProject({ ...editedProject, name: e.target.value })}
-                      className="text-2xl font-bold w-full border-b border-gray-300 pb-1 focus:outline-none focus:border-gray-900"
-                    />
-                    <div className="flex items-center gap-2 mt-3">
-                      <label className="text-gray-500 mr-2">Client:</label>
-                      <select
-                        value={editedProject?.client_id || "personal"}
-                        onChange={(e) => {
-                          const value = e.target.value
-                          setEditedProject({
-                            ...editedProject,
-                            client_id: value === "personal" ? null : value,
-                          })
-                        }}
-                        className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200"
-                      >
-                        <option value="personal">Personal (No Client)</option>
-                        {clients?.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                ) : (
+             
                   <div className="flex items-center gap-4">
                     <div
                       className={`w-16 h-16 rounded-xl ${project?.color || "bg-blue-100"} flex items-center justify-center`}
@@ -664,7 +634,7 @@ export default function ProjectDetailsPage() {
                         <span className="text-gray-300">•</span>
                         <div
                           className={`
-                            text-xs font-medium px-2.5 py-0.5 rounded-full
+                            text-xs font-medium px-2 py-0.5 rounded-full
                             ${
                               project?.status === "In Progress"
                                 ? "bg-green-100 text-green-700"
@@ -679,42 +649,10 @@ export default function ProjectDetailsPage() {
                       </div>
                     </div>
                   </div>
-                )}
+                
 
                 <div className="flex items-center gap-2">
-                  {isEditing ? (
-                    <>
-                      <button
-                        onClick={handleUpdateProject}
-                        disabled={isUpdating}
-                        className="px-4 py-2 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2 disabled:opacity-70"
-                      >
-                        {isUpdating ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            <span>Saving...</span>
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle className="w-4 h-4" />
-                            <span>Save</span>
-                          </>
-                        )}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsEditing(false)
-                          setEditedProject(project)
-                        }}
-                        className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2"
-                        disabled={isUpdating}
-                      >
-                        <X className="w-4 h-4" />
-                        <span>Cancel</span>
-                      </button>
-                    </>
-                  ) : (
-                    <>
+                
                       {(projectAccess.isOwner || (projectAccess.isCollaborator && projectAccess.permissions?.edit)) && (
                         <button
                           onClick={() => setIsEditing(true)}
@@ -724,6 +662,16 @@ export default function ProjectDetailsPage() {
                           <span>Edit</span>
                         </button>
                       )}
+                      <button
+                        onClick={() => {
+                          setIsEditing(true)
+                          setEditedProject(project)
+                        }}
+                        className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2"
+                      >
+                        <Edit className="w-4 h-4" />
+                        <span>Edit Project</span>
+                      </button>
                       <button
                         onClick={() => setShowAddTaskModal(true)}
                         className="px-4 py-2 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
@@ -756,8 +704,8 @@ export default function ProjectDetailsPage() {
                           </div>
                         </div>
                       )}
-                    </>
-                  )}
+                  
+                
                 </div>
               </div>
 
@@ -800,31 +748,14 @@ export default function ProjectDetailsPage() {
 
                 <div className="bg-gray-50 rounded-xl p-4">
                   <p className="text-xs text-gray-500 mb-1">DUE DATE</p>
-                  {isEditing ? (
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-400" />
-                      <input
-                        type="date"
-                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full"
-                        value={
-                          editedProject?.due_date ? new Date(editedProject.due_date).toISOString().split("T")[0] : ""
-                        }
-                        onChange={(e) => {
-                          setEditedProject({
-                            ...editedProject,
-                            due_date: e.target.value ? new Date(e.target.value).toISOString() : null,
-                          })
-                        }}
-                      />
-                    </div>
-                  ) : (
+                
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-gray-400" />
                       <p className="text-sm font-medium">
                         {project?.due_date ? new Date(project.due_date).toLocaleDateString() : "Not set"}
                       </p>
                     </div>
-                  )}
+                 
                 </div>
 
                 <div className="bg-gray-50 rounded-xl p-4">
@@ -905,18 +836,11 @@ export default function ProjectDetailsPage() {
               {/* Project Description */}
               <div className="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm">
                 <h2 className="text-lg font-semibold mb-4 text-gray-900">Project Description</h2>
-                {isEditing ? (
-                  <textarea
-                    value={editedProject?.description || ""}
-                    onChange={(e) => setEditedProject({ ...editedProject, description: e.target.value })}
-                    className="w-full h-32 border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-900 text-gray-900"
-                    placeholder="Add a description..."
-                  />
-                ) : (
+               
                   <p className="text-gray-700 whitespace-pre-wrap">
                     {project?.description || "No description provided."}
                   </p>
-                )}
+              
 
                 {/* Recent Activity */}
                 <h2 className="text-lg font-semibold mt-8 mb-4 text-gray-900">Recent Activity</h2>
@@ -924,7 +848,7 @@ export default function ProjectDetailsPage() {
                   {tasks.slice(0, 5).map((task) => (
                     <div key={task.id} className="flex gap-3">
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        className={`w-8 h-8 rounded-full ${
                           task?.status === "completed"
                             ? "bg-green-100"
                             : task?.status === "in-progress"
@@ -932,7 +856,7 @@ export default function ProjectDetailsPage() {
                               : task?.status === "review"
                                 ? "bg-yellow-100"
                                 : "bg-gray-100"
-                        }`}
+                        } flex items-center justify-center`}
                       >
                         {task?.status === "completed" ? (
                           <CheckCircle className="w-4 h-4 text-green-600" />
@@ -1016,14 +940,7 @@ export default function ProjectDetailsPage() {
                       </div>
                       <h3 className="text-lg font-medium text-gray-700 mb-2">Personal Project</h3>
                       <p className="text-gray-500 mb-4">This project is not associated with any client</p>
-                      {isEditing ? null : (
-                        <button
-                          onClick={handleAssignToClient}
-                          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
-                        >
-                          Assign to Client
-                        </button>
-                      )}
+                      
                     </div>
                   )}
                 </div>
@@ -1725,6 +1642,91 @@ export default function ProjectDetailsPage() {
                       <span>Create & Add</span>
                     </>
                   )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Edit Project Modal */}
+      {isEditing && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-xl">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-xl font-bold text-gray-900">Edit Project</h2>
+              <button
+                className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
+                onClick={() => setIsEditing(false)}
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateProject} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Project Name</label>
+                <input
+                  type="text"
+                  value={editedProject?.name}
+                  onChange={(e) => setEditedProject({ ...editedProject, name: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
+                  placeholder="Enter project name"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Client</label>
+                <select
+                  value={editedProject?.client_id || "personal"}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setEditedProject({
+                      ...editedProject,
+                      client_id: value === "personal" ? null : value,
+                    })
+                  }}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
+                >
+                  <option value="personal">Personal (No Client)</option>
+                  {clients?.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
+                <input
+                  type="date"
+                  value={editedProject?.due_date ? new Date(editedProject.due_date).toISOString().split("T")[0] : ""}
+                  onChange={(e) => {
+                    setEditedProject({
+                      ...editedProject,
+                      due_date: e.target.value ? new Date(e.target.value).toISOString() : null,
+                    })
+                  }}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
+                  required
+                />
+              </div>
+
+              <div className="flex justify-end gap-4 mt-8">
+                <button
+                  type="button"
+                  className="px-5 py-3 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors"
+                  onClick={() => setIsEditing(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-3 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Save Changes</span>
                 </button>
               </div>
             </form>
