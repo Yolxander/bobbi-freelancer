@@ -1009,18 +1009,23 @@ function Logo() {
 }
 
 function StatusPill({ icon, text, onClick, isActive = true }) {
+  const color = isActive ? "text-gray-900" : "text-gray-400"
+
   return (
     <div
-      className={`bg-gray-100 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 flex items-center gap-1 sm:gap-2 cursor-pointer transition-colors shadow-sm hover:shadow-md ${
-        isActive ? "bg-gray-100 hover:bg-gray-200" : "bg-gray-50 text-gray-400 hover:bg-gray-100"
+      className={`rounded-full px-3 sm:px-4 py-1.5 sm:py-2 flex items-center gap-1 sm:gap-2 cursor-pointer transition-colors shadow-sm hover:shadow-md ${
+        isActive ? "bg-gray-100 hover:bg-gray-200" : "bg-gray-50 hover:bg-gray-100"
       }`}
       onClick={onClick}
     >
-      {icon}
-      <span className="text-xs sm:text-sm font-medium">{text}</span>
+      <div className={`flex items-center gap-1 sm:gap-2 ${color}`}>
+        {icon}
+        <span className="text-xs sm:text-sm font-medium">{text}</span>
+      </div>
     </div>
   )
 }
+
 
 function StatusCard({ icon, title, subtitle }) {
   return (
