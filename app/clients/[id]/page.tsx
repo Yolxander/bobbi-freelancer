@@ -189,7 +189,7 @@ export default function ClientDetailPage() {
         <div className="p-6 max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-6">
-            <Link href="/clients" className="inline-flex items-center text-gray-500 hover:text-gray-700 mb-4">
+            <Link href="/clients" className="inline-flex items-center text-gray-500 hover:text-gray-900 mb-4">
               <ArrowLeft className="w-4 h-4 mr-1" />
               <span>Back to Clients</span>
             </Link>
@@ -202,18 +202,19 @@ export default function ClientDetailPage() {
                       type="text"
                       value={editedClient?.name}
                       onChange={(e) => setEditedClient({ ...editedClient, name: e.target.value })}
-                      className="text-2xl font-bold w-full border-b border-gray-300 pb-1 focus:outline-none focus:border-gray-900"
+                      className="text-2xl font-bold w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300 text-gray-900"
+                      placeholder="Enter client name"
                     />
                   </div>
                 ) : (
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-indigo-100 rounded-xl flex items-center justify-center">
+                    <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center">
                       <Users className="w-8 h-8 text-indigo-600" />
                     </div>
                     <div>
-                      <h1 className="text-2xl font-bold">{client?.name}</h1>
+                      <h1 className="text-2xl font-bold text-gray-900">{client?.name}</h1>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-gray-500">{client?.email || "No email"}</span>
+                        <span className="text-gray-600">{client?.email || "No email"}</span>
                       </div>
                     </div>
                   </div>
@@ -309,36 +310,36 @@ export default function ClientDetailPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-lg font-semibold mb-4">Contact Information</h2>
+                    <h2 className="text-lg font-semibold mb-4 text-gray-900">Contact Information</h2>
                     {isEditing ? (
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                          <label className="block text-sm font-medium text-gray-800 mb-1">Email</label>
                           <input
                             type="email"
                             value={editedClient?.email || ""}
                             onChange={(e) => setEditedClient({ ...editedClient, email: e.target.value })}
-                            className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200"
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300 text-gray-900"
                             placeholder="Enter email address"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                          <label className="block text-sm font-medium text-gray-800 mb-1">Phone</label>
                           <input
                             type="tel"
                             value={editedClient?.phone || ""}
                             onChange={(e) => setEditedClient({ ...editedClient, phone: e.target.value })}
-                            className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200"
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300 text-gray-900"
                             placeholder="Enter phone number"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                          <label className="block text-sm font-medium text-gray-800 mb-1">Address</label>
                           <input
                             type="text"
                             value={editedClient?.address || ""}
                             onChange={(e) => setEditedClient({ ...editedClient, address: e.target.value })}
-                            className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200"
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300 text-gray-900"
                             placeholder="Enter address"
                           />
                         </div>
@@ -346,34 +347,34 @@ export default function ClientDetailPage() {
                     ) : (
                       <div className="bg-gray-50 rounded-xl p-4 space-y-3">
                         <div className="flex items-center gap-2">
-                          <Mail className="w-5 h-5 text-gray-400" />
-                          <span className="text-gray-700">{client?.email || "No email"}</span>
+                          <Mail className="w-5 h-5 text-gray-500" />
+                          <span className="text-gray-600">{client?.email || "No email"}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Phone className="w-5 h-5 text-gray-400" />
-                          <span className="text-gray-700">{client?.phone || "No phone"}</span>
+                          <Phone className="w-5 h-5 text-gray-500" />
+                          <span className="text-gray-600">{client?.phone || "No phone"}</span>
                         </div>
                         <div className="flex items-start gap-2">
-                          <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
-                          <span className="text-gray-700">{client?.address || "No address"}</span>
+                          <MapPin className="w-5 h-5 text-gray-500 mt-0.5" />
+                          <span className="text-gray-600">{client?.address || "No address"}</span>
                         </div>
                       </div>
                     )}
                   </div>
 
                   <div>
-                    <h2 className="text-lg font-semibold mb-4">Description</h2>
+                    <h2 className="text-lg font-semibold mb-4 text-gray-900">Description</h2>
                     {isEditing ? (
                       <textarea
                         value={editedClient?.description || ""}
                         onChange={(e) => setEditedClient({ ...editedClient, description: e.target.value })}
-                        className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200"
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300 text-gray-900"
                         placeholder="Enter client description"
                         rows={4}
                       />
                     ) : (
                       <div className="bg-gray-50 rounded-xl p-4">
-                        <p className="text-gray-700 whitespace-pre-wrap">
+                        <p className="text-gray-600 whitespace-pre-wrap">
                           {client?.description || "No description provided."}
                         </p>
                       </div>
@@ -393,7 +394,7 @@ export default function ClientDetailPage() {
                 </div>
 
                 <div>
-                  <h2 className="text-lg font-semibold mb-4">Client Projects</h2>
+                  <h2 className="text-lg font-semibold mb-4 text-gray-900">Client Projects</h2>
                   {projects.length > 0 ? (
                     <div className="space-y-3">
                       {projects.map((project) => (
@@ -404,8 +405,8 @@ export default function ClientDetailPage() {
                                 <Briefcase className="w-5 h-5 text-blue-600" />
                               </div>
                               <div>
-                                <h3 className="font-medium">{project.name}</h3>
-                                <p className="text-xs text-gray-500">
+                                <h3 className="font-medium text-gray-900">{project.name}</h3>
+                                <p className="text-xs text-gray-600">
                                   {project.status} • Due: {new Date(project.due_date).toLocaleDateString()}
                                 </p>
                               </div>
@@ -419,8 +420,8 @@ export default function ClientDetailPage() {
                       <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
                         <Briefcase className="w-6 h-6 text-blue-600" />
                       </div>
-                      <h3 className="text-gray-700 font-medium mb-2">No projects yet</h3>
-                      <p className="text-gray-500 text-sm mb-4">No projects have been created for this client yet</p>
+                      <h3 className="text-gray-900 font-medium mb-2">No projects yet</h3>
+                      <p className="text-gray-600 text-sm mb-4">No projects have been created for this client yet</p>
                       <button
                         onClick={() => setIsProjectModalOpen(true)}
                         className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium flex items-center gap-2 mx-auto"
