@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation"
 interface ProjectModalProps {
   isOpen: boolean
   onClose: () => void
-  clientId: string
+  clientId?: string
 }
 
 export default function ProjectModal({ isOpen, onClose, clientId }: ProjectModalProps) {
@@ -19,7 +19,7 @@ export default function ProjectModal({ isOpen, onClose, clientId }: ProjectModal
   const [newProject, setNewProject] = useState({
     name: "",
     description: "",
-    status: "In Progress",
+    status: "Planning",
   })
   const [clients, setClients] = useState([])
   const [selectedClientId, setSelectedClientId] = useState(clientId || "personal")
@@ -31,11 +31,11 @@ export default function ProjectModal({ isOpen, onClose, clientId }: ProjectModal
   // Fetch clients when the modal opens
   useEffect(() => {
     const fetchClients = async () => {
-      if (!user) return
+      if (!user || !user.providerId) return
 
       try {
         setIsLoadingClients(true)
-        const result = await getClients(user.id)
+        const result = await getClients(user.providerId)
         if (result.success) {
           setClients(result.data || [])
         }
@@ -53,7 +53,7 @@ export default function ProjectModal({ isOpen, onClose, clientId }: ProjectModal
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!user) return
+    if (!user || !user.providerId) return
 
     setIsLoading(true)
     setError(null)
@@ -62,7 +62,7 @@ export default function ProjectModal({ isOpen, onClose, clientId }: ProjectModal
       const data = {
         ...newProject,
         client_id: selectedClientId === "personal" ? null : selectedClientId,
-        provider_id: user.id,
+        provider_id: user.providerId,
       }
 
       const result = await createProject(data)
@@ -98,11 +98,11 @@ export default function ProjectModal({ isOpen, onClose, clientId }: ProjectModal
 
   return createPortal(
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-3xl p-6 w-full max-w-md">
+      <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-xl">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold">Create New Project</h2>
+          <h2 className="text-xl font-bold text-gray-900">Create New Project</h2>
           <button className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center" onClick={onClose}>
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
@@ -110,7 +110,7 @@ export default function ProjectModal({ isOpen, onClose, clientId }: ProjectModal
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="name" className="block text-sm font-medium text-gray-900 mb-1">
               Project Name *
             </label>
             <input
@@ -118,35 +118,35 @@ export default function ProjectModal({ isOpen, onClose, clientId }: ProjectModal
               id="name"
               value={newProject.name}
               onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-              className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200"
+              className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 text-gray-900"
               placeholder="Enter project name"
               required
             />
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="description" className="block text-sm font-medium text-gray-900 mb-1">
               Description
             </label>
             <textarea
               id="description"
               value={newProject.description}
               onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-              className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200"
+              className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 text-gray-900"
               placeholder="Enter project description"
               rows={3}
             />
           </div>
 
           <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="status" className="block text-sm font-medium text-gray-900 mb-1">
               Status
             </label>
             <select
               id="status"
               value={newProject.status}
               onChange={(e) => setNewProject({ ...newProject, status: e.target.value })}
-              className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200"
+              className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 text-gray-900"
             >
               <option value="Planning">Planning</option>
               <option value="In Progress">In Progress</option>
@@ -156,17 +156,17 @@ export default function ProjectModal({ isOpen, onClose, clientId }: ProjectModal
           </div>
 
           <div>
-            <label htmlFor="client" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="client" className="block text-sm font-medium text-gray-900 mb-1">
               Client
             </label>
             {isLoadingClients ? (
-              <div className="w-full px-4 py-3 bg-gray-100 rounded-xl text-gray-500">Loading clients...</div>
+              <div className="w-full px-4 py-3 bg-gray-100 rounded-xl text-gray-600">Loading clients...</div>
             ) : (
               <select
                 id="client"
                 value={selectedClientId}
                 onChange={(e) => setSelectedClientId(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200"
+                className="w-full px-4 py-3 bg-gray-100 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 text-gray-900"
               >
                 <option value="personal">Personal (No Client)</option>
                 {clients.map((client) => (

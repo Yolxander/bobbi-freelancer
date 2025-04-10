@@ -669,9 +669,9 @@ export default function ProjectDetailsPage() {
                       )}
                     </div>
                     <div>
-                      <h1 className="text-2xl font-bold">{project?.name}</h1>
+                      <h1 className="text-2xl font-bold text-gray-900">{project?.name}</h1>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-gray-500">
+                        <span className="text-gray-600">
                           {project?.client_id ? (
                             <>Client: {client?.name || "Unknown"}</>
                           ) : (
@@ -784,8 +784,8 @@ export default function ProjectDetailsPage() {
               {/* Progress Bar */}
               <div className="mt-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Progress</span>
-                  <span className="text-sm font-medium">
+                  <span className="text-sm font-medium text-gray-900">Progress</span>
+                  <span className="text-sm font-medium text-gray-900">
                     {tasks.length > 0
                       ? Math.round((tasks.filter((t) => t?.status === "completed").length / tasks.length) * 100)
                       : 0}
@@ -853,7 +853,7 @@ export default function ProjectDetailsPage() {
                     {project?.client_id ? (
                       <>
                         <Users className="w-4 h-4 text-gray-400" />
-                        <p className="text-sm font-medium">{client?.name || "Unknown"}</p>
+                        <p className="text-sm font-medium text-gray-900">{client?.name || "Unknown"}</p>
                       </>
                     ) : (
                       <>
@@ -868,7 +868,7 @@ export default function ProjectDetailsPage() {
                   <p className="text-xs text-gray-500 mb-1">TASKS</p>
                   <div className="flex items-center gap-2">
                     <CheckSquare className="w-4 h-4 text-gray-400" />
-                    <p className="text-sm font-medium">
+                    <p className="text-sm font-medium text-gray-900">
                       {tasks.filter((t) => t?.status === "completed").length} / {tasks.length} completed
                     </p>
                   </div>
@@ -924,12 +924,12 @@ export default function ProjectDetailsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Project Description */}
               <div className="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm">
-                <h2 className="text-lg font-semibold mb-4">Project Description</h2>
+                <h2 className="text-lg font-semibold mb-4 text-gray-900">Project Description</h2>
                 {isEditing ? (
                   <textarea
                     value={editedProject?.description || ""}
                     onChange={(e) => setEditedProject({ ...editedProject, description: e.target.value })}
-                    className="w-full h-32 border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-900"
+                    className="w-full h-32 border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-900 text-gray-900"
                     placeholder="Add a description..."
                   />
                 ) : (
@@ -939,7 +939,7 @@ export default function ProjectDetailsPage() {
                 )}
 
                 {/* Recent Activity */}
-                <h2 className="text-lg font-semibold mt-8 mb-4">Recent Activity</h2>
+                <h2 className="text-lg font-semibold mt-8 mb-4 text-gray-900">Recent Activity</h2>
                 <div className="space-y-4">
                   {tasks.slice(0, 5).map((task) => (
                     <div key={task.id} className="flex gap-3">
@@ -978,7 +978,7 @@ export default function ProjectDetailsPage() {
                 {/* Client */}
                 <div className="bg-white rounded-3xl p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold">Client</h2>
+                    <h2 className="text-lg font-semibold text-gray-900">Client</h2>
                     {client && (
                       <Link href={`/clients/${client.id}`} className="text-sm text-blue-600 hover:text-blue-800">
                         View Details
@@ -993,15 +993,15 @@ export default function ProjectDetailsPage() {
                           <Users className="w-6 h-6 text-blue-600" />
                         </div>
                         <div>
-                          <h3 className="font-medium">{client.name}</h3>
-                          <p className="text-sm text-gray-500">{client.email || "No email"}</p>
+                          <h3 className="font-medium text-gray-900">{client.name}</h3>
+                          <p className="text-sm text-gray-600">{client.email || "No email"}</p>
                         </div>
                       </div>
 
                       {client.phone && (
                         <div className="flex items-center gap-2 text-sm">
                           <Phone className="w-4 h-4 text-gray-400" />
-                          <span>{client.phone}</span>
+                          <span className="text-gray-900">{client.phone}</span>
                         </div>
                       )}
 
@@ -1046,12 +1046,14 @@ export default function ProjectDetailsPage() {
                 {project?.client_id && (
                   <div className="bg-white rounded-3xl p-6 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-lg font-semibold">Team Members</h2>
+                      <h2 className="text-lg font-semibold text-gray-900">Team Members</h2>
                       <button
-                        onClick={() => setActiveTab("team")}
-                        className="text-sm text-blue-600 hover:text-blue-800"
+                        className="flex items-center gap-2 bg-gray-900 text-white rounded-xl px-4 py-2 text-sm"
+                        onClick={() => setShowAddTeamMemberModal(true)}
+                        disabled={!project?.client_id}
                       >
-                        View All
+                        <UserPlus className="w-4 h-4" />
+                        <span>Add Team Member</span>
                       </button>
                     </div>
 
@@ -1063,8 +1065,8 @@ export default function ProjectDetailsPage() {
                               <User className="w-5 h-5 text-gray-600" />
                             </div>
                             <div className="flex-1">
-                              <h3 className="font-medium">{member.name}</h3>
-                              <p className="text-xs text-gray-500">{member.role || "Team Member"}</p>
+                              <h3 className="font-medium text-gray-900">{member.name}</h3>
+                              <p className="text-xs text-gray-600">{member.role || "Team Member"}</p>
                             </div>
                             {member.is_primary && (
                               <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
@@ -1140,7 +1142,7 @@ export default function ProjectDetailsPage() {
           {activeTab === "team" && (
             <div className="bg-white rounded-3xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold">Team Members</h2>
+                <h2 className="text-lg font-semibold text-gray-900">Team Members</h2>
                 {project?.client_id && (
                   <button
                     className="flex items-center gap-2 bg-gray-900 text-white rounded-xl px-4 py-2 text-sm"
@@ -1158,8 +1160,8 @@ export default function ProjectDetailsPage() {
                   <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <User className="w-8 h-8 text-purple-600" />
                   </div>
-                  <h3 className="text-lg font-medium text-gray-700 mb-2">Personal Project</h3>
-                  <p className="text-gray-500 mb-4">Team members can only be added to projects with a client</p>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Personal Project</h3>
+                  <p className="text-gray-600 mb-4">Team members can only be added to projects with a client</p>
                   <button
                     onClick={handleAssignToClient}
                     className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
@@ -1167,108 +1169,24 @@ export default function ProjectDetailsPage() {
                     Assign to Client
                   </button>
                 </div>
-              ) : teamMembers.length > 0 ? (
-                <div className="overflow-hidden border border-gray-200 rounded-xl">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Name
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Role
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Contact
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Status
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {teamMembers.map((member) => (
-                        <tr key={member.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
-                                <User className="h-5 w-5 text-gray-600" />
-                              </div>
-                              <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">{member.name}</div>
-                                <div className="text-sm text-gray-500">{member.email}</div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{member.role || "Team Member"}</div>
-                            {member.is_primary && (
-                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                Primary
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{member.phone || "—"}</div>
-                            <div className="text-sm text-gray-500">{member.email}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span
-                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                member.status === "active"
-                                  ? "bg-green-100 text-green-800"
-                                  : member.status === "pending"
-                                    ? "bg-yellow-100 text-yellow-800"
-                                    : "bg-gray-100 text-gray-800"
-                              }`}
-                            >
-                              {member.status || "Active"}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <button
-                              onClick={() => handleRemoveTeamMember(member.id)}
-                              className="text-red-600 hover:text-red-900 ml-2"
-                            >
-                              Remove
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
               ) : (
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Users className="w-8 h-8 text-gray-400" />
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-700 mb-2">No team members yet</h3>
-                  <p className="text-gray-500 mb-4">Add team members to collaborate on this project</p>
-                  <button
-                    onClick={() => setShowAddTeamMemberModal(true)}
-                    className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium"
-                  >
-                    Add Team Member
-                  </button>
+                <div className="space-y-4">
+                  {teamMembers.map((member) => (
+                    <div key={member.id} className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                        <User className="w-5 h-5 text-gray-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900">{member.name}</h3>
+                        <p className="text-sm text-gray-600">{member.role || "Team Member"}</p>
+                      </div>
+                      {member.is_primary && (
+                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                          Primary
+                        </span>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -1277,13 +1195,13 @@ export default function ProjectDetailsPage() {
           {activeTab === "tasks" && (
             <div className="bg-white rounded-3xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold">Tasks</h2>
+                <h2 className="text-lg font-semibold text-gray-900">Tasks</h2>
                 <div className="flex items-center gap-3">
                   <div className="bg-gray-100 rounded-lg p-1 flex">
                     <button
                       onClick={() => setViewType("card")}
                       className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                        viewType === "card" ? "bg-white shadow-sm text-gray-800" : "text-gray-600 hover:text-gray-800"
+                        viewType === "card" ? "bg-white shadow-sm text-gray-900" : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
                       Cards
@@ -1291,7 +1209,7 @@ export default function ProjectDetailsPage() {
                     <button
                       onClick={() => setViewType("list")}
                       className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                        viewType === "list" ? "bg-white shadow-sm text-gray-800" : "text-gray-600 hover:text-gray-800"
+                        viewType === "list" ? "bg-white shadow-sm text-gray-900" : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
                       List
@@ -1489,7 +1407,7 @@ export default function ProjectDetailsPage() {
           {activeTab === "files" && (
             <div className="bg-white rounded-3xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold">Files</h2>
+                <h2 className="text-lg font-semibold text-gray-900">Files</h2>
                 <button className="flex items-center gap-2 bg-gray-900 text-white rounded-xl px-4 py-2">
                   <Plus className="w-4 h-4" />
                   <span className="text-sm font-medium">Upload File</span>
@@ -1500,8 +1418,8 @@ export default function ProjectDetailsPage() {
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FileText className="w-8 h-8 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-700 mb-2">No files yet</h3>
-                <p className="text-gray-500 mb-4">Upload files to share with your team and client</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No files yet</h3>
+                <p className="text-gray-600 mb-4">Upload files to share with your team and client</p>
                 <button className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium">
                   Upload Files
                 </button>
