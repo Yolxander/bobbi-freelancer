@@ -96,6 +96,19 @@ export default function TaskDetailsPage() {
   const [showCodeEditor, setShowCodeEditor] = useState(false)
   const [componentName, setComponentName] = useState("")
 
+  const flattenTaskData = (taskData) => {
+    if (!taskData) return null
+
+    // Create a new object with only the necessary fields
+    return {
+      ...taskData,
+      project_id: taskData.project?.id || taskData.project_id,
+      project_name: taskData.project?.name || "Unknown Project",
+      project_color: taskData.project?.color || "#4f46e5",
+      project: undefined // Remove the nested project object
+    }
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       if (user) {
@@ -106,13 +119,16 @@ export default function TaskDetailsPage() {
           // Fetch task details
           const taskResult = await getTask(taskId)
 
+          console.log('taskResult', taskResult);
+
           if (taskResult.success && taskResult.data) {
-            setTask(taskResult.data)
-            setEditedTask(taskResult.data)
+            const flattenedTask = flattenTaskData(taskResult.data)
+            setTask(flattenedTask)
+            setEditedTask(flattenedTask)
 
             // If task has github_repo, parse it
-            if (taskResult.data.github_repo) {
-              const repo = getGitHubRepoFromUrl(taskResult.data.github_repo)
+            if (flattenedTask.github_repo) {
+              const repo = getGitHubRepoFromUrl(flattenedTask.github_repo)
               setGithubRepo(repo)
 
               // Load dummy data
@@ -120,8 +136,8 @@ export default function TaskDetailsPage() {
             }
 
             // Set component name if it exists
-            if (taskResult.data.component_name) {
-              setComponentName(taskResult.data.component_name)
+            if (flattenedTask.component_name) {
+              setComponentName(flattenedTask.component_name)
             }
 
             // Fetch subtasks
@@ -230,10 +246,11 @@ export default function TaskDetailsPage() {
       })
 
       if (result.success) {
-        setTask({
+        const flattenedTask = flattenTaskData({
           ...task,
           ...editedTask,
         })
+        setTask(flattenedTask)
 
         // If github_repo changed, update the parsed repo
         if (editedTask.github_repo !== task.github_repo) {
@@ -295,11 +312,12 @@ export default function TaskDetailsPage() {
           setShowCompletionAnimation(true)
         }
 
-        setTask({
+        const flattenedTask = flattenTaskData({
           ...task,
           completed: !task.completed,
           status: !task.completed ? "completed" : "todo",
         })
+        setTask(flattenedTask)
         setActiveAction(null)
       } else {
         setError(result.error || "Failed to update task")
@@ -330,11 +348,12 @@ export default function TaskDetailsPage() {
       })
 
       if (result.success) {
-        setTask({
+        const flattenedTask = flattenTaskData({
           ...task,
           status,
           completed,
         })
+        setTask(flattenedTask)
         setActiveAction(null)
       } else {
         setError(result.error || "Failed to update task status")
@@ -499,11 +518,12 @@ export default function TaskDetailsPage() {
     if (subtasks.length > 0 && task && !task.completed) {
       const allSubtasksCompleted = subtasks.every((subtask) => subtask.completed)
       if (allSubtasksCompleted) {
-        setTask({
+        const flattenedTask = flattenTaskData({
           ...task,
           completed: true,
           status: "completed",
         })
+        setTask(flattenedTask)
 
         toggleTaskCompletion(task.id, true)
       }
@@ -519,10 +539,11 @@ export default function TaskDetailsPage() {
       })
 
       if (result.success) {
-        setTask({
+        const flattenedTask = flattenTaskData({
           ...task,
           priority,
         })
+        setTask(flattenedTask)
         setActiveAction(null)
       } else {
         setError(result.error || "Failed to update task priority")
@@ -550,11 +571,12 @@ export default function TaskDetailsPage() {
       })
 
       if (result.success) {
-        setTask({
+        const flattenedTask = flattenTaskData({
           ...task,
           component_name: editedTask.component_name,
           code_snippet: codeSnippet,
         })
+        setTask(flattenedTask)
         setComponentName(editedTask.component_name)
         setShowCodeEditor(false)
         alert("Code snippet saved successfully!")
@@ -1224,13 +1246,13 @@ export default function TaskDetailsPage() {
                     )}
                   </div>
 
-                  {task.project ? (
+                  {task.project_name ? (
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                         <Briefcase className="w-6 h-6 text-blue-600" />
                       </div>
                       <div>
-                        <h3 className="font-medium">{task.project}</h3>
+                        <h3 className="font-medium">{task.project_name}</h3>
                         <p className="text-sm text-gray-500">{task.client || "No client"}</p>
                       </div>
                     </div>
