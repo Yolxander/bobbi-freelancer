@@ -25,6 +25,7 @@ import {
   GripVertical,
   Briefcase,
   CheckCircle,
+  FileText,
 } from "lucide-react"
 import Sidebar from "@/components/sidebar"
 import { useAuth } from "@/lib/auth-context"
@@ -951,7 +952,7 @@ export default function TaskDetailsPage() {
                   <p className="text-xs text-gray-500 mb-1">DUE DATE</p>
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-gray-400" />
-                    <p className="text-sm font-medium text-gray-700">
+                    <p className="text-sm font-medium text-gray-900">
                       <span className="font-semibold">Due Date</span>: {" "}
                       {new Date(task.due_date).toLocaleDateString()}
                     </p>
@@ -978,7 +979,7 @@ export default function TaskDetailsPage() {
                   <p className="text-xs text-gray-500 mb-1">SUBTASKS</p>
                   <div className="flex items-center gap-2">
                     <CheckSquare className="w-4 h-4 text-gray-400" />
-                    <p className="text-sm font-medium text-gray-700">
+                    <p className="text-sm font-medium text-gray-900">
                       {subtasks.filter((s) => s.completed).length} / {subtasks.length} completed
                     </p>
                   </div>
@@ -989,43 +990,21 @@ export default function TaskDetailsPage() {
               {isWebDeveloper && (
                 <div className="mt-6 pt-6 border-t border-gray-100">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-gray-700">Development Information</h3>
+                    <h3 className="font-semibold text-gray-900">Development Information</h3>
                     {githubRepo ? (
                       <a
                         href={`https://github.com/${githubRepo.fullName}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                        className="text-sm text-blue-600 hover:text-blue-800"
                       >
                         <Github className="w-4 h-4" />
                         <span>View Repository</span>
                       </a>
-                    ) : isEditing ? null : (
-                      <button
-                        onClick={() => setIsEditing(true)}
-                        className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                      >
-                        <Plus className="w-4 h-4" />
-                        <span>Add Repository</span>
-                      </button>
-                    )}
+                    ) : null}
                   </div>
 
-                  {isEditing ? (
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">GitHub Repository URL</label>
-                      <input
-                        type="text"
-                        value={editedTask.github_repo || ""}
-                        onChange={(e) => setEditedTask({ ...editedTask, github_repo: e.target.value })}
-                        placeholder="https://github.com/username/repository"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-900"
-                      />
-                      <p className="mt-1 text-xs text-gray-500">
-                        Enter the full URL to the GitHub repository associated with this task
-                      </p>
-                    </div>
-                  ) : githubRepo ? (
+                  {githubRepo ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="bg-gray-50 rounded-xl p-4">
                         <div className="flex items-center gap-2 mb-2">
@@ -1133,12 +1112,12 @@ export default function TaskDetailsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Task Description */}
               <div className="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm">
-                <h2 className="text-lg font-semibold mb-4">Description</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Description</h2>
                 {isEditing ? (
                   <textarea
                     value={editedTask.description || ""}
                     onChange={(e) => setEditedTask({ ...editedTask, description: e.target.value })}
-                    className="w-full h-32 border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-900"
+                    className="w-full h-32 border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-900 text-gray-900"
                     placeholder="Add a description..."
                   />
                 ) : (
@@ -1147,7 +1126,7 @@ export default function TaskDetailsPage() {
 
                 {/* Subtasks Preview */}
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold mt-8 mb-4">Subtasks</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 mt-8 mb-4">Subtasks</h2>
                   <span className="text-xs text-gray-500">
                     Press Cmd+Ctrl+T (Mac) or Ctrl+Alt+T (Windows) to add a new subtask
                   </span>
@@ -1167,7 +1146,7 @@ export default function TaskDetailsPage() {
                             <Square className="w-5 h-5 text-gray-300" />
                           )}
                         </button>
-                        <span className={`flex-1 ${subtask.completed ? "line-through text-gray-500" : ""}`}>
+                        <span className={`flex-1 ${subtask.completed ? "line-through text-gray-500" : "text-gray-900"}`}>
                           {subtask.title}
                         </span>
                       </div>
@@ -1195,7 +1174,7 @@ export default function TaskDetailsPage() {
                           setCursorPosition(e.target.selectionStart)
                         }}
                         placeholder="Enter subtask title..."
-                        className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900 min-h-[80px] resize-y"
+                        className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900 text-gray-900 min-h-[80px] resize-y"
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && !e.shiftKey) {
                             e.preventDefault()
@@ -1216,7 +1195,7 @@ export default function TaskDetailsPage() {
                             setIsAddingSubtask(false)
                             setNewSubtask("")
                           }}
-                          className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm"
+                          className="px-3 py-1.5 bg-gray-100 text-gray-900 rounded-lg text-sm"
                         >
                           Cancel
                         </button>
@@ -1225,7 +1204,7 @@ export default function TaskDetailsPage() {
                   ) : (
                     <button
                       onClick={() => setIsAddingSubtask(true)}
-                      className="flex items-center gap-1 text-sm text-gray-700 hover:text-gray-900"
+                      className="flex items-center gap-1 text-sm text-gray-900 hover:text-gray-700"
                     >
                       <Plus className="w-4 h-4" /> Add Subtask
                     </button>
@@ -1238,7 +1217,7 @@ export default function TaskDetailsPage() {
                 {/* Project */}
                 <div className="bg-white rounded-3xl p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold">Project</h2>
+                    <h2 className="text-lg font-semibold text-gray-900">Project</h2>
                     {task.project_id && (
                       <Link href={`/projects/${task.project_id}`} className="text-sm text-blue-600 hover:text-blue-800">
                         View Project
@@ -1252,8 +1231,8 @@ export default function TaskDetailsPage() {
                         <Briefcase className="w-6 h-6 text-blue-600" />
                       </div>
                       <div>
-                        <h3 className="font-medium">{task.project_name}</h3>
-                        <p className="text-sm text-gray-500">{task.client || "No client"}</p>
+                        <h3 className="font-medium text-gray-900">{task.project_name}</h3>
+                        <p className="text-sm text-gray-700">{task.client || "No client"}</p>
                       </div>
                     </div>
                   ) : (
@@ -1329,7 +1308,7 @@ export default function TaskDetailsPage() {
                 {/* Developer Actions - Only show if provider is a web developer */}
                 {isWebDeveloper && (
                   <div className="bg-white rounded-3xl p-6 shadow-sm">
-                    <h2 className="text-lg font-semibold mb-4">Developer Actions</h2>
+                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Developer Actions</h2>
                     <div className="grid grid-cols-2 gap-3">
                       <button
                         className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 ${
@@ -1628,7 +1607,7 @@ export const ExampleComponent = () => {
                       setCursorPosition(e.target.selectionStart)
                     }}
                     placeholder="Enter subtask title..."
-                    className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900"
+                    className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900 text-gray-900"
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
                         e.preventDefault()
@@ -1649,7 +1628,7 @@ export const ExampleComponent = () => {
                         setIsAddingSubtask(false)
                         setNewSubtask("")
                       }}
-                      className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition-colors"
+                      className="px-3 py-2 bg-gray-100 text-gray-900 rounded-lg text-sm hover:bg-gray-200 transition-colors"
                     >
                       Cancel
                     </button>
@@ -1709,7 +1688,7 @@ export const ExampleComponent = () => {
                           <textarea
                             value={editedSubtaskTitle}
                             onChange={(e) => setEditedSubtaskTitle(e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[60px] resize-y"
+                            className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[60px] resize-y text-gray-900"
                             onKeyDown={(e) => {
                               if (e.key === "Enter" && !e.shiftKey) {
                                 e.preventDefault()
@@ -1738,7 +1717,7 @@ export const ExampleComponent = () => {
                           </div>
                         </div>
                       ) : (
-                        <span className={`flex-1 break-words ${subtask.completed ? "line-through text-gray-500" : ""}`}>
+                        <span className={`flex-1 break-words ${subtask.completed ? "line-through text-gray-500" : "text-gray-900"}`}>
                           {subtask.title}
                         </span>
                       )}
@@ -1803,7 +1782,7 @@ export const ExampleComponent = () => {
                       value={newIssue.title}
                       onChange={(e) => setNewIssue({ ...newIssue, title: e.target.value })}
                       placeholder="Enter issue title..."
-                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                     />
                   </div>
 
@@ -1813,7 +1792,7 @@ export const ExampleComponent = () => {
                       value={newIssue.description}
                       onChange={(e) => setNewIssue({ ...newIssue, description: e.target.value })}
                       placeholder="Describe the issue..."
-                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px] resize-y"
+                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px] resize-y text-gray-900"
                     />
                   </div>
 
@@ -1822,7 +1801,7 @@ export const ExampleComponent = () => {
                     <select
                       value={newIssue.status}
                       onChange={(e) => setNewIssue({ ...newIssue, status: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                     >
                       <option value="open">Open</option>
                       <option value="in-progress">In Progress</option>
@@ -1836,7 +1815,7 @@ export const ExampleComponent = () => {
                       value={newIssue.fix}
                       onChange={(e) => setNewIssue({ ...newIssue, fix: e.target.value })}
                       placeholder="Describe how you fixed the issue (if fixed)..."
-                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px] resize-y"
+                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px] resize-y text-gray-900"
                     />
                   </div>
 
@@ -1846,7 +1825,7 @@ export const ExampleComponent = () => {
                       value={newIssue.code_snippet}
                       onChange={(e) => setNewIssue({ ...newIssue, code_snippet: e.target.value })}
                       placeholder="Paste code that fixes the issue..."
-                      className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[120px] resize-y"
+                      className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[120px] resize-y text-gray-900"
                     />
                   </div>
 
@@ -1871,7 +1850,7 @@ export const ExampleComponent = () => {
                           code_snippet: "",
                         })
                       }}
-                      className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition-colors"
+                      className="px-3 py-2 bg-gray-100 text-gray-900 rounded-lg text-sm hover:bg-gray-200 transition-colors"
                     >
                       Cancel
                     </button>
