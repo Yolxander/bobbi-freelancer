@@ -49,17 +49,52 @@ import { checkProjectAccess } from "@/app/actions/access-actions"
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
+// Add these interfaces at the top of the file
+interface Project {
+  id: string;
+  name: string;
+  description: string;
+  status: string;
+  due_date?: string;
+  client_id?: string;
+  start_date?: string;
+  color?: string;
+  // Add other project properties as needed
+}
+
+interface TeamMember {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  phone: string;
+  is_primary: boolean;
+}
+
+interface Task {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  priority: string;
+  due_date: string;
+  project_id: string;
+  completed: boolean;
+  updated_at?: string;
+  // Add other task properties as needed
+}
+
 export default function ProjectDetailsPage() {
   const params = useParams()
   const router = useRouter()
   const { user, isLoading: authLoading } = useAuth()
   const projectId = params.id
 
-  const [project, setProject] = useState(null)
-  const [client, setClient] = useState(null)
-  const [tasks, setTasks] = useState([])
+  const [project, setProject] = useState<Project | null>(null)
+  const [client, setClient] = useState<any>(null)
+  const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("overview")
   const [showAddTaskModal, setShowAddTaskModal] = useState(false)
   const [newTask, setNewTask] = useState({
@@ -70,7 +105,7 @@ export default function ProjectDetailsPage() {
     priority: "medium",
   })
   const [isEditing, setIsEditing] = useState(false)
-  const [editedProject, setEditedProject] = useState(null)
+  const [editedProject, setEditedProject] = useState<Project | null>(null)
   const [viewType, setViewType] = useState("card") // "card" or "list"
   const [expandedTasks, setExpandedTasks] = useState({})
 
@@ -83,14 +118,17 @@ export default function ProjectDetailsPage() {
   // Add this to the existing state declarations at the top of the component
   const [showCompletionAnimation, setShowCompletionAnimation] = useState(false)
 
+  // State for project start date
+  const [startDate, setStartDate] = useState<string | null>(null)
+
   // Team members state
-  const [teamMembers, setTeamMembers] = useState([])
-  const [availableTeamMembers, setAvailableTeamMembers] = useState([])
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
+  const [availableTeamMembers, setAvailableTeamMembers] = useState<TeamMember[]>([])
   const [showAddTeamMemberModal, setShowAddTeamMemberModal] = useState(false)
   const [showCreateTeamMemberModal, setShowCreateTeamMemberModal] = useState(false)
   const [selectedTeamMember, setSelectedTeamMember] = useState("")
   const [isAddingTeamMember, setIsAddingTeamMember] = useState(false)
-  const [newTeamMember, setNewTeamMember] = useState({
+  const [newTeamMember, setNewTeamMember] = useState<TeamMember>({
     name: "",
     email: "",
     role: "",
@@ -262,26 +300,25 @@ export default function ProjectDetailsPage() {
     }
   }, [user])
 
-  const handleAddTask = async (e) => {
+  const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!newTask.title.trim() || !user || !project) return
 
+    setIsAddingTask(true)
     try {
       const result = await createTask({
-        ...newTask,
-        project_id: project.id,
-        provider_id: user.id,
+        title: newTask.title,
+        description: newTask.description,
+        due_date: newTask.due_date,
+        status: newTask.status,
+        priority: newTask.priority,
+        project_id: project.id
       })
 
       if (result.success) {
-        // Refresh tasks
-        const tasksResult = await getTasks(user.id, project.id)
-        if (tasksResult.success) {
-          setTasks(tasksResult.data || [])
-        }
-
-        // Reset form and close modal
+        // Add the new task to the tasks array
+        setTasks(prevTasks => [...prevTasks, result.data])
         setNewTask({
           title: "",
           description: "",
@@ -296,11 +333,13 @@ export default function ProjectDetailsPage() {
     } catch (error) {
       console.error("Error adding task:", error)
       setError("Failed to add task")
+    } finally {
+      setIsAddingTask(false)
     }
   }
 
   const handleUpdateProject = async () => {
-    if (!editedProject) return
+    if (!editedProject || !project) return
 
     setIsUpdating(true)
     try {
@@ -309,9 +348,10 @@ export default function ProjectDetailsPage() {
         name: editedProject.name,
         description: editedProject.description,
         status: editedProject.status,
-        due_date: editedProject.due_date,
-        // Handle client_id explicitly to ensure null is properly handled
-        client_id: editedProject.client_id === "personal" ? null : editedProject.client_id,
+        due_date: editedProject.due_date || undefined,
+        start_date: editedProject.start_date || undefined,
+        // Handle client_id - use undefined for personal projects, otherwise use the selected client_id
+        client_id: editedProject.client_id === "personal" ? undefined : editedProject.client_id,
       }
 
       console.log("Updating project with data:", updateData)
@@ -320,9 +360,10 @@ export default function ProjectDetailsPage() {
 
       if (result.success) {
         // Update the project in state
-        const updatedProject = {
+        const updatedProject: Project = {
           ...project,
           ...updateData,
+          id: project.id,
         }
         setProject(updatedProject)
 
@@ -360,30 +401,38 @@ export default function ProjectDetailsPage() {
   const handleDeleteProject = async () => {
     if (!project) return
 
-    if (confirm("Are you sure you want to delete this project? This will also delete all associated tasks.")) {
-      try {
-        const result = await deleteProject(project.id)
-
-        if (result.success) {
-          router.push("/projects")
-        } else {
-          setError(result.error || "Failed to delete project")
-        }
-      } catch (error) {
-        console.error("Error deleting project:", error)
-        setError("Failed to delete project")
+    try {
+      const result = await deleteProject(project.id)
+      if (result.success) {
+        router.push('/projects')
+      } else {
+        setError(result.error || "Failed to delete project")
       }
+    } catch (error) {
+      console.error("Error deleting project:", error)
+      setError("Failed to delete project")
     }
   }
 
-  const handleAssignToClient = () => {
-    setIsEditing(true)
-    // If we have clients available, pre-select the first one
-    if (clients.length > 0) {
-      setEditedProject({
-        ...editedProject,
-        client_id: clients[0].id,
-      })
+  const handleAssignToClient = async () => {
+    if (!project) return
+
+    try {
+      const result = await updateProject(project.id, { client_id: "1" })
+      if (result.success) {
+        // Fetch the new client details
+        const clientResult = await getClient("1")
+        if (clientResult.success) {
+          setClient(clientResult.data)
+        }
+        // Refresh team members for the new client
+        fetchAvailableTeamMembers()
+      } else {
+        setError(result.error || "Failed to assign client")
+      }
+    } catch (error) {
+      console.error("Error assigning client:", error)
+      setError("Failed to assign client")
     }
   }
 
@@ -907,7 +956,7 @@ export default function ProjectDetailsPage() {
                           <Users className="w-6 h-6 text-blue-600" />
                         </div>
                         <div>
-                          <h3 className="font-medium text-gray-900">{client.name}</h3>
+                          <h3 className="font-medium">{client.name}</h3>
                           <p className="text-sm text-gray-600">{client.email || "No email"}</p>
                         </div>
                       </div>
@@ -939,7 +988,7 @@ export default function ProjectDetailsPage() {
                     </div>
                   ) : (
                     <div className="text-center py-6">
-                      <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <User className="w-8 h-8 text-purple-600" />
                       </div>
                       <h3 className="text-lg font-medium text-gray-700 mb-2">Personal Project</h3>
@@ -972,7 +1021,7 @@ export default function ProjectDetailsPage() {
                               <User className="w-5 h-5 text-gray-600" />
                             </div>
                             <div className="flex-1">
-                              <h3 className="font-medium text-gray-900">{member.name}</h3>
+                              <h3 className="font-medium">{member.name}</h3>
                               <p className="text-xs text-gray-600">{member.role || "Team Member"}</p>
                             </div>
                             {member.is_primary && (
@@ -1071,7 +1120,7 @@ export default function ProjectDetailsPage() {
                   <p className="text-gray-600 mb-4">Team members can only be added to projects with a client</p>
                   <button
                     onClick={handleAssignToClient}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium"
                   >
                     Assign to Client
                   </button>
@@ -1084,7 +1133,7 @@ export default function ProjectDetailsPage() {
                         <User className="w-5 h-5 text-gray-600" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-medium text-gray-900">{member.name}</h3>
+                        <h3 className="font-medium">{member.name}</h3>
                         <p className="text-sm text-gray-600">{member.role || "Team Member"}</p>
                       </div>
                       {member.is_primary && (
@@ -1660,7 +1709,7 @@ export default function ProjectDetailsPage() {
       {/* Edit Project Modal */}
       {isEditing && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-xl">
+          <div className="bg-white rounded-3xl p-8 w-full max-w-2xl shadow-xl">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-xl font-bold text-gray-900">Edit Project</h2>
               <button
@@ -1692,7 +1741,7 @@ export default function ProjectDetailsPage() {
                     const value = e.target.value
                     setEditedProject({
                       ...editedProject,
-                      client_id: value === "personal" ? null : value,
+                      client_id: value === "personal" ? undefined : value,
                     })
                   }}
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
@@ -1706,20 +1755,71 @@ export default function ProjectDetailsPage() {
                 </select>
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                  <DatePicker
+                    selected={editedProject?.start_date ? new Date(editedProject.start_date) : null}
+                    onChange={(date) => {
+                      setEditedProject({
+                        ...editedProject,
+                        start_date: date ? date.toISOString() : null,
+                      })
+                    }}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="Select a start date"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
+                  <DatePicker
+                    selected={editedProject?.due_date ? new Date(editedProject.due_date) : null}
+                    onChange={(date) => {
+                      setEditedProject({
+                        ...editedProject,
+                        due_date: date ? date.toISOString() : null,
+                      })
+                    }}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="Select a due date"
+                  />
+                </div>
+              </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
-                <DatePicker
-                  selected={editedProject?.due_date ? new Date(editedProject.due_date) : null}
-                  onChange={(date) => {
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea
+                  value={editedProject?.description || ""}
+                  onChange={(e) => {
                     setEditedProject({
                       ...editedProject,
-                      due_date: date ? date.toISOString() : null,
+                      description: e.target.value,
                     })
                   }}
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
-                  dateFormat="yyyy-MM-dd"
-                  placeholderText="Select a due date"
+                  placeholder="Enter project description"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select
+                  value={editedProject?.status || ""}
+                  onChange={(e) => {
+                    setEditedProject({
+                      ...editedProject,
+                      status: e.target.value,
+                    })
+                  }}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
+                >
+                  <option value="todo">To Do</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                </select>
               </div>
 
               <div className="flex justify-end gap-4 mt-8">
@@ -1731,8 +1831,9 @@ export default function ProjectDetailsPage() {
                   Cancel
                 </button>
                 <button
-                  type="submit"
+                  type="button"
                   className="px-5 py-3 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
+                  onClick={handleUpdateProject}
                 >
                   <CheckCircle className="w-4 h-4" />
                   <span>Save Changes</span>
@@ -1742,6 +1843,7 @@ export default function ProjectDetailsPage() {
           </div>
         </div>
       )}
+
       {/* Project Completion Animation */}
       <CompletionAnimation
         type="project"
