@@ -900,8 +900,8 @@ export default function ProjectDetailsPage() {
                 {/* Recent Activity */}
                 <h2 className="text-lg font-semibold mt-8 mb-4 text-gray-900">Recent Activity</h2>
                 <div className="space-y-4">
-                  {tasks.slice(0, 5).map((task) => (
-                    <div key={task.id} className="flex gap-3">
+                  {project?.tasks.slice(0, 5).map((task) => (
+                    <div key={task.id} className="flex items-center gap-4 p-4 bg-white shadow-sm rounded-lg hover:bg-gray-50 transition-colors">
                       <div
                         className={`w-3 h-3 rounded-full ${
                           task?.status === "completed"
@@ -913,11 +913,11 @@ export default function ProjectDetailsPage() {
                                 : "bg-gray-500"
                         }`}
                       ></div>
-                      <div>
-                        <p className="text-sm">
-                          <span className="font-medium">Task</span>{" "}
-                          {task?.status === "completed" ? "completed" : "updated"}:{" "}
-                          <Link href={`/tasks/${task.id}`} className="font-medium hover:text-blue-600">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">
+                          <span className="font-semibold">Task</span>{" "}
+                          {task?.status === "completed" ? "completed" : "updated"}: {" "}
+                          <Link href={`/tasks/${task.id}`} className="hover:text-blue-600">
                             {task?.title || "Untitled Task"}
                           </Link>
                         </p>
@@ -926,7 +926,7 @@ export default function ProjectDetailsPage() {
                     </div>
                   ))}
 
-                  {tasks.length === 0 && (
+                  {project?.tasks?.length === 0 && (
                     <div className="text-center py-4 text-gray-500">No activity yet. Add tasks to get started.</div>
                   )}
                 </div>
@@ -1177,10 +1177,10 @@ export default function ProjectDetailsPage() {
                 </div>
               </div>
 
-              {tasks.length > 0 ? (
+              {project?.tasks?.length > 0 ? (
                 viewType === "card" ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {tasks.map((task) => (
+                    {project?.tasks?.map((task) => (
                       <Link href={`/tasks/${task.id}`} key={task.id}>
                         <div className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors cursor-pointer">
                           <div className="flex items-start justify-between">
@@ -1196,7 +1196,7 @@ export default function ProjectDetailsPage() {
                                         : "bg-gray-500"
                                 }`}
                               ></div>
-                              <h3 className="font-medium">{task?.title || "Untitled Task"}</h3>
+                              <h3 className="font-medium text-gray-900">{task?.title || "Untitled Task"}</h3>
                             </div>
                             <div
                               className={`
@@ -1265,7 +1265,7 @@ export default function ProjectDetailsPage() {
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {tasks.map((task) => (
+                        {project?.tasks?.map((task) => (
                           <tr key={task.id} className="hover:bg-gray-50">
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
