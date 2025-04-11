@@ -181,36 +181,43 @@ export async function getTask(taskId: string) {
 
 export async function createTask(data: TaskData) {
   try {
-    // Create a new task with a unique ID
-    const newTask = {
-      id: `task-${Date.now()}`,
-      title: data.title,
-      description: data.description || null,
-      status: data.status,
-      priority: data.priority || "medium",
-      category: data.category || "work",
-      due_date: data.due_date || null,
-      project_id: data.project_id,
-      provider_id: data.provider_id,
-      completed: data.completed || false,
-      github_repo: data.github_repo || null,
-      tech_stack: data.tech_stack || null,
-      code_snippet: data.code_snippet || null,
-      // These would be populated from the project and client tables
-      project: "Project Name",
-      client: "Client Name",
+    console.log("Creating new task:", data)
+
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/tasks`
+    console.log("Creating task at:", apiUrl)
+
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: data.title,
+        description: data.description || null,
+        status: data.status || "todo",
+        priority: data.priority || "medium",
+        category: data.category || "work",
+        due_date: data.due_date || null,
+        project_id: data.project_id,
+        provider_id: data.provider_id,
+        completed: data.completed || false,
+      }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(`Error creating task: ${errorData.message || response.statusText}`)
     }
 
-    // In a real implementation, this would be added to the database
-    // For now, we'll just return the new task
+    const responseData = await response.json()
 
     revalidatePath("/dashboard")
     revalidatePath("/tasks")
     revalidatePath(`/projects/${data.project_id}`)
-    return { success: true, data: newTask }
+    return { success: true, data: responseData }
   } catch (error) {
     console.error("Error creating task:", error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to create task" }
   }
 }
 

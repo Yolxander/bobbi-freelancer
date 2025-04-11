@@ -314,7 +314,8 @@ export default function ProjectDetailsPage() {
         due_date: newTask.due_date,
         status: newTask.status,
         priority: newTask.priority,
-        project_id: project.id
+        project_id: project.id,
+        provider_id: user.providerId, // Ensure provider_id is included
       })
 
       if (result.success) {
