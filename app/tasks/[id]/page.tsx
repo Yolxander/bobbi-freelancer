@@ -764,7 +764,7 @@ export default function TaskDetailsPage() {
                       />
                     </div>
                     <div>
-                      <h1 className={`text-2xl font-bold ${task.completed ? "line-through text-gray-500" : ""}`}>
+                      <h1 className={`text-2xl text-gray-700 font-bold ${task.completed ? "line-through text-gray-500" : ""}`}>
                         {task.title}
                       </h1>
                       <div className="flex items-center gap-2 mt-1">
@@ -840,7 +840,7 @@ export default function TaskDetailsPage() {
                         className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 ${
                           activeAction === "edit"
                             ? "bg-blue-100 text-blue-700"
-                            : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                            : "bg-gray-100 hover:bg-gray-200 text-gray-900"
                         }`}
                         onClick={() => {
                           if (activeAction === "edit") {
@@ -918,14 +918,9 @@ export default function TaskDetailsPage() {
                               : "text-green-500"
                       }`}
                     />
-                    <p className="text-sm font-medium">
-                      {task.status === "todo"
-                        ? "To Do"
-                        : task.status === "in-progress"
-                          ? "In Progress"
-                          : task.status === "review"
-                            ? "Review"
-                            : "Completed"}
+                    <p className="text-sm font-medium text-gray-900">
+                      <span className="font-semibold">Status</span>: {" "}
+                      {task.status === "completed" ? "Completed" : task.status === "in-progress" ? "In Progress" : task.status === "review" ? "Review" : "To Do"}
                     </p>
                   </div>
                 </div>
@@ -934,8 +929,9 @@ export default function TaskDetailsPage() {
                   <p className="text-xs text-gray-500 mb-1">DUE DATE</p>
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-gray-400" />
-                    <p className="text-sm font-medium">
-                      {task.due_date ? new Date(task.due_date).toLocaleDateString() : "Not set"}
+                    <p className="text-sm font-medium text-gray-700">
+                      <span className="font-semibold">Due Date</span>: {" "}
+                      {new Date(task.due_date).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -952,7 +948,7 @@ export default function TaskDetailsPage() {
                             : "text-red-500"
                       }`}
                     />
-                    <p className="text-sm font-medium capitalize">{task.priority || "Medium"}</p>
+                    <p className="text-sm font-medium text-gray-900 capitalize">{task.priority || "Medium"}</p>
                   </div>
                 </div>
 
@@ -960,7 +956,7 @@ export default function TaskDetailsPage() {
                   <p className="text-xs text-gray-500 mb-1">SUBTASKS</p>
                   <div className="flex items-center gap-2">
                     <CheckSquare className="w-4 h-4 text-gray-400" />
-                    <p className="text-sm font-medium">
+                    <p className="text-sm font-medium text-gray-700">
                       {subtasks.filter((s) => s.completed).length} / {subtasks.length} completed
                     </p>
                   </div>
@@ -1012,7 +1008,7 @@ export default function TaskDetailsPage() {
                       <div className="bg-gray-50 rounded-xl p-4">
                         <div className="flex items-center gap-2 mb-2">
                           <Github className="w-4 h-4 text-gray-700" />
-                          <h4 className="font-medium text-sm">Repository</h4>
+                          <h4 className="font-medium">Repository</h4>
                         </div>
                         <p className="text-sm">{githubRepo.fullName}</p>
                       </div>
@@ -1020,14 +1016,14 @@ export default function TaskDetailsPage() {
                       <div className="bg-gray-50 rounded-xl p-4">
                         <div className="flex items-center gap-2 mb-2">
                           <GitBranch className="w-4 h-4 text-gray-700" />
-                          <h4 className="font-medium text-sm">Active Branch</h4>
+                          <h4 className="font-medium">Active Branch</h4>
                         </div>
                         <p className="text-sm">feature/task-management</p>
                       </div>
                     </div>
                   ) : (
                     <div className="bg-gray-50 rounded-xl p-4 text-center">
-                      <Github className="w-6 h-6 text-gray-400 mx-auto mb-2" />
+                      <Github className="w-6 h-6 text-gray-400 mx-auto mb-3" />
                       <p className="text-sm text-gray-500">No repository linked to this task</p>
                       <p className="text-xs text-gray-400 mt-1">Edit this task to add a GitHub repository</p>
                     </div>
@@ -1245,10 +1241,10 @@ export default function TaskDetailsPage() {
 
                 {/* Task Actions */}
                 <div className="bg-white rounded-3xl p-6 shadow-sm mb-6">
-                  <h2 className="text-lg font-semibold mb-4">Task Actions</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Task Actions</h2>
                   <div className="grid grid-cols-2 gap-3">
                     <button
-                      className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 bg-gray-100 hover:bg-gray-200`}
+                      className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-900`}
                       onClick={handleToggleTaskCompletion}
                     >
                       <CheckSquare className="w-5 h-5 text-gray-700" />
@@ -1259,7 +1255,7 @@ export default function TaskDetailsPage() {
                       className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 ${
                         activeAction === "edit"
                           ? "bg-blue-100 text-blue-700"
-                          : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                          : "bg-gray-100 hover:bg-gray-200 text-gray-900"
                       }`}
                       onClick={() => {
                         if (activeAction === "edit") {
@@ -1280,7 +1276,7 @@ export default function TaskDetailsPage() {
                       className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 ${
                         activeAction === "add-subtask"
                           ? "bg-purple-100 text-purple-700"
-                          : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                          : "bg-gray-100 hover:bg-gray-200 text-gray-900"
                       }`}
                       onClick={() => {
                         if (activeAction === "add-subtask") {
@@ -1299,7 +1295,7 @@ export default function TaskDetailsPage() {
                     </button>
 
                     <button
-                      className="bg-gray-100 hover:bg-gray-200 transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2"
+                      className="bg-gray-100 hover:bg-gray-200 transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 text-gray-900"
                       onClick={handleDeleteTask}
                     >
                       <Trash className="w-5 h-5 text-gray-700" />
@@ -1317,7 +1313,7 @@ export default function TaskDetailsPage() {
                         className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 ${
                           activeAction === "code"
                             ? "bg-blue-100 text-blue-700"
-                            : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                            : "bg-gray-100 hover:bg-gray-200 text-gray-900"
                         }`}
                         onClick={() => {
                           if (activeAction === "code") {
@@ -1336,7 +1332,7 @@ export default function TaskDetailsPage() {
                         className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 ${
                           activeAction === "github"
                             ? "bg-purple-100 text-purple-700"
-                            : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                            : "bg-gray-100 hover:bg-gray-200 text-gray-900"
                         }`}
                         onClick={() => {
                           if (activeAction === "github") {
@@ -1358,7 +1354,7 @@ export default function TaskDetailsPage() {
                         className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 ${
                           activeAction === "deployments"
                             ? "bg-indigo-100 text-indigo-700"
-                            : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                            : "bg-gray-100 hover:bg-gray-200 text-gray-900"
                         }`}
                         onClick={() => {
                           if (!githubRepo) {
@@ -1385,7 +1381,7 @@ export default function TaskDetailsPage() {
                         className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 ${
                           activeAction === "pull-requests"
                             ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                            : "bg-gray-100 hover:bg-gray-200 text-gray-900"
                         }`}
                         onClick={() => {
                           if (!githubRepo) {
@@ -1610,7 +1606,7 @@ export const ExampleComponent = () => {
                       setCursorPosition(e.target.selectionStart)
                     }}
                     placeholder="Enter subtask title..."
-                    className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px] resize-y"
+                    className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900"
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
                         e.preventDefault()

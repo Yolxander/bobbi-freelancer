@@ -156,26 +156,30 @@ export async function getTask(taskId: string) {
   try {
     console.log("Fetching task with ID:", taskId)
 
-    // Find task in dummy data
-    const task = DUMMY_TASKS.find((t) => t.id === taskId)
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/tasks/${taskId}`
+    console.log("Fetching task at:", apiUrl)
 
-    if (!task) {
-      return { success: false, error: "Task not found" }
-    }
-
-    return {
-      success: true,
-      data: {
-        ...task,
-        project: task.projects?.name || "Unknown Project",
-        project_id: task.project_id,
-        client: task.projects?.clients?.name || "Unknown Client",
-        client_id: task.projects?.client_id,
+    const response = await fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
       },
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(`Error fetching task: ${errorData.message || response.statusText}`)
     }
+
+    const responseData = await response.json()
+
+    revalidatePath("/dashboard")
+    revalidatePath("/tasks")
+    revalidatePath(`/tasks/${taskId}`)
+    return { success: true, data: responseData }
   } catch (error) {
-    console.error("Error getting task:", error)
-    return { success: false, error: error.message }
+    console.error("Error fetching task:", error)
+    return { success: false, error: error instanceof Error ? error.message : "Failed to fetch task" }
   }
 }
 
