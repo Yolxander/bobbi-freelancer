@@ -793,9 +793,9 @@ export default function ProjectDetailsPage() {
                   <p className="text-xs text-gray-500 mb-1">START DATE</p>
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-gray-400" />
-                    <p className="text-sm font-medium">
-                      {project?.start_date ? new Date(project.start_date).toLocaleDateString() : "Not set"}
-                    </p>
+                    <p className="text-sm font-medium text-gray-400">
+  {project?.start_date ? new Date(project.start_date).toLocaleDateString() : "Not set"}
+</p>
                   </div>
                 </div>
 
@@ -804,7 +804,7 @@ export default function ProjectDetailsPage() {
                 
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-gray-400" />
-                      <p className="text-sm font-medium">
+                      <p className="text-sm font-medium text-gray-400">
                         {project?.due_date ? new Date(project.due_date).toLocaleDateString() : "Not set"}
                       </p>
                     </div>
@@ -817,7 +817,7 @@ export default function ProjectDetailsPage() {
                     {project?.client_id ? (
                       <>
                         <Users className="w-4 h-4 text-gray-400" />
-                        <p className="text-sm font-medium text-gray-900">{client?.name || "Unknown"}</p>
+                        <p className="text-sm font-medium text-gray-900">{project.client.name || "Unknown"}</p>
                       </>
                     ) : (
                       <>
