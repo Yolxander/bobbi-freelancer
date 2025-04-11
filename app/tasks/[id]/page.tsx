@@ -43,6 +43,8 @@ import { getIssues, createIssue, updateIssue, deleteIssue } from "@/app/actions/
 // Add the import for the CompletionAnimation component
 import { CompletionAnimation } from "@/components/completion-animation"
 import { useWebDeveloper } from "@/hooks/useWebDeveloper"
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 export default function TaskDetailsPage() {
   const params = useParams()
@@ -69,6 +71,9 @@ export default function TaskDetailsPage() {
   // Add state to track when to show the animation
   // Add this to the existing state declarations at the top of the component
   const [showCompletionAnimation, setShowCompletionAnimation] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
+  const [editedStatus, setEditedStatus] = useState("")
   const commandInputRef = useRef<HTMLInputElement>(null)
 
   // Issues tracking state
@@ -332,38 +337,24 @@ export default function TaskDetailsPage() {
   // Also update the handleUpdateTaskStatus function to show the animation when status is changed to completed
   // Find the handleUpdateTaskStatus function and update it:
 
-  const handleUpdateTaskStatus = async (status) => {
-    if (!task) return
+  const handleUpdateTaskStatus = async () => {
+    if (!editedStatus) return
 
     try {
-      const completed = status === "completed"
-
-      // If the task is being marked as completed, show the animation
-      if (completed && !task.completed) {
-        setShowCompletionAnimation(true)
-      }
-
-      const result = await updateTask(task.id, {
-        status,
-        completed,
-      })
-
-      if (result.success) {
-        const flattenedTask = flattenTaskData({
-          ...task,
-          status,
-          completed,
-        })
-        setTask(flattenedTask)
-        setActiveAction(null)
-      } else {
-        setError(result.error || "Failed to update task status")
-      }
+      await updateTask({
+        id: task.id,
+        status: editedStatus,
+      });
+      setIsStatusModalOpen(false);
+      setEditedStatus("");
+      // Refresh the task data
+      const updatedTask = await getTask(task.id);
+      setTask(updatedTask);
     } catch (error) {
-      console.error("Error updating task status:", error)
-      setError("Failed to update task status")
+      console.error("Failed to update task status:", error);
+      // You might want to show an error message to the user
     }
-  }
+  };
 
   const handleAddSubtask = async (e) => {
     e?.preventDefault()
@@ -749,163 +740,87 @@ export default function TaskDetailsPage() {
 
             <div className="bg-white rounded-3xl p-6 shadow-sm">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                {isEditing ? (
-                  <div className="flex-1">
-                    <input
-                      type="text"
-                      value={editedTask.title || ""}
-                      onChange={(e) => setEditedTask({ ...editedTask, title: e.target.value })}
-                      className="text-2xl font-bold w-full border-b border-gray-300 pb-1 focus:outline-none focus:border-gray-900"
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`w-16 h-16 rounded-xl ${
+                      task.status === "todo"
+                        ? "bg-gray-100"
+                        : task.status === "in-progress"
+                          ? "bg-blue-100"
+                          : task.status === "review"
+                            ? "bg-yellow-100"
+                            : "bg-green-100"
+                    } flex items-center justify-center`}
+                  >
+                    <CheckSquare
+                      className={`w-8 h-8 ${
+                        task.status === "todo"
+                          ? "text-gray-600"
+                          : task.status === "in-progress"
+                            ? "text-blue-600"
+                            : task.status === "review"
+                              ? "text-yellow-600"
+                              : "text-green-600"
+                      }`}
                     />
+                  </div>
+                  <div>
+                    <h1 className={`text-2xl text-gray-700 font-bold ${task.completed ? "line-through text-gray-500" : ""}`}>
+                      {task.title}
+                    </h1>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-gray-500">Project: {task.project || "None"}</span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`w-16 h-16 rounded-xl ${
-                        task.status === "todo"
-                          ? "bg-gray-100"
+                      <span className="text-gray-300">•</span>
+                      <div
+                        className={`
+                          text-xs font-medium px-2.5 py-0.5 rounded-full
+                          ${
+                            task.status === "todo"
+                              ? "bg-gray-100 text-gray-700"
+                              : task.status === "in-progress"
+                                ? "bg-blue-100 text-blue-700"
+                                : task.status === "review"
+                                  ? "bg-yellow-100 text-yellow-700"
+                                  : "bg-green-100 text-green-700"
+                          }
+                        `}
+                      >
+                        {task.status === "todo"
+                          ? "To Do"
                           : task.status === "in-progress"
-                            ? "bg-blue-100"
+                            ? "In Progress"
                             : task.status === "review"
-                              ? "bg-yellow-100"
-                              : "bg-green-100"
-                      } flex items-center justify-center`}
-                    >
-                      <CheckSquare
-                        className={`w-8 h-8 ${
-                          task.status === "todo"
-                            ? "text-gray-600"
-                            : task.status === "in-progress"
-                              ? "text-blue-600"
-                              : task.status === "review"
-                                ? "text-yellow-600"
-                                : "text-green-600"
-                        }`}
-                      />
-                    </div>
-                    <div>
-                      <h1 className={`text-2xl text-gray-700 font-bold ${task.completed ? "line-through text-gray-500" : ""}`}>
-                        {task.title}
-                      </h1>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-gray-500">Project: {task.project || "None"}</span>
-                        <span className="text-gray-300">•</span>
-                        <div
-                          className={`
-                            text-xs font-medium px-2.5 py-0.5 rounded-full
-                            ${
-                              task.status === "todo"
-                                ? "bg-gray-100 text-gray-700"
-                                : task.status === "in-progress"
-                                  ? "bg-blue-100 text-blue-700"
-                                  : task.status === "review"
-                                    ? "bg-yellow-100 text-yellow-700"
-                                    : "bg-green-100 text-green-700"
-                            }
-                          `}
-                        >
-                          {task.status === "todo"
-                            ? "To Do"
-                            : task.status === "in-progress"
-                              ? "In Progress"
-                              : task.status === "review"
-                                ? "Review"
-                                : "Completed"}
-                        </div>
+                              ? "Review"
+                              : "Completed"}
                       </div>
                     </div>
                   </div>
-                )}
+                </div>
 
                 <div className="flex items-center gap-2">
-                  {isEditing ? (
-                    <>
-                      <button
-                        onClick={handleUpdateTask}
-                        className="px-4 py-2 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
-                      >
-                        <Save className="w-4 h-4" />
-                        <span>Save</span>
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsEditing(false)
-                          setEditedTask(task)
-                        }}
-                        className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2"
-                      >
-                        <X className="w-4 h-4" />
-                        <span>Cancel</span>
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        onClick={handleToggleTaskCompletion}
-                        className={`px-4 py-2 ${task.completed ? "bg-gray-100 text-gray-700" : "bg-green-100 text-green-700"} rounded-xl text-sm font-medium hover:bg-opacity-80 transition-colors flex items-center gap-2`}
-                      >
-                        {task.completed ? (
-                          <>
-                            <Square className="w-4 h-4" />
-                            <span>Mark Incomplete</span>
-                          </>
-                        ) : (
-                          <>
-                            <CheckSquare className="w-4 h-4" />
-                            <span>Mark Complete</span>
-                          </>
-                        )}
-                      </button>
-                      <button
-                        className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 ${
-                          activeAction === "edit"
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-gray-100 hover:bg-gray-200 text-gray-900"
-                        }`}
-                        onClick={() => {
-                          if (activeAction === "edit") {
-                            setActiveAction(null)
-                            setIsEditing(false) // Cancel editing mode
-                            setEditedTask(task) // Reset any changes
-                          } else {
-                            setActiveAction("edit")
-                            setIsEditing(true)
-                          }
-                        }}
-                      >
-                        <Edit className={`w-5 h-5 ${activeAction === "edit" ? "text-blue-700" : "text-gray-700"}`} />
-                        <span>Edit Task</span>
-                      </button>
-                      <div className="relative">
-                        <button
-                          className="p-2 rounded-full hover:bg-gray-100"
-                          onClick={() => {
-                            const dropdown = document.getElementById("task-actions-dropdown")
-                            if (dropdown) {
-                              dropdown.classList.toggle("hidden")
-                            }
-                          }}
-                        >
-                          <MoreHorizontal className="w-5 h-5 text-gray-500" />
-                        </button>
-                        <div
-                          id="task-actions-dropdown"
-                          className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-10 hidden"
-                        >
-                          <button
-                            onClick={handleDeleteTask}
-                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex items-center gap-2"
-                          >
-                            <Trash className="w-4 h-4" />
-                            <span>Delete Task</span>
-                          </button>
-                        </div>
-                      </div>
-                    </>
-                  )}
+                  <button
+                    onClick={handleToggleTaskCompletion}
+                    className={`px-4 py-2 ${task.completed ? "bg-gray-100 text-gray-700" : "bg-green-100 text-green-700"} rounded-xl text-sm font-medium hover:bg-opacity-80 transition-colors flex items-center gap-2`}
+                  >
+                    {task.completed ? (
+                      <>
+                        <Square className="w-4 h-4" />
+                        <span>Mark Incomplete</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckSquare className="w-4 h-4" />
+                        <span>Mark Complete</span>
+                      </>
+                    )}
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2"
+                    onClick={handleDeleteTask}
+                  >
+                    <Trash className="w-4 h-4" />
+                    <span>Delete Task</span>
+                  </button>
                 </div>
               </div>
 
@@ -1031,19 +946,7 @@ export default function TaskDetailsPage() {
                   )}
 
                   {/* Tech Stack */}
-                  {isEditing ? (
-                    <div className="mt-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Tech Stack</label>
-                      <input
-                        type="text"
-                        value={editedTask.tech_stack || ""}
-                        onChange={(e) => setEditedTask({ ...editedTask, tech_stack: e.target.value })}
-                        placeholder="React, Next.js, TypeScript, etc."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-900"
-                      />
-                      <p className="mt-1 text-xs text-gray-500">Enter technologies used, separated by commas</p>
-                    </div>
-                  ) : task.tech_stack ? (
+                  {task.tech_stack ? (
                     <div className="mt-4">
                       <h4 className="text-sm font-medium text-gray-700 mb-2">Tech Stack</h4>
                       <div className="flex flex-wrap gap-2">
@@ -1113,16 +1016,7 @@ export default function TaskDetailsPage() {
               {/* Task Description */}
               <div className="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Description</h2>
-                {isEditing ? (
-                  <textarea
-                    value={editedTask.description || ""}
-                    onChange={(e) => setEditedTask({ ...editedTask, description: e.target.value })}
-                    className="w-full h-32 border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-900 text-gray-900"
-                    placeholder="Add a description..."
-                  />
-                ) : (
-                  <p className="text-gray-700 whitespace-pre-wrap">{task.description || "No description provided."}</p>
-                )}
+                <p className="text-gray-700 whitespace-pre-wrap">{task.description || "No description provided."}</p>
 
                 {/* Subtasks Preview */}
                 <div className="flex justify-between items-center mb-4">
@@ -1246,57 +1140,36 @@ export default function TaskDetailsPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-900`}
-                      onClick={handleToggleTaskCompletion}
+                      onClick={() => setIsEditModalOpen(true)}
                     >
-                      <CheckSquare className="w-5 h-5 text-gray-700" />
-                      <span>{task.completed ? "Mark Incomplete" : "Mark Complete"}</span>
-                    </button>
-
-                    <button
-                      className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 ${
-                        activeAction === "edit"
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-gray-100 hover:bg-gray-200 text-gray-900"
-                      }`}
-                      onClick={() => {
-                        if (activeAction === "edit") {
-                          setActiveAction(null)
-                          setIsEditing(false) // Cancel editing mode
-                          setEditedTask(task) // Reset any changes
-                        } else {
-                          setActiveAction("edit")
-                          setIsEditing(true)
-                        }
-                      }}
-                    >
-                      <Edit className={`w-5 h-5 ${activeAction === "edit" ? "text-blue-700" : "text-gray-700"}`} />
+                      <Pencil className="w-5 h-5 text-gray-700" />
                       <span>Edit Task</span>
                     </button>
 
                     <button
                       className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 ${
-                        activeAction === "add-subtask"
-                          ? "bg-purple-100 text-purple-700"
-                          : "bg-gray-100 hover:bg-gray-200 text-gray-900"
+                        task.status === "completed"
+                          ? "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                          : "bg-blue-100 hover:bg-blue-200 text-blue-700"
                       }`}
-                      onClick={() => {
-                        if (activeAction === "add-subtask") {
-                          setActiveAction(null)
-                          setIsAddingSubtask(false)
-                        } else {
-                          setActiveAction("add-subtask")
-                          setIsAddingSubtask(true)
-                        }
-                      }}
+                      onClick={() => setIsStatusModalOpen(true)}
                     >
-                      <Plus
-                        className={`w-5 h-5 ${activeAction === "add-subtask" ? "text-purple-700" : "text-gray-700"}`}
-                      />
-                      <span>Add Subtask</span>
+                      <CheckCircle className="w-5 h-5" />
+                      <span>Update Status</span>
                     </button>
 
                     <button
-                      className="bg-gray-100 hover:bg-gray-200 transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 text-gray-900"
+                      className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 ${
+                        task.completed ? "bg-gray-100 hover:bg-gray-200 text-gray-700" : "bg-green-100 hover:bg-green-200 text-green-700"
+                      }`}
+                      onClick={handleToggleTaskCompletion}
+                    >
+                      <CheckSquare className="w-5 h-5" />
+                      <span>{task.completed ? "Mark Incomplete" : "Mark Complete"}</span>
+                    </button>
+
+                    <button
+                      className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-900`}
                       onClick={handleDeleteTask}
                     >
                       <Trash className="w-5 h-5 text-gray-700" />
@@ -1311,52 +1184,7 @@ export default function TaskDetailsPage() {
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">Developer Actions</h2>
                     <div className="grid grid-cols-2 gap-3">
                       <button
-                        className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 ${
-                          activeAction === "code"
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-gray-100 hover:bg-gray-200 text-gray-900"
-                        }`}
-                        onClick={() => {
-                          if (activeAction === "code") {
-                            setActiveAction(null)
-                          } else {
-                            setActiveAction("code")
-                            setActiveTab("code")
-                          }
-                        }}
-                      >
-                        <Code className={`w-5 h-5 ${activeAction === "code" ? "text-blue-700" : "text-gray-700"}`} />
-                        <span>View Code</span>
-                      </button>
-
-                      <button
-                        className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 ${
-                          activeAction === "github"
-                            ? "bg-purple-100 text-purple-700"
-                            : "bg-gray-100 hover:bg-gray-200 text-gray-900"
-                        }`}
-                        onClick={() => {
-                          if (activeAction === "github") {
-                            setActiveAction(null)
-                          } else {
-                            setActiveAction("github")
-                            window.open(`https://github.com/${githubRepo?.fullName || "github.com"}`, "_blank")
-                          }
-                        }}
-                        disabled={!githubRepo}
-                      >
-                        <Github
-                          className={`w-5 h-5 ${activeAction === "github" ? "text-purple-700" : "text-gray-700"}`}
-                        />
-                        <span>GitHub</span>
-                      </button>
-
-                      <button
-                        className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 ${
-                          activeAction === "deployments"
-                            ? "bg-indigo-100 text-indigo-700"
-                            : "bg-gray-100 hover:bg-gray-200 text-gray-900"
-                        }`}
+                        className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-900`}
                         onClick={() => {
                           if (!githubRepo) {
                             // Show alert if no GitHub repo is linked
@@ -1364,26 +1192,17 @@ export default function TaskDetailsPage() {
                             return
                           }
 
-                          if (activeAction === "deployments") {
-                            setActiveAction(null)
-                          } else {
-                            setActiveAction("deployments")
-                            setActiveTab("deployments")
-                          }
+                          setActiveTab("deployments")
                         }}
                       >
                         <Server
-                          className={`w-5 h-5 ${activeAction === "deployments" ? "text-indigo-700" : "text-gray-700"}`}
+                          className={`w-5 h-5 text-gray-700`}
                         />
                         <span>Deployments</span>
                       </button>
 
                       <button
-                        className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 ${
-                          activeAction === "pull-requests"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 hover:bg-gray-200 text-gray-900"
-                        }`}
+                        className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-900`}
                         onClick={() => {
                           if (!githubRepo) {
                             // Show alert if no GitHub repo is linked
@@ -1391,16 +1210,11 @@ export default function TaskDetailsPage() {
                             return
                           }
 
-                          if (activeAction === "pull-requests") {
-                            setActiveAction(null)
-                          } else {
-                            setActiveAction("pull-requests")
-                            window.open(`https://github.com/${githubRepo.fullName}/pulls`, "_blank")
-                          }
+                          window.open(`https://github.com/${githubRepo.fullName}/pulls`, "_blank")
                         }}
                       >
                         <GitPullRequest
-                          className={`w-5 h-5 ${activeAction === "pull-requests" ? "text-green-700" : "text-gray-700"}`}
+                          className={`w-5 h-5 text-gray-700`}
                         />
                         <span>Pull Requests</span>
                       </button>
@@ -1688,7 +1502,7 @@ export const ExampleComponent = () => {
                           <textarea
                             value={editedSubtaskTitle}
                             onChange={(e) => setEditedSubtaskTitle(e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[60px] resize-y text-gray-900"
+                            className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900 text-gray-900"
                             onKeyDown={(e) => {
                               if (e.key === "Enter" && !e.shiftKey) {
                                 e.preventDefault()
@@ -1782,7 +1596,7 @@ export const ExampleComponent = () => {
                       value={newIssue.title}
                       onChange={(e) => setNewIssue({ ...newIssue, title: e.target.value })}
                       placeholder="Enter issue title..."
-                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900 text-gray-900"
                     />
                   </div>
 
@@ -1792,7 +1606,7 @@ export const ExampleComponent = () => {
                       value={newIssue.description}
                       onChange={(e) => setNewIssue({ ...newIssue, description: e.target.value })}
                       placeholder="Describe the issue..."
-                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px] resize-y text-gray-900"
+                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900 text-gray-900 min-h-[80px] resize-y"
                     />
                   </div>
 
@@ -1801,7 +1615,7 @@ export const ExampleComponent = () => {
                     <select
                       value={newIssue.status}
                       onChange={(e) => setNewIssue({ ...newIssue, status: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900 text-gray-900"
                     >
                       <option value="open">Open</option>
                       <option value="in-progress">In Progress</option>
@@ -1815,7 +1629,7 @@ export const ExampleComponent = () => {
                       value={newIssue.fix}
                       onChange={(e) => setNewIssue({ ...newIssue, fix: e.target.value })}
                       placeholder="Describe how you fixed the issue (if fixed)..."
-                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px] resize-y text-gray-900"
+                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900 text-gray-900 min-h-[80px] resize-y"
                     />
                   </div>
 
@@ -1825,7 +1639,7 @@ export const ExampleComponent = () => {
                       value={newIssue.code_snippet}
                       onChange={(e) => setNewIssue({ ...newIssue, code_snippet: e.target.value })}
                       placeholder="Paste code that fixes the issue..."
-                      className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[120px] resize-y text-gray-900"
+                      className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:outline-none focus:border-gray-900 text-gray-900 min-h-[120px] resize-y"
                     />
                   </div>
 
@@ -2034,6 +1848,107 @@ export const ExampleComponent = () => {
         show={showCompletionAnimation}
         onComplete={() => setShowCompletionAnimation(false)}
       />
+
+      {/* Edit Task Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-3xl p-6 w-96 shadow-lg">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit Task</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-1">Title</label>
+                <input
+                  type="text"
+                  value={editedTask.title || ""}
+                  onChange={(e) => setEditedTask({ ...editedTask, title: e.target.value })}
+                  className="bg-gray-50 w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:border-gray-900 text-gray-900"
+                  placeholder="Enter task title..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-1">Description</label>
+                <textarea
+                  value={editedTask.description || ""}
+                  onChange={(e) => setEditedTask({ ...editedTask, description: e.target.value })}
+                  className="bg-gray-50 w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:border-gray-900 text-gray-900"
+                  rows={4}
+                  placeholder="Enter task description..."
+                ></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-1">Due Date</label>
+                <DatePicker
+                  selected={editedTask?.due_date ? new Date(editedTask.due_date) : new Date()}
+                  onChange={(date) => {
+                    if (date) {
+                      setEditedTask({ ...editedTask, due_date: date.toISOString().split('T')[0] });
+                    }
+                  }}
+                  className="bg-gray-50 w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:border-gray-900 text-gray-900"
+                  dateFormat="yyyy-MM-dd"
+                  placeholderText="Select due date"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                className="px-4 py-2 bg-gray-100 text-gray-900 rounded-xl hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdateTask}
+                className="px-4 py-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Update Status Modal */}
+      {isStatusModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-3xl p-6 w-96 shadow-lg">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Update Status</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-1">Current Status</label>
+                <p className="text-gray-900">{task.status}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-1">New Status</label>
+                <select
+                  value={editedStatus}
+                  onChange={(e) => setEditedStatus(e.target.value)}
+                  className="bg-gray-50 w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:border-gray-900 text-gray-900"
+                >
+                  <option value="todo" className="text-gray-900">To Do</option>
+                  <option value="in-progress" className="text-gray-900">In Progress</option>
+                  <option value="review" className="text-gray-900">Review</option>
+                  <option value="completed" className="text-gray-900">Completed</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                onClick={() => setIsStatusModalOpen(false)}
+                className="px-4 py-2 bg-gray-100 text-gray-900 rounded-xl hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdateTaskStatus}
+                className="px-4 py-2 bg-gray-900 text-white rounded-xl transition-colors"
+              >
+                Update Status
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
