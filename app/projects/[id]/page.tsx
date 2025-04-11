@@ -676,7 +676,7 @@ export default function ProjectDetailsPage() {
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-gray-600">
                           {project?.client_id ? (
-                            <>Client: {client?.name || "Unknown"}</>
+                            <>Client: {project.client?.name || "Unknown"}</>
                           ) : (
                             <span className="inline-flex items-center bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-sm">
                               <User className="w-3 h-3 mr-1" />
@@ -817,7 +817,7 @@ export default function ProjectDetailsPage() {
                     {project?.client_id ? (
                       <>
                         <Users className="w-4 h-4 text-gray-400" />
-                        <p className="text-sm font-medium text-gray-900">{project.client.name || "Unknown"}</p>
+                        <p className="text-sm font-medium text-gray-900">{project.client?.name || "Unknown"}</p>
                       </>
                     ) : (
                       <>
@@ -901,22 +901,16 @@ export default function ProjectDetailsPage() {
                   {tasks.slice(0, 5).map((task) => (
                     <div key={task.id} className="flex gap-3">
                       <div
-                        className={`w-8 h-8 rounded-full ${
+                        className={`w-3 h-3 rounded-full ${
                           task?.status === "completed"
-                            ? "bg-green-100"
+                            ? "bg-green-500"
                             : task?.status === "in-progress"
-                              ? "bg-blue-100"
+                              ? "bg-blue-500"
                               : task?.status === "review"
-                                ? "bg-yellow-100"
-                                : "bg-gray-100"
-                        } flex items-center justify-center`}
-                      >
-                        {task?.status === "completed" ? (
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                        ) : (
-                          <Clock className="w-4 h-4 text-blue-600" />
-                        )}
-                      </div>
+                                ? "bg-yellow-500"
+                                : "bg-gray-500"
+                        }`}
+                      ></div>
                       <div>
                         <p className="text-sm">
                           <span className="font-medium">Task</span>{" "}
@@ -942,45 +936,45 @@ export default function ProjectDetailsPage() {
                 <div className="bg-white rounded-3xl p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-gray-900">Client</h2>
-                    {client && (
-                      <Link href={`/clients/${client.id}`} className="text-sm text-blue-600 hover:text-blue-800">
+                    {project?.client && (
+                      <Link href={`/clients/${project.client.id}`} className="text-sm text-blue-600 hover:text-blue-800">
                         View Details
                       </Link>
                     )}
                   </div>
 
-                  {client ? (
+                  {project?.client ? (
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                          <Users className="w-6 h-6 text-blue-600" />
+                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                          <Users className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
-                          <h3 className="font-medium">{client.name}</h3>
-                          <p className="text-sm text-gray-600">{client.email || "No email"}</p>
+                          <h3 className="font-medium">{project.client.name}</h3>
+                          <p className="text-sm text-gray-600">{project.client.email || "No email"}</p>
                         </div>
                       </div>
 
-                      {client.phone && (
+                      {project.client.phone && (
                         <div className="flex items-center gap-2 text-sm">
                           <Phone className="w-4 h-4 text-gray-400" />
-                          <span className="text-gray-900">{client.phone}</span>
+                          <span className="text-gray-900">{project.client.phone}</span>
                         </div>
                       )}
 
-                      {client.address && (
+                      {project.client.address && (
                         <div className="flex items-start gap-2 text-sm">
                           <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
-                          <span className="text-gray-700">{client.address}</span>
+                          <span className="text-gray-700">{project.client.address}</span>
                         </div>
                       )}
 
                       <div className="flex items-center gap-2 mt-4">
-                        <button className="flex-1 py-2 text-sm bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-1">
+                        <button className="flex-1 py-2 text-sm bg-gray-700 rounded-lg hover:bg-gray-900 transition-colors flex items-center justify-center gap-1">
                           <Mail className="w-4 h-4" />
-                          <span>Email</span>
+                          <span >Email</span>
                         </button>
-                        <button className="flex-1 py-2 text-sm bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-1">
+                        <button className="flex-1 py-2 text-sm bg-gray-700 rounded-lg hover:bg-gray-900 transition-colors flex items-center justify-center gap-1">
                           <Calendar className="w-4 h-4" />
                           <span>Schedule</span>
                         </button>
@@ -993,7 +987,7 @@ export default function ProjectDetailsPage() {
                       </div>
                       <h3 className="text-lg font-medium text-gray-700 mb-2">Personal Project</h3>
                       <p className="text-gray-500 mb-4">This project is not associated with any client</p>
-                      
+                    
                     </div>
                   )}
                 </div>
