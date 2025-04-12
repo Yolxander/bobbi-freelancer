@@ -45,6 +45,7 @@ import { CompletionAnimation } from "@/components/completion-animation"
 import { useWebDeveloper } from "@/hooks/useWebDeveloper"
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import styles from './modal-animations.css';
 
 export default function TaskDetailsPage() {
   const params = useParams()
@@ -1852,7 +1853,7 @@ export const ExampleComponent = () => {
       {/* Edit Task Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-6 w-96 shadow-lg">
+          <div className={`bg-white rounded-3xl p-6 w-96 shadow-lg transform ${isEditModalOpen ? 'modal-enter' : 'modal-exit'}`}>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit Task</h3>
             <div className="space-y-4">
               <div>
@@ -1911,7 +1912,7 @@ export const ExampleComponent = () => {
       {/* Update Status Modal */}
       {isStatusModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-6 w-96 shadow-lg">
+          <div className={`bg-white rounded-3xl p-6 w-96 shadow-lg transform ${isStatusModalOpen ? 'modal-enter' : 'modal-exit'}`}>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Update Status</h3>
             <div className="space-y-4">
               <div>
