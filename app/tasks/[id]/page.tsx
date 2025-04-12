@@ -57,10 +57,10 @@ export default function TaskDetailsPage() {
   const [subtasks, setSubtasks] = useState([])
   const [projects, setProjects] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("details")
   const [isEditing, setIsEditing] = useState(false)
-  const [editedTask, setEditedTask] = useState(null)
+  const [editedTask, setEditedTask] = useState<TaskData | null>(null)
   const [newSubtask, setNewSubtask] = useState("")
   const [isAddingSubtask, setIsAddingSubtask] = useState(false)
   const [editingSubtaskId, setEditingSubtaskId] = useState(null)
@@ -237,53 +237,32 @@ export default function TaskDetailsPage() {
   }
 
   const handleUpdateTask = async () => {
-    if (!editedTask) return
+    if (!editedTask?.id || !editedTask.title) {
+      setError("Task title is required");
+      return;
+    }
 
     try {
-      const result = await updateTask(task.id, {
+      const result = await updateTask(editedTask.id, {
         title: editedTask.title,
         description: editedTask.description,
-        status: editedTask.status,
-        priority: editedTask.priority,
         due_date: editedTask.due_date,
-        project_id: editedTask.project_id,
-        github_repo: editedTask.github_repo,
-        tech_stack: editedTask.tech_stack,
-        component_name: editedTask.component_name,
-      })
-
+      });
+      
       if (result.success) {
-        const flattenedTask = flattenTaskData({
-          ...task,
-          ...editedTask,
-        })
-        setTask(flattenedTask)
-
-        // If github_repo changed, update the parsed repo
-        if (editedTask.github_repo !== task.github_repo) {
-          const repo = getGitHubRepoFromUrl(editedTask.github_repo)
-          setGithubRepo(repo)
-
-          if (repo) {
-            loadDummyDeveloperData(repo)
-          }
-        }
-
-        // Update component name
-        if (editedTask.component_name) {
-          setComponentName(editedTask.component_name)
-        }
-
-        setIsEditing(false)
-        setActiveAction(null)
+        // Update local state
+        setTask(result.data);
+        setEditedTask(null);
+        setIsEditModalOpen(false);
+        setError(null);
       } else {
-        setError(result.error || "Failed to update task")
+        setError(result.error || "Failed to update task");
       }
     } catch (error) {
-      console.error("Error updating task:", error)
-      setError("Failed to update task")
+      console.error("Error updating task:", error);
+      setError("An unexpected error occurred while updating the task");
     }
-  }
+  };
 
   const handleDeleteTask = async () => {
     if (!task) return
@@ -684,6 +663,29 @@ export default function TaskDetailsPage() {
       window.removeEventListener("keydown", handleGlobalKeyDown)
     }
   }, [])
+
+  const handleEditTask = () => {
+    if (task) {
+      setEditedTask({
+        id: task.id,
+        title: task.title,
+        description: task.description || "",
+        due_date: task.due_date || "",
+        status: task.status,
+        priority: task.priority,
+        category: task.category,
+        project_id: task.project_id,
+        provider_id: task.provider_id,
+      });
+      setIsEditModalOpen(true);
+    }
+  };
+
+  const handleCloseEditModal = () => {
+    setEditedTask(null);
+    setIsEditModalOpen(false);
+    setError(null);
+  };
 
   if (authLoading || isLoading || isWebDevLoading) {
     return (
@@ -1141,7 +1143,7 @@ export default function TaskDetailsPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       className={`transition-colors rounded-xl p-3 text-sm font-medium flex flex-col items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-900`}
-                      onClick={() => setIsEditModalOpen(true)}
+                      onClick={handleEditTask}
                     >
                       <Pencil className="w-5 h-5 text-gray-700" />
                       <span>Edit Task</span>
@@ -1851,7 +1853,7 @@ export const ExampleComponent = () => {
       />
 
       {/* Edit Task Modal */}
-      {isEditModalOpen && (
+      {isEditModalOpen && editedTask && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className={`bg-white rounded-3xl p-6 w-96 shadow-lg transform ${isEditModalOpen ? 'modal-enter' : 'modal-exit'}`}>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit Task</h3>
@@ -1893,7 +1895,7 @@ export const ExampleComponent = () => {
             </div>
             <div className="mt-6 flex justify-end gap-2">
               <button
-                onClick={() => setIsEditModalOpen(false)}
+                onClick={handleCloseEditModal}
                 className="px-4 py-2 bg-gray-100 text-gray-900 rounded-xl hover:bg-gray-200 transition-colors"
               >
                 Cancel

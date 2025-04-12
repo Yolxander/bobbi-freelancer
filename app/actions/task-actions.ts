@@ -227,19 +227,45 @@ export async function createTask(data: TaskData) {
 
 export async function updateTask(taskId: string, data: Partial<TaskData>) {
   try {
-    // In a real implementation, this would update the task in the database
-    // For now, we'll just return success
+    console.log("Updating task:", { taskId, data });
 
-    revalidatePath("/dashboard")
-    revalidatePath("/tasks")
-    revalidatePath(`/tasks/${taskId}`)
-    if (data.project_id) {
-      revalidatePath(`/projects/${data.project_id}`)
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/tasks/${taskId}`;
+    console.log("Updating task at:", apiUrl);
+
+    const response = await fetch(apiUrl, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: data.title,
+        description: data.description || null,
+        due_date: data.due_date || null,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Error updating task: ${errorData.message || response.statusText}`);
     }
-    return { success: true }
+
+    const responseData = await response.json();
+    console.log("Task updated successfully:", responseData);
+
+    revalidatePath("/dashboard");
+    revalidatePath("/tasks");
+    revalidatePath(`/tasks/${taskId}`);
+    if (data.project_id) {
+      revalidatePath(`/projects/${data.project_id}`);
+    }
+
+    return { success: true, data: responseData };
   } catch (error) {
-    console.error("Error updating task:", error)
-    return { success: false, error: error.message }
+    console.error("Error updating task:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Failed to update task" 
+    };
   }
 }
 
