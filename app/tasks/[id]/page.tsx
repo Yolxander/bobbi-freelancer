@@ -339,13 +339,13 @@ export default function TaskDetailsPage() {
   const handleAddSubtask = async (e) => {
     e?.preventDefault()
 
-    if (!newSubtask.trim() || !user || !task) return
+    if (!newSubtask.trim() || !task) return
 
     try {
       const result = await createSubtask({
         title: newSubtask,
         task_id: task.id,
-        provider_id: user.id,
+        provider_id: task.provider_id,
       })
 
       if (result.success) {

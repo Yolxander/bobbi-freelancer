@@ -23,9 +23,11 @@ import Sidebar from "./components/sidebar"
 import { createClient } from "./app/actions/client-actions"
 import { createProject } from "./app/actions/project-actions"
 import { createTask } from "./app/actions/task-actions"
+import { useAuth } from "@/lib/auth-context"
 
 export default function ProviderDashboard({ initialProjects = [], initialClients = [], initialTasks = [], userId }) {
   const router = useRouter()
+  const { user } = useAuth()
   const [isPlaying, setIsPlaying] = useState(true)
   const [isAddClientModalOpen, setIsAddClientModalOpen] = useState(false)
   const [clients, setClients] = useState(initialClients)
@@ -223,6 +225,8 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
     if (e.target.closest(".task-checkbox") || e.target.tagName === "svg" || e.target.tagName === "path") {
       return
     }
+
+    console.log("User object when task clicked:", user)
 
     router.push(`/tasks/${taskId}`)
   }

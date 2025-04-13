@@ -8,6 +8,7 @@ export type SubtaskData = {
   description?: string
   completed?: boolean
   task_id: string
+  provider_id: string
 }
 
 export async function getSubtasks(taskId: string) {
@@ -54,6 +55,7 @@ export async function createSubtask(data: SubtaskData) {
         title: data.title,
         description: data.description || null,
         completed: data.completed || false,
+        provider_id: data.provider_id,
       }),
     })
 
