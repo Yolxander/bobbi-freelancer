@@ -46,6 +46,7 @@ import { useWebDeveloper } from "@/hooks/useWebDeveloper"
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import styles from './modal-animations.css';
+import TaskIssuesTab from './components/TaskIssuesTab';
 
 export default function TaskDetailsPage() {
   const params = useParams()
@@ -1557,206 +1558,16 @@ export const ExampleComponent = () => {
 
           {/* Issues Tab */}
           {activeTab === "issues" && (
-            <div className="bg-white rounded-3xl p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold">Known Issues & Fixes</h2>
-                <button
-                  className="flex items-center gap-2 bg-gray-900 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-gray-800 transition-colors"
-                  onClick={() => {
-                    setIsAddingIssue(true)
-                    setIsEditingIssue(false)
-                    setEditingIssueId(null)
-                    setNewIssue({
-                      task_id: taskId as string,
-                      title: "",
-                      description: "",
-                      status: "open",
-                      fix: "",
-                      code_snippet: "",
-                    })
-                  }}
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Add Issue</span>
-                </button>
-              </div>
-
-              {isAddingIssue && (
-                <div className="flex flex-col gap-4 mb-6 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Issue Title</label>
-                    <input
-                      type="text"
-                      value={newIssue.title}
-                      onChange={(e) => setNewIssue({ ...newIssue, title: e.target.value })}
-                      placeholder="Enter issue title..."
-                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900 text-gray-900"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                    <textarea
-                      value={newIssue.description}
-                      onChange={(e) => setNewIssue({ ...newIssue, description: e.target.value })}
-                      placeholder="Describe the issue..."
-                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900 text-gray-900 min-h-[80px] resize-y"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    <select
-                      value={newIssue.status}
-                      onChange={(e) => setNewIssue({ ...newIssue, status: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900 text-gray-900"
-                    >
-                      <option value="open">Open</option>
-                      <option value="in-progress">In Progress</option>
-                      <option value="fixed">Fixed</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Fix Solution</label>
-                    <textarea
-                      value={newIssue.fix}
-                      onChange={(e) => setNewIssue({ ...newIssue, fix: e.target.value })}
-                      placeholder="Describe how you fixed the issue (if fixed)..."
-                      className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900 text-gray-900 min-h-[80px] resize-y"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Fix Code Snippet (optional)</label>
-                    <textarea
-                      value={newIssue.code_snippet}
-                      onChange={(e) => setNewIssue({ ...newIssue, code_snippet: e.target.value })}
-                      placeholder="Paste code that fixes the issue..."
-                      className="w-full border border-gray-300 rounded-lg p-2 text-sm font-mono focus:outline-none focus:border-gray-900 text-gray-900 min-h-[120px] resize-y"
-                    />
-                  </div>
-
-                  <div className="flex justify-end gap-2 mt-1">
-                    <button
-                      onClick={handleSaveIssue}
-                      className="px-3 py-2 bg-gray-900 text-white rounded-lg text-sm hover:bg-gray-800 transition-colors"
-                    >
-                      {isEditingIssue ? "Update Issue" : "Save Issue"}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsAddingIssue(false)
-                        setIsEditingIssue(false)
-                        setEditingIssueId(null)
-                        setNewIssue({
-                          task_id: taskId as string,
-                          title: "",
-                          description: "",
-                          status: "open",
-                          fix: "",
-                          code_snippet: "",
-                        })
-                      }}
-                      className="px-3 py-2 bg-gray-100 text-gray-900 rounded-lg text-sm hover:bg-gray-200 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {issues.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <AlertCircle className="w-8 h-8 text-gray-400" />
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-700 mb-2">No issues reported</h3>
-                  <p className="text-gray-500 mb-4">Track bugs and their fixes for this task</p>
-                  <button
-                    className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
-                    onClick={() => setIsAddingIssue(true)}
-                  >
-                    Report First Issue
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {issues.map((issue) => (
-                    <div key={issue.id} className="border border-gray-200 rounded-lg overflow-hidden">
-                      <div className="flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`w-2 h-2 rounded-full ${
-                              issue.status === "open"
-                                ? "bg-red-500"
-                                : issue.status === "in-progress"
-                                  ? "bg-yellow-500"
-                                  : "bg-green-500"
-                            }`}
-                          ></span>
-                          <h3 className="font-medium">{issue.title}</h3>
-                          <span
-                            className={`text-xs px-2 py-0.5 rounded-full ${
-                              issue.status === "open"
-                                ? "bg-red-100 text-red-700"
-                                : issue.status === "in-progress"
-                                  ? "bg-yellow-100 text-yellow-700"
-                                  : "bg-green-100 text-green-700"
-                            }`}
-                          >
-                            {issue.status === "open"
-                              ? "Open"
-                              : issue.status === "in-progress"
-                                ? "In Progress"
-                                : "Fixed"}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-gray-500">
-                            {new Date(issue.created_at).toLocaleDateString()}
-                          </span>
-                          <button
-                            onClick={() => handleEditIssue(issue)}
-                            className="p-1 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteIssue(issue.id)}
-                            className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                          >
-                            <Trash className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                      <div className="p-4">
-                        <div className="mb-4">
-                          <h4 className="text-sm font-medium text-gray-700 mb-1">Description</h4>
-                          <p className="text-sm text-gray-600 whitespace-pre-wrap">{issue.description}</p>
-                        </div>
-
-                        {issue.status === "fixed" && issue.fix && (
-                          <div className="mb-4">
-                            <h4 className="text-sm font-medium text-gray-700 mb-1">Fix Solution</h4>
-                            <p className="text-sm text-gray-600 whitespace-pre-wrap">{issue.fix}</p>
-                          </div>
-                        )}
-
-                        {issue.status === "fixed" && issue.code_snippet && (
-                          <div>
-                            <h4 className="text-sm font-medium text-gray-700 mb-1">Fix Code</h4>
-                            <pre className="bg-gray-900 text-gray-100 p-3 rounded-lg overflow-x-auto text-xs">
-                              <code>{issue.code_snippet}</code>
-                            </pre>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <TaskIssuesTab 
+              taskId={taskId as string} 
+              issues={issues} 
+              onIssuesChange={async () => {
+                const refreshedIssues = await getIssues(taskId as string);
+                if (refreshedIssues.success) {
+                  setIssues(refreshedIssues.data || []);
+                }
+              }} 
+            />
           )}
 
           {/* Activity Tab */}
