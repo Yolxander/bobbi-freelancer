@@ -14,7 +14,7 @@ export async function getSubtasks(taskId: string) {
   try {
     console.log("Fetching subtasks for task:", taskId)
 
-    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/subtasks/tasks/${taskId}/subtasks`
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/tasks/${taskId}/subtasks`
     console.log("Fetching subtasks from:", apiUrl)
 
     const response = await fetch(apiUrl, {
@@ -42,7 +42,7 @@ export async function createSubtask(data: SubtaskData) {
   try {
     console.log("Creating new subtask:", data)
 
-    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/subtasks`
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/tasks/${data.task_id}/subtasks`
     console.log("Creating subtask at:", apiUrl)
 
     const response = await fetch(apiUrl, {
@@ -54,7 +54,6 @@ export async function createSubtask(data: SubtaskData) {
         title: data.title,
         description: data.description || null,
         completed: data.completed || false,
-        task_id: data.task_id,
       }),
     })
 
