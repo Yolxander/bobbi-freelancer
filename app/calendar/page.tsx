@@ -23,6 +23,9 @@ import {
   deleteCalendarEvent,
   CalendarEvent as ApiCalendarEvent
 } from "@/app/actions/calendar-actions"
+import { getClients } from "@/app/actions/client-actions"
+import { getProjects } from "@/app/actions/project-actions"
+import { useAuth } from "@/lib/auth-context"
 
 interface Event {
   id: number
@@ -46,6 +49,7 @@ function EventModal({ isOpen, onClose, onSave, selectedDate }: {
   onSave: (event: Omit<Event, "id">) => void;
   selectedDate: Date;
 }) {
+  const { user } = useAuth()
   const [title, setTitle] = useState("")
   const [clientId, setClientId] = useState<number>(1)
   const [projectId, setProjectId] = useState<number>(1)
@@ -58,25 +62,88 @@ function EventModal({ isOpen, onClose, onSave, selectedDate }: {
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [showStartTimePicker, setShowStartTimePicker] = useState(false)
   const [showEndTimePicker, setShowEndTimePicker] = useState(false)
+  const [clients, setClients] = useState<{id: number, name: string}[]>([])
+  const [projects, setProjects] = useState<{id: number, name: string}[]>([])
+  const [isLoadingClients, setIsLoadingClients] = useState(false)
+  const [isLoadingProjects, setIsLoadingProjects] = useState(false)
+  const [clientError, setClientError] = useState<string | null>(null)
+  const [projectError, setProjectError] = useState<string | null>(null)
 
-  // Sample data for clients and projects
-  const clients = [
-    { id: 1, name: "Acme Inc." },
-    { id: 2, name: "TechStart" },
-    { id: 3, name: "GreenGrow" },
-    { id: 4, name: "BlueSky Media" },
-    { id: 5, name: "Innovate Corp" },
-    { id: 6, name: "Future Systems" }
-  ]
+  // Fetch clients and projects when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      fetchClients()
+      fetchProjects()
+    }
+  }, [isOpen])
 
-  const projects = [
-    { id: 1, name: "Website Redesign" },
-    { id: 2, name: "Mobile App" },
-    { id: 3, name: "Brand Identity" },
-    { id: 4, name: "Social Media Campaign" },
-    { id: 5, name: "Product Launch" },
-    { id: 6, name: "Customer Portal" }
-  ]
+  // Fetch clients from API
+  const fetchClients = async () => {
+    setIsLoadingClients(true)
+    setClientError(null)
+    try {
+      if (!user || !user.providerId) {
+        setClientError("Provider information not found")
+        return
+      }
+
+      const result = await getClients(user.providerId)
+      if (result.success) {
+        // Convert string IDs to numbers for our interface
+        const formattedClients = result.data.map(client => ({
+          id: parseInt(client.id || "0"),
+          name: client.name
+        }))
+        setClients(formattedClients)
+        // Set default client if available
+        if (formattedClients.length > 0) {
+          setClientId(formattedClients[0].id)
+        }
+      } else {
+        setClientError("Failed to fetch clients")
+        console.error("Error fetching clients")
+      }
+    } catch (err) {
+      setClientError("An unexpected error occurred")
+      console.error("Exception fetching clients:", err)
+    } finally {
+      setIsLoadingClients(false)
+    }
+  }
+
+  // Fetch projects from API
+  const fetchProjects = async () => {
+    setIsLoadingProjects(true)
+    setProjectError(null)
+    try {
+      if (!user || !user.providerId) {
+        setProjectError("Provider information not found")
+        return
+      }
+
+      const result = await getProjects(user.providerId)
+      if (result.success) {
+        // Convert string IDs to numbers for our interface
+        const formattedProjects = result.data.map(project => ({
+          id: parseInt(project.id || "0"),
+          name: project.name
+        }))
+        setProjects(formattedProjects)
+        // Set default project if available
+        if (formattedProjects.length > 0) {
+          setProjectId(formattedProjects[0].id)
+        }
+      } else {
+        setProjectError("Failed to fetch projects")
+        console.error("Error fetching projects")
+      }
+    } catch (err) {
+      setProjectError("An unexpected error occurred")
+      console.error("Exception fetching projects:", err)
+    } finally {
+      setIsLoadingProjects(false)
+    }
+  }
 
   const locations = [
     "Video Call",
@@ -233,6 +300,7 @@ function EventModal({ isOpen, onClose, onSave, selectedDate }: {
                 onChange={(e) => setClientId(parseInt(e.target.value))}
                 className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
                 required
+                disabled={isLoadingClients}
               >
                 <option value="">Select a client</option>
                 {clients.map((client) => (
@@ -241,6 +309,8 @@ function EventModal({ isOpen, onClose, onSave, selectedDate }: {
                   </option>
                 ))}
               </select>
+              {isLoadingClients && <p className="text-xs text-gray-500 mt-1">Loading clients...</p>}
+              {clientError && <p className="text-xs text-red-500 mt-1">{clientError}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Project</label>
@@ -249,6 +319,7 @@ function EventModal({ isOpen, onClose, onSave, selectedDate }: {
                 onChange={(e) => setProjectId(parseInt(e.target.value))}
                 className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
                 required
+                disabled={isLoadingProjects}
               >
                 <option value="">Select a project</option>
                 {projects.map((project) => (
@@ -257,6 +328,8 @@ function EventModal({ isOpen, onClose, onSave, selectedDate }: {
                   </option>
                 ))}
               </select>
+              {isLoadingProjects && <p className="text-xs text-gray-500 mt-1">Loading projects...</p>}
+              {projectError && <p className="text-xs text-red-500 mt-1">{projectError}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
