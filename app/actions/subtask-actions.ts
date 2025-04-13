@@ -1,200 +1,163 @@
 "use server"
 
-import { createAdminClient } from "@/lib/supabase"
 import { revalidatePath } from "next/cache"
 
 export type SubtaskData = {
   id?: string
   title: string
   description?: string
-  status?: string
   completed?: boolean
   task_id: string
-  provider_id: string
 }
 
 export async function getSubtasks(taskId: string) {
-  const supabase = createAdminClient()
-
   try {
     console.log("Fetching subtasks for task:", taskId)
 
-    const { data, error } = await supabase
-      .from("subtasks")
-      .select("*")
-      .eq("task_id", taskId)
-      .order("created_at", { ascending: true })
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/subtasks/tasks/${taskId}/subtasks`
+    console.log("Fetching subtasks from:", apiUrl)
 
-    if (error) {
-      console.error("Error fetching subtasks:", error)
-      throw error
+    const response = await fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(`Error fetching subtasks: ${errorData.message || response.statusText}`)
     }
 
+    const data = await response.json()
     console.log(`Found ${data?.length || 0} subtasks for task ${taskId}`)
     return { success: true, data: data || [] }
   } catch (error) {
-    console.error("Error getting subtasks:", error)
-    return { success: false, error: error.message, data: [] }
-  }
-}
-
-export async function getSubtask(subtaskId: string) {
-  const supabase = createAdminClient()
-
-  try {
-    console.log("Fetching subtask with ID:", subtaskId)
-
-    // First check if the subtask exists
-    const { data: subtaskExists, error: checkError } = await supabase.from("subtasks").select("id").eq("id", subtaskId)
-
-    if (checkError) {
-      console.error("Error checking if subtask exists:", checkError)
-      throw checkError
-    }
-
-    if (!subtaskExists || subtaskExists.length === 0) {
-      console.log(`No subtask found with ID: ${subtaskId}`)
-      return { success: false, error: "Subtask not found" }
-    }
-
-    // Now fetch the subtask
-    const { data, error } = await supabase.from("subtasks").select("*").eq("id", subtaskId).limit(1)
-
-    if (error) {
-      console.error("Error fetching subtask details:", error)
-      throw error
-    }
-
-    if (!data || data.length === 0) {
-      return { success: false, error: "Subtask not found" }
-    }
-
-    return { success: true, data: data[0] }
-  } catch (error) {
-    console.error("Error getting subtask:", error)
-    return { success: false, error: error.message }
+    console.error("Error fetching subtasks:", error)
+    return { success: false, error: error instanceof Error ? error.message : "Failed to fetch subtasks", data: [] }
   }
 }
 
 export async function createSubtask(data: SubtaskData) {
-  const supabase = createAdminClient()
-
   try {
-    const { data: newSubtask, error } = await supabase
-      .from("subtasks")
-      .insert({
+    console.log("Creating new subtask:", data)
+
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/subtasks`
+    console.log("Creating subtask at:", apiUrl)
+
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
         title: data.title,
         description: data.description || null,
-        status: data.status || "todo",
         completed: data.completed || false,
         task_id: data.task_id,
-        provider_id: data.provider_id,
-      })
-      .select()
+      }),
+    })
 
-    if (error) throw error
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(`Error creating subtask: ${errorData.message || response.statusText}`)
+    }
+
+    const responseData = await response.json()
 
     revalidatePath(`/tasks/${data.task_id}`)
-    return { success: true, data: newSubtask?.[0] || null }
+    return { success: true, data: responseData }
   } catch (error) {
     console.error("Error creating subtask:", error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to create subtask" }
   }
 }
 
 export async function updateSubtask(subtaskId: string, data: Partial<SubtaskData>) {
-  const supabase = createAdminClient()
-
   try {
-    const { error } = await supabase
-      .from("subtasks")
-      .update({
-        ...data,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", subtaskId)
+    console.log("Updating subtask:", { subtaskId, data })
 
-    if (error) throw error
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/subtasks/${subtaskId}`
+    console.log("Updating subtask at:", apiUrl)
+
+    const response = await fetch(apiUrl, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(`Error updating subtask: ${errorData.message || response.statusText}`)
+    }
+
+    const responseData = await response.json()
+    console.log("Subtask updated successfully:", responseData)
 
     revalidatePath(`/tasks/${data.task_id}`)
-    return { success: true }
+    return { success: true, data: responseData }
   } catch (error) {
     console.error("Error updating subtask:", error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to update subtask" }
   }
 }
 
-// Update the toggleSubtaskCompletion function to update parent task progress
 export async function toggleSubtaskCompletion(subtaskId: string, completed: boolean) {
-  const supabase = createAdminClient()
-
   try {
-    // First, get the subtask to find its parent task
-    const { data: subtask, error: subtaskError } = await supabase
-      .from("subtasks")
-      .select("task_id")
-      .eq("id", subtaskId)
-      .single()
+    console.log("Toggling subtask completion:", { subtaskId, completed })
 
-    if (subtaskError) throw subtaskError
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/subtasks/${subtaskId}`
+    console.log("Updating subtask at:", apiUrl)
 
-    // Update the subtask completion status
-    const { error } = await supabase
-      .from("subtasks")
-      .update({
-        completed,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", subtaskId)
+    const response = await fetch(apiUrl, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        completed: completed,
+      }),
+    })
 
-    if (error) throw error
-
-    // Check if all subtasks for this task are completed
-    if (subtask?.task_id) {
-      const { data: allSubtasks, error: subtasksError } = await supabase
-        .from("subtasks")
-        .select("completed")
-        .eq("task_id", subtask.task_id)
-
-      if (subtasksError) throw subtasksError
-
-      // If there are subtasks and all are completed, mark the parent task as completed
-      if (allSubtasks && allSubtasks.length > 0) {
-        const allCompleted = allSubtasks.every((st) => st.completed)
-
-        // Update the parent task status
-        await supabase
-          .from("tasks")
-          .update({
-            completed: allCompleted,
-            status: allCompleted ? "completed" : "in-progress",
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", subtask.task_id)
-
-        // Revalidate the task page
-        revalidatePath(`/tasks/${subtask.task_id}`)
-      }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(`Error toggling subtask completion: ${errorData.message || response.statusText}`)
     }
 
-    return { success: true }
+    const responseData = await response.json()
+    console.log("Subtask completion toggled successfully:", responseData)
+
+    return { success: true, data: responseData }
   } catch (error) {
     console.error("Error toggling subtask completion:", error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to toggle subtask completion" }
   }
 }
 
 export async function deleteSubtask(subtaskId: string) {
-  const supabase = createAdminClient()
-
   try {
-    const { error } = await supabase.from("subtasks").delete().eq("id", subtaskId)
+    console.log("Deleting subtask:", subtaskId)
 
-    if (error) throw error
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/subtasks/${subtaskId}`
+    console.log("Deleting subtask at:", apiUrl)
+
+    const response = await fetch(apiUrl, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(`Error deleting subtask: ${errorData.message || response.statusText}`)
+    }
 
     return { success: true }
   } catch (error) {
     console.error("Error deleting subtask:", error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to delete subtask" }
   }
 }
