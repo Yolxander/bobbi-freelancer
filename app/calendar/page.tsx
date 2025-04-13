@@ -449,7 +449,7 @@ function EventModal({ isOpen, onClose, onSave, selectedDate }: {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="px-4 py-2 bg-black text-white rounded-lg "
             >
               Save Event
             </button>
