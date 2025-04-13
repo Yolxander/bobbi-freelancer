@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useAuth } from "@/lib/auth-context"
-import { getTasks, toggleTaskCompletion, updateTask } from "@/app/actions/task-actions"
+import { getProviderTasks, toggleTaskCompletion, updateTask } from "@/app/actions/task-actions"
 import Sidebar from "@/components/sidebar"
 import {
   CheckSquare,
@@ -22,31 +22,59 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 
+// Define types for our data
+interface Task {
+  id: string
+  title: string
+  description?: string
+  status: string
+  priority?: string
+  category?: string
+  due_date?: string
+  project_id: string
+  provider_id: string
+  completed: boolean
+  project?: string
+  client?: string
+  client_id?: string
+  updated_at?: string
+}
+
+interface Client {
+  id: string
+  name: string
+}
+
+interface Project {
+  id: string
+  name: string
+}
+
 export default function TasksPage() {
-  const { user, isLoading: authLoading } = useAuth()
-  const [tasks, setTasks] = useState([])
+  const { user, loading: authLoading } = useAuth()
+  const [tasks, setTasks] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
-  const [clients, setClients] = useState([])
-  const [projects, setProjects] = useState([])
+  const [clients, setClients] = useState<Client[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
   const [statusFilter, setStatusFilter] = useState("all")
   const [priorityFilter, setPriorityFilter] = useState("all")
   const [clientFilter, setClientFilter] = useState("all")
   const [projectFilter, setProjectFilter] = useState("all")
   const [viewMode, setViewMode] = useState("kanban") // "list" or "kanban"
-  const [draggedTask, setDraggedTask] = useState(null)
+  const [draggedTask, setDraggedTask] = useState<Task | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [isFiltersOpen, setIsFiltersOpen] = useState(false)
 
   useEffect(() => {
     const fetchTasks = async () => {
-      if (user) {
+      if (user && user.providerId) {
         setIsLoading(true)
         setError(null)
 
         try {
-          const result = await getTasks(user.id)
+          const result = await getProviderTasks(user.providerId)
 
           if (result.success) {
             setTasks(result.data)
@@ -55,18 +83,18 @@ export default function TasksPage() {
             const uniqueClients = Array.from(
               new Set(
                 result.data
-                  .filter((task) => task.client)
-                  .map((task) => JSON.stringify({ id: task.client_id, name: task.client })),
+                  .filter((task: Task) => task.client)
+                  .map((task: Task) => JSON.stringify({ id: task.client_id || '', name: task.client || '' })),
               ),
-            ).map((str) => JSON.parse(str))
+            ).map((str: unknown) => JSON.parse(str as string))
 
             const uniqueProjects = Array.from(
               new Set(
                 result.data
-                  .filter((task) => task.project)
-                  .map((task) => JSON.stringify({ id: task.project_id, name: task.project })),
+                  .filter((task: Task) => task.project)
+                  .map((task: Task) => JSON.stringify({ id: task.project_id || '', name: task.project || '' })),
               ),
-            ).map((str) => JSON.parse(str))
+            ).map((str: unknown) => JSON.parse(str as string))
 
             setClients(uniqueClients)
             setProjects(uniqueProjects)
@@ -82,12 +110,12 @@ export default function TasksPage() {
       }
     }
 
-    if (user) {
+    if (user && user.providerId) {
       fetchTasks()
     }
   }, [user])
 
-  const handleToggleTask = async (taskId, completed) => {
+  const handleToggleTask = async (taskId: string, completed: boolean) => {
     try {
       const result = await toggleTaskCompletion(taskId, !completed)
 
@@ -103,50 +131,13 @@ export default function TasksPage() {
     }
   }
 
-  // Drag and drop handlers
-  const handleDragStart = (e, task) => {
-    setDraggedTask(task)
-    setIsDragging(true)
-
-    // Set a ghost image for better UX
-    const ghostElement = document.createElement("div")
-    ghostElement.classList.add("bg-white", "p-4", "rounded-lg", "shadow-md", "w-64")
-    ghostElement.textContent = task.title
-    ghostElement.style.position = "absolute"
-    ghostElement.style.top = "-1000px"
-    document.body.appendChild(ghostElement)
-
-    e.dataTransfer.setDragImage(ghostElement, 0, 0)
-    e.dataTransfer.effectAllowed = "move"
-    e.dataTransfer.setData("text/plain", task.id)
-
-    // Add a timeout to remove the ghost element
-    setTimeout(() => {
-      document.body.removeChild(ghostElement)
-    }, 0)
-  }
-
-  const handleDragEnd = () => {
-    setIsDragging(false)
-    setDraggedTask(null)
-  }
-
-  const handleDragOver = (e, status) => {
-    e.preventDefault()
-    e.dataTransfer.dropEffect = "move"
-  }
-
-  const handleDrop = async (e, newStatus) => {
-    e.preventDefault()
-
-    if (!draggedTask || draggedTask.status === newStatus) return
-
+  const updateTaskStatus = async (taskId: string, newStatus: string) => {
     try {
       // Optimistically update the UI
-      setTasks(tasks.map((task) => (task.id === draggedTask.id ? { ...task, status: newStatus } : task)))
+      setTasks(tasks.map((task) => (task.id === taskId ? { ...task, status: newStatus } : task)))
 
       // Update in the database
-      const result = await updateTask(draggedTask.id, { status: newStatus })
+      const result = await updateTask(taskId, { status: newStatus })
 
       if (!result.success) {
         // Revert if failed
@@ -159,7 +150,30 @@ export default function TasksPage() {
       setTasks(tasks)
       setError("Failed to update task status")
     }
+  }
 
+  // Drag and drop handlers
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, task: Task) => {
+    setDraggedTask(task)
+    setIsDragging(true)
+    e.dataTransfer.effectAllowed = "move"
+  }
+
+  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+    setDraggedTask(null)
+    setIsDragging(false)
+  }
+
+  const handleDragOver = (e, status) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "move"
+  }
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, status: string) => {
+    e.preventDefault()
+    if (draggedTask) {
+      updateTaskStatus(draggedTask.id, status)
+    }
     setDraggedTask(null)
     setIsDragging(false)
   }
@@ -207,6 +221,33 @@ export default function TasksPage() {
     completed: filteredTasks.filter((task) => task.status === "completed"),
   }
 
+  const formatDate = (dateString: string | undefined): string => {
+    if (!dateString) return 'No date';
+    try {
+      const date = new Date(dateString as string);
+      return date.toLocaleDateString();
+    } catch (error) {
+      return 'Invalid date';
+    }
+  }
+
+  interface TaskCardProps {
+    task: Task;
+    className?: string;
+  }
+
+  interface TaskListProps {
+    className?: string;
+  }
+
+  const TaskCard: React.FC<TaskCardProps> = ({ task, className = "" }) => {
+    // ... existing code ...
+  }
+
+  const TaskList: React.FC<TaskListProps> = ({ className = "" }) => {
+    // ... existing code ...
+  }
+
   if (authLoading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -226,31 +267,31 @@ export default function TasksPage() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b border-gray-100">
+        <div className="p-6 border-b border-gray-100 bg-gray-50">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <h1 className="text-2xl font-bold">Tasks</h1>
+            <h1 className="text-2xl font-bold text-gray-800">Tasks</h1>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setViewMode("list")}
                 className={`p-2 rounded-lg ${viewMode === "list" ? "bg-gray-200" : "hover:bg-gray-100"}`}
                 aria-label="List view"
               >
-                <List className="w-5 h-5" />
+                <List className="w-5 h-5 text-gray-700" />
               </button>
               <button
                 onClick={() => setViewMode("kanban")}
                 className={`p-2 rounded-lg ${viewMode === "kanban" ? "bg-gray-200" : "hover:bg-gray-100"}`}
                 aria-label="Kanban view"
               >
-                <Columns className="w-5 h-5" />
+                <Columns className="w-5 h-5 text-gray-700" />
               </button>
               <button
                 onClick={() => setIsFiltersOpen(!isFiltersOpen)}
                 className={`p-2 rounded-lg flex items-center gap-1 ${isFiltersOpen ? "bg-gray-200" : "hover:bg-gray-100"}`}
                 aria-label="Toggle filters"
               >
-                <Filter className="w-5 h-5" />
-                <span className="sr-only md:not-sr-only md:text-sm">Filters</span>
+                <Filter className="w-5 h-5 text-gray-700" />
+                <span className="sr-only md:not-sr-only md:text-sm text-gray-700">Filters</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
@@ -261,7 +302,7 @@ export default function TasksPage() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className={`transition-transform ${isFiltersOpen ? "rotate-180" : ""} hidden md:block`}
+                  className={`transition-transform ${isFiltersOpen ? "rotate-180" : ""} hidden md:block text-gray-700`}
                 >
                   <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
@@ -277,7 +318,7 @@ export default function TasksPage() {
         </div>
 
         {/* Filters */}
-        <div className="p-4 border-b border-gray-100">
+        <div className="p-4 border-b border-gray-100 bg-gray-50">
           <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -286,7 +327,7 @@ export default function TasksPage() {
                 placeholder="Search tasks..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-900"
+                className="bg-white w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-900"
               />
             </div>
           </div>

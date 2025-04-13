@@ -298,3 +298,39 @@ export async function deleteTask(taskId: string) {
     return { success: false, error: error.message }
   }
 }
+
+export async function getProviderTasks(providerId: string) {
+  try {
+    console.log("Fetching tasks for provider:", providerId)
+
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/tasks?provider_id=${providerId}`
+    console.log("Fetching tasks from:", apiUrl)
+
+    const response = await fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(`Error fetching tasks: ${errorData.message || response.statusText}`)
+    }
+
+    const data = await response.json()
+    console.log(`Found ${data?.length || 0} tasks for provider ${providerId}`)
+    
+    // Transform the data to include project and client names if needed
+    const transformedData = data.map((task) => ({
+      ...task,
+      project: task.projects?.name || "Unknown Project",
+      client: task.projects?.clients?.name || "Unknown Client",
+    }))
+
+    return { success: true, data: transformedData }
+  } catch (error) {
+    console.error("Error getting provider tasks:", error)
+    return { success: false, error: error instanceof Error ? error.message : "Failed to fetch tasks", data: [] }
+  }
+}
