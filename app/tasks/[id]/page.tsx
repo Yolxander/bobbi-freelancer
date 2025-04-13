@@ -1061,50 +1061,42 @@ export default function TaskDetailsPage() {
                     </div>
                   )}
 
-                  {isAddingSubtask ? (
-                    <div className="flex flex-col gap-2 mt-2 bg-gray-50 p-3 rounded-lg">
-                      <textarea
-                        id="new-subtask-input"
-                        value={newSubtask}
-                        onChange={(e) => {
-                          setNewSubtask(e.target.value)
-                          setCursorPosition(e.target.selectionStart)
-                        }}
-                        placeholder="Enter subtask title..."
-                        className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900 text-gray-900 min-h-[80px] resize-y"
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" && !e.shiftKey) {
-                            e.preventDefault()
-                            handleAddSubtask()
-                          }
-                        }}
-                        autoFocus
-                      />
-                      <div className="flex justify-end gap-2">
-                        <button
-                          onClick={handleAddSubtask}
-                          className="px-3 py-1.5 bg-gray-900 text-white rounded-lg text-sm"
-                        >
-                          Add
-                        </button>
-                        <button
-                          onClick={() => {
-                            setIsAddingSubtask(false)
-                            setNewSubtask("")
-                          }}
-                          className="px-3 py-1.5 bg-gray-100 text-gray-900 rounded-lg text-sm"
-                        >
-                          Cancel
-                        </button>
-                      </div>
+                  {isAddingSubtask && (
+                    <div className="mt-4 p-4 bg-gray-50 rounded-xl">
+                      <form onSubmit={handleAddSubtask} className="space-y-4">
+                        <div>
+                          <label htmlFor="new-subtask-input" className="block text-sm font-medium text-gray-900 mb-1">
+                            Subtask Title
+                          </label>
+                          <textarea
+                            id="new-subtask-input"
+                            value={newSubtask}
+                            onChange={(e) => setNewSubtask(e.target.value)}
+                            className="bg-gray-50 w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900 text-gray-900"
+                            placeholder="Enter subtask title..."
+                            rows={2}
+                          />
+                        </div>
+                        <div className="flex justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsAddingSubtask(false)
+                              setNewSubtask("")
+                            }}
+                            className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            className="px-3 py-1.5 bg-gray-900 text-white rounded-lg text-sm hover:bg-gray-800 transition-colors"
+                          >
+                            Add Subtask
+                          </button>
+                        </div>
+                      </form>
                     </div>
-                  ) : (
-                    <button
-                      onClick={() => setIsAddingSubtask(true)}
-                      className="flex items-center gap-1 text-sm text-gray-900 hover:text-gray-700"
-                    >
-                      <Plus className="w-4 h-4" /> Add Subtask
-                    </button>
                   )}
                 </div>
               </div>
@@ -1415,41 +1407,40 @@ export const ExampleComponent = () => {
               </div>
 
               {isAddingSubtask && (
-                <div className="flex flex-col gap-2 mb-6 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                  <textarea
-                    id="new-subtask-input"
-                    value={newSubtask}
-                    onChange={(e) => {
-                      setNewSubtask(e.target.value)
-                      setCursorPosition(e.target.selectionStart)
-                    }}
-                    placeholder="Enter subtask title..."
-                    className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900 text-gray-900"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault()
-                        handleAddSubtask()
-                      }
-                    }}
-                    autoFocus
-                  />
-                  <div className="flex justify-end gap-2 mt-1">
-                    <button
-                      onClick={handleAddSubtask}
-                      className="px-3 py-2 bg-gray-900 text-white rounded-lg text-sm hover:bg-gray-800 transition-colors"
-                    >
-                      Add
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsAddingSubtask(false)
-                        setNewSubtask("")
-                      }}
-                      className="px-3 py-2 bg-gray-100 text-gray-900 rounded-lg text-sm hover:bg-gray-200 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  </div>
+                <div className="mt-4 p-4 bg-gray-50 rounded-xl">
+                  <form onSubmit={handleAddSubtask} className="space-y-4">
+                    <div>
+                      <label htmlFor="new-subtask-input" className="block text-sm font-medium text-gray-900 mb-1">
+                        Subtask Title
+                      </label>
+                      <textarea
+                        id="new-subtask-input"
+                        value={newSubtask}
+                        onChange={(e) => setNewSubtask(e.target.value)}
+                        className="bg-gray-50 w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900 text-gray-900"
+                        placeholder="Enter subtask title..."
+                        rows={2}
+                      />
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsAddingSubtask(false)
+                          setNewSubtask("")
+                        }}
+                        className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-3 py-1.5 bg-gray-900 text-white rounded-lg text-sm hover:bg-gray-800 transition-colors"
+                      >
+                        Add Subtask
+                      </button>
+                    </div>
+                  </form>
                 </div>
               )}
 

@@ -105,7 +105,7 @@ export default function TaskDetailsTab({
                   setCursorPosition(e.target.selectionStart)
                 }}
                 placeholder="Enter subtask title..."
-                className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900 text-gray-900 min-h-[80px] resize-y"
+                className="bg-50-gray w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-gray-900 text-gray-900 min-h-[80px] resize-y"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault()

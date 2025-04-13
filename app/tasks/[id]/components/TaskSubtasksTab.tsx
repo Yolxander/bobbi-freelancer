@@ -149,7 +149,7 @@ export default function TaskSubtasksTab({ taskId, subtasks, onSubtasksChange }: 
             onChange={(e) => setNewSubtaskTitle(e.target.value)}
             onKeyDown={(e) => handleKeyDown(e, handleAddSubtask)}
             placeholder="Enter subtask title..."
-            className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="bg-50-gray flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             autoFocus
           />
           <button
