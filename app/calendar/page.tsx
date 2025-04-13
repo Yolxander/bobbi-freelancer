@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import {
   Calendar,
@@ -16,15 +16,24 @@ import {
   X,
 } from "lucide-react"
 import Sidebar from "@/components/sidebar"
+import { 
+  getCalendarEvents, 
+  createCalendarEvent, 
+  updateCalendarEvent, 
+  deleteCalendarEvent,
+  CalendarEvent as ApiCalendarEvent
+} from "@/app/actions/calendar-actions"
 
 interface Event {
   id: number
   title: string
-  client: string
-  project: string
+  client_id: number
+  project_id: number
+  client_name?: string
+  project_name?: string
   date: Date
-  startTime: string
-  endTime: string
+  start_time: string
+  end_time: string
   location: string
   attendees: number
   color: string
@@ -38,8 +47,8 @@ function EventModal({ isOpen, onClose, onSave, selectedDate }: {
   selectedDate: Date;
 }) {
   const [title, setTitle] = useState("")
-  const [client, setClient] = useState("")
-  const [project, setProject] = useState("")
+  const [clientId, setClientId] = useState<number>(1)
+  const [projectId, setProjectId] = useState<number>(1)
   const [date, setDate] = useState(selectedDate)
   const [startTime, setStartTime] = useState("")
   const [endTime, setEndTime] = useState("")
@@ -52,21 +61,21 @@ function EventModal({ isOpen, onClose, onSave, selectedDate }: {
 
   // Sample data for clients and projects
   const clients = [
-    "Acme Inc.",
-    "TechStart",
-    "GreenGrow",
-    "BlueSky Media",
-    "Innovate Corp",
-    "Future Systems"
+    { id: 1, name: "Acme Inc." },
+    { id: 2, name: "TechStart" },
+    { id: 3, name: "GreenGrow" },
+    { id: 4, name: "BlueSky Media" },
+    { id: 5, name: "Innovate Corp" },
+    { id: 6, name: "Future Systems" }
   ]
 
   const projects = [
-    "Website Redesign",
-    "Mobile App",
-    "Brand Identity",
-    "Social Media Campaign",
-    "Product Launch",
-    "Customer Portal"
+    { id: 1, name: "Website Redesign" },
+    { id: 2, name: "Mobile App" },
+    { id: 3, name: "Brand Identity" },
+    { id: 4, name: "Social Media Campaign" },
+    { id: 5, name: "Product Launch" },
+    { id: 6, name: "Customer Portal" }
   ]
 
   const locations = [
@@ -93,11 +102,13 @@ function EventModal({ isOpen, onClose, onSave, selectedDate }: {
     e.preventDefault()
     onSave({
       title,
-      client,
-      project,
+      client_id: clientId,
+      project_id: projectId,
+      client_name: clients.find(c => c.id === clientId)?.name,
+      project_name: projects.find(p => p.id === projectId)?.name,
       date,
-      startTime,
-      endTime,
+      start_time: startTime,
+      end_time: endTime,
       location,
       attendees,
       color,
@@ -218,15 +229,15 @@ function EventModal({ isOpen, onClose, onSave, selectedDate }: {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Client</label>
               <select
-                value={client}
-                onChange={(e) => setClient(e.target.value)}
+                value={clientId}
+                onChange={(e) => setClientId(parseInt(e.target.value))}
                 className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
                 required
               >
                 <option value="">Select a client</option>
-                {clients.map((clientName) => (
-                  <option key={clientName} value={clientName}>
-                    {clientName}
+                {clients.map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.name}
                   </option>
                 ))}
               </select>
@@ -234,15 +245,15 @@ function EventModal({ isOpen, onClose, onSave, selectedDate }: {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Project</label>
               <select
-                value={project}
-                onChange={(e) => setProject(e.target.value)}
+                value={projectId}
+                onChange={(e) => setProjectId(parseInt(e.target.value))}
                 className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
                 required
               >
                 <option value="">Select a project</option>
-                {projects.map((projectName) => (
-                  <option key={projectName} value={projectName}>
-                    {projectName}
+                {projects.map((project) => (
+                  <option key={project.id} value={project.id}>
+                    {project.name}
                   </option>
                 ))}
               </select>
@@ -469,11 +480,13 @@ export default function CalendarPage() {
     {
       id: 1,
       title: "Client Meeting",
-      client: "Acme Inc.",
-      project: "Website Redesign",
+      client_id: 1,
+      project_id: 1,
+      client_name: "Acme Inc.",
+      project_name: "Website Redesign",
       date: new Date(currentDate.getFullYear(), currentDate.getMonth(), 15),
-      startTime: "10:00 AM",
-      endTime: "11:30 AM",
+      start_time: "10:00",
+      end_time: "11:30",
       location: "Video Call",
       attendees: 3,
       color: "bg-blue-100 text-blue-700",
@@ -481,11 +494,13 @@ export default function CalendarPage() {
     {
       id: 2,
       title: "Project Review",
-      client: "TechStart",
-      project: "Mobile App",
+      client_id: 2,
+      project_id: 2,
+      client_name: "TechStart",
+      project_name: "Mobile App",
       date: new Date(currentDate.getFullYear(), currentDate.getMonth(), 18),
-      startTime: "2:00 PM",
-      endTime: "3:00 PM",
+      start_time: "14:00",
+      end_time: "15:00",
       location: "Office",
       attendees: 5,
       color: "bg-green-100 text-green-700",
@@ -493,11 +508,13 @@ export default function CalendarPage() {
     {
       id: 3,
       title: "Design Presentation",
-      client: "GreenGrow",
-      project: "Brand Identity",
+      client_id: 3,
+      project_id: 3,
+      client_name: "GreenGrow",
+      project_name: "Brand Identity",
       date: new Date(currentDate.getFullYear(), currentDate.getMonth(), 22),
-      startTime: "11:00 AM",
-      endTime: "12:30 PM",
+      start_time: "11:00",
+      end_time: "12:30",
       location: "Client Office",
       attendees: 4,
       color: "bg-purple-100 text-purple-700",
@@ -505,11 +522,13 @@ export default function CalendarPage() {
     {
       id: 4,
       title: "Team Sync",
-      client: "Internal",
-      project: "All Projects",
+      client_id: 0,
+      project_id: 0,
+      client_name: "Internal",
+      project_name: "All Projects",
       date: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
-      startTime: "9:00 AM",
-      endTime: "9:30 AM",
+      start_time: "09:00",
+      end_time: "09:30",
       location: "Office",
       attendees: 8,
       color: "bg-gray-100 text-gray-700",
@@ -517,16 +536,61 @@ export default function CalendarPage() {
     {
       id: 5,
       title: "Client Onboarding",
-      client: "BlueSky Media",
-      project: "Social Media Campaign",
+      client_id: 4,
+      project_id: 4,
+      client_name: "BlueSky Media",
+      project_name: "Social Media Campaign",
       date: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1),
-      startTime: "1:00 PM",
-      endTime: "2:30 PM",
+      start_time: "13:00",
+      end_time: "14:30",
       location: "Video Call",
       attendees: 3,
       color: "bg-yellow-100 text-yellow-700",
     },
   ])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Fetch calendar events on component mount
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setIsLoading(true)
+      setError(null)
+      try {
+        const { data, error } = await getCalendarEvents()
+        if (error) {
+          setError(error)
+          return
+        }
+        
+        if (data && Array.isArray(data)) {
+          // Convert API events to local Event format
+          const convertedEvents = data.map((apiEvent: ApiCalendarEvent) => ({
+            id: apiEvent.id,
+            title: apiEvent.title,
+            client_id: apiEvent.client_id,
+            project_id: apiEvent.project_id,
+            client_name: apiEvent.client_name || "",
+            project_name: apiEvent.project_name || "",
+            date: new Date(apiEvent.date),
+            start_time: apiEvent.start_time,
+            end_time: apiEvent.end_time,
+            location: apiEvent.location,
+            attendees: apiEvent.attendees,
+            color: apiEvent.color,
+          }))
+          setEvents(convertedEvents)
+        }
+      } catch (err) {
+        setError("Failed to fetch calendar events")
+        console.error(err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchEvents()
+  }, [])
 
   // Generate days for the current month
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()
@@ -592,9 +656,138 @@ export default function CalendarPage() {
   }
 
   // Handle adding a new event
-  const handleAddEvent = (newEvent: Omit<Event, "id">) => {
-    const newId = Math.max(...events.map(event => event.id), 0) + 1
-    setEvents([...events, { ...newEvent, id: newId }])
+  const handleAddEvent = async (newEvent: Omit<Event, "id">) => {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      // Convert the event to the API format
+      const apiEvent = {
+        title: newEvent.title,
+        client_id: newEvent.client_id,
+        project_id: newEvent.project_id,
+        date: newEvent.date.toISOString().split('T')[0], // Format as YYYY-MM-DD
+        start_time: newEvent.start_time,
+        end_time: newEvent.end_time,
+        location: newEvent.location,
+        attendees: newEvent.attendees,
+        color: newEvent.color,
+      }
+      
+      // Call the API to create the event
+      const { data, error } = await createCalendarEvent(apiEvent)
+      
+      if (error) {
+        setError(error)
+        return
+      }
+      
+      if (data) {
+        // Convert the API response to the local Event format
+        const createdEvent: Event = {
+          id: data.id,
+          title: data.title,
+          client_id: data.client_id,
+          project_id: data.project_id,
+          client_name: newEvent.client_name,
+          project_name: newEvent.project_name,
+          date: new Date(data.date),
+          start_time: data.start_time,
+          end_time: data.end_time,
+          location: data.location,
+          attendees: data.attendees,
+          color: data.color,
+        }
+        
+        // Update the local state with the new event
+        setEvents([...events, createdEvent])
+      }
+    } catch (err) {
+      setError("Failed to create calendar event")
+      console.error(err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Handle updating an event
+  const handleUpdateEvent = async (eventId: number, updatedEvent: Partial<Event>) => {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      // Convert the event to the API format
+      const apiEvent: any = {}
+      
+      if (updatedEvent.title) apiEvent.title = updatedEvent.title
+      if (updatedEvent.client_id) apiEvent.client_id = updatedEvent.client_id
+      if (updatedEvent.project_id) apiEvent.project_id = updatedEvent.project_id
+      if (updatedEvent.date) apiEvent.date = updatedEvent.date.toISOString().split('T')[0]
+      if (updatedEvent.start_time) apiEvent.start_time = updatedEvent.start_time
+      if (updatedEvent.end_time) apiEvent.end_time = updatedEvent.end_time
+      if (updatedEvent.location) apiEvent.location = updatedEvent.location
+      if (updatedEvent.attendees) apiEvent.attendees = updatedEvent.attendees
+      if (updatedEvent.color) apiEvent.color = updatedEvent.color
+      
+      // Call the API to update the event
+      const { data, error } = await updateCalendarEvent(eventId, apiEvent)
+      
+      if (error) {
+        setError(error)
+        return
+      }
+      
+      if (data) {
+        // Update the local state with the updated event
+        setEvents(events.map(event => 
+          event.id === eventId 
+            ? { 
+                ...event, 
+                ...(data.title && { title: data.title }),
+                ...(data.client_id && { client_id: data.client_id }),
+                ...(data.project_id && { project_id: data.project_id }),
+                ...(data.date && { date: new Date(data.date) }),
+                ...(data.start_time && { start_time: data.start_time }),
+                ...(data.end_time && { end_time: data.end_time }),
+                ...(data.location && { location: data.location }),
+                ...(data.attendees && { attendees: data.attendees }),
+                ...(data.color && { color: data.color }),
+              } 
+            : event
+        ))
+      }
+    } catch (err) {
+      setError("Failed to update calendar event")
+      console.error(err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Handle deleting an event
+  const handleDeleteEvent = async (eventId: number) => {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      // Call the API to delete the event
+      const { success, error } = await deleteCalendarEvent(eventId)
+      
+      if (error) {
+        setError(error)
+        return
+      }
+      
+      if (success) {
+        // Update the local state by removing the deleted event
+        setEvents(events.filter(event => event.id !== eventId))
+      }
+    } catch (err) {
+      setError("Failed to delete calendar event")
+      console.error(err)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -716,7 +909,7 @@ export default function CalendarPage() {
                     <div className="mt-1 space-y-1 overflow-hidden max-h-[80px]">
                       {dayEvents.slice(0, 2).map((event) => (
                         <div key={event.id} className={`${event.color} text-xs p-1 rounded truncate`}>
-                          {event.startTime} - {event.title}
+                          {event.start_time} - {event.title}
                         </div>
                       ))}
                       {dayEvents.length > 2 && (
@@ -763,13 +956,13 @@ export default function CalendarPage() {
                   </div>
                   <h4 className="font-medium mb-1 text-gray-900">{event.title}</h4>
                   <p className="text-sm text-gray-500 mb-3">
-                    {event.client} - {event.project}
+                    {event.client_name} - {event.project_name}
                   </p>
 
                   <div className="space-y-2">
                     <div className="flex items-center text-sm text-gray-500">
                       <Clock className="w-4 h-4 mr-2" />
-                      {event.startTime} - {event.endTime}
+                      {event.start_time} - {event.end_time}
                     </div>
                     <div className="flex items-center text-sm text-gray-500">
                       <MapPin className="w-4 h-4 mr-2" />
@@ -803,7 +996,7 @@ export default function CalendarPage() {
                         <h4 className="text-sm font-medium truncate text-gray-900">{event.title}</h4>
                         <p className="text-xs text-gray-500 truncate">
                           {event.date.toLocaleDateString("en-US", { month: "short", day: "numeric" })} •{" "}
-                          {event.startTime}
+                          {event.start_time}
                         </p>
                       </div>
                     </div>
