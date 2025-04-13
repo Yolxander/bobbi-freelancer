@@ -113,16 +113,16 @@ export default function MessagingPage() {
         <div className="w-80 border-r border-gray-100 flex flex-col">
           <div className="p-4 border-b border-gray-100">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">Messages</h2>
+              <h2 className="text-xl font-bold text-gray-900">Messages</h2>
               <button className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100">
-                <Plus className="w-4 h-4" />
+                <Plus className="w-4 h-4 text-gray-700" />
               </button>
             </div>
             <div className="relative">
               <input
                 type="text"
                 placeholder="Search messages..."
-                className="w-full bg-gray-100 rounded-full px-4 py-2 pl-10 text-sm focus:outline-none"
+                className="w-full bg-gray-100 rounded-full px-4 py-2 pl-10 text-sm focus:outline-none text-gray-700"
               />
               <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
             </div>
@@ -152,7 +152,7 @@ export default function MessagingPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-center">
-                      <h3 className="font-medium truncate">{conversation.client}</h3>
+                      <h3 className="font-medium truncate text-gray-900">{conversation.client}</h3>
                       <span className="text-xs text-gray-500">{conversation.time}</span>
                     </div>
                     <div className="flex justify-between items-center">
@@ -172,7 +172,7 @@ export default function MessagingPage() {
           <div className="p-4 border-b border-gray-100 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button className="md:hidden p-2 rounded-full hover:bg-gray-100">
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-5 h-5 text-gray-700" />
               </button>
               <div className="relative">
                 <div className="w-10 h-10 rounded-full overflow-hidden">
@@ -189,7 +189,7 @@ export default function MessagingPage() {
                 )}
               </div>
               <div>
-                <h3 className="font-medium">{activeClient.client}</h3>
+                <h3 className="font-medium text-gray-900">{activeClient.client}</h3>
                 <p className="text-xs text-gray-500">{activeClient.online ? "Online" : "Offline"}</p>
               </div>
             </div>
@@ -242,7 +242,7 @@ export default function MessagingPage() {
                   <input
                     type="text"
                     placeholder="Type your message..."
-                    className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none"
+                    className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none text-gray-700"
                   />
                   <button className="p-2 rounded-full hover:bg-gray-100">
                     <Smile className="w-5 h-5 text-gray-500" />
@@ -266,7 +266,7 @@ export default function MessagingPage() {
                     className="object-cover"
                   />
                 </div>
-                <h3 className="font-bold text-lg">{activeClient.contact}</h3>
+                <h3 className="font-bold text-lg text-gray-900">{activeClient.contact}</h3>
                 <p className="text-sm text-gray-500">{activeClient.client}</p>
                 <div className="flex items-center justify-center gap-1 mt-1">
                   <Circle className="w-2 h-2 fill-green-500 text-green-500" />
@@ -275,8 +275,8 @@ export default function MessagingPage() {
               </div>
 
               <div className="flex justify-between mb-6">
-                <button className="flex-1 py-2 bg-gray-100 rounded-lg text-sm font-medium mr-2">Contact</button>
-                <button className="flex-1 py-2 bg-gray-100 rounded-lg text-sm font-medium">Projects</button>
+                <button className="flex-1 py-2 bg-gray-100 rounded-lg text-sm font-medium mr-2 text-gray-700">Contact</button>
+                <button className="flex-1 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-700">Projects</button>
               </div>
 
               <div className="space-y-4">
@@ -285,18 +285,18 @@ export default function MessagingPage() {
                   <div className="bg-gray-50 rounded-lg p-3">
                     <div className="mb-2">
                       <p className="text-xs text-gray-500">Email</p>
-                      <p className="text-sm">
+                      <p className="text-sm text-gray-900">
                         {activeClient.contact.toLowerCase().replace(" ", ".")}@
                         {activeClient.client.toLowerCase().replace(" ", "")}.com
                       </p>
                     </div>
                     <div className="mb-2">
                       <p className="text-xs text-gray-500">Phone</p>
-                      <p className="text-sm">(555) 123-4567</p>
+                      <p className="text-sm text-gray-900">(555) 123-4567</p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-500">Company</p>
-                      <p className="text-sm">{activeClient.client}</p>
+                      <p className="text-sm text-gray-900">{activeClient.client}</p>
                     </div>
                   </div>
                 </div>
@@ -305,11 +305,11 @@ export default function MessagingPage() {
                   <h4 className="text-xs font-medium text-gray-500 mb-2">ACTIVE PROJECTS</h4>
                   <div className="bg-gray-50 rounded-lg p-3 space-y-2">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm">Website Redesign</p>
+                      <p className="text-sm text-gray-900">Website Redesign</p>
                       <div className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded">In Progress</div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <p className="text-sm">Brand Identity</p>
+                      <p className="text-sm text-gray-900">Brand Identity</p>
                       <div className="bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded">Review</div>
                     </div>
                   </div>
@@ -323,7 +323,7 @@ export default function MessagingPage() {
                         <FileUp className="w-4 h-4 text-blue-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm truncate">website-mockup-v2.pdf</p>
+                        <p className="text-sm truncate text-gray-900">website-mockup-v2.pdf</p>
                         <p className="text-xs text-gray-500">2.4 MB • Yesterday</p>
                       </div>
                     </div>
@@ -332,7 +332,7 @@ export default function MessagingPage() {
                         <FileUp className="w-4 h-4 text-blue-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm truncate">logo-options.zip</p>
+                        <p className="text-sm truncate text-gray-900">logo-options.zip</p>
                         <p className="text-xs text-gray-500">4.7 MB • Mar 15</p>
                       </div>
                     </div>

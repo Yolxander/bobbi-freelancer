@@ -124,7 +124,7 @@ export default function FilesPage() {
     },
   ]
 
-  const getFileIcon = (type) => {
+  const getFileIcon = (type: string) => {
     switch (type) {
       case "pdf":
         return <FilePdf className="w-6 h-6 text-red-500" />
@@ -153,13 +153,13 @@ export default function FilesPage() {
         {/* Header */}
         <div className="p-6 border-b border-gray-100">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold">Files</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Files</h1>
             <div className="flex items-center gap-3">
               <div className="relative">
                 <input
                   type="text"
                   placeholder="Search files..."
-                  className="w-64 bg-gray-100 rounded-full px-4 py-2 pl-10 text-sm focus:outline-none"
+                  className="w-64 bg-gray-100 rounded-full px-4 py-2 pl-10 text-sm focus:outline-none text-gray-700"
                 />
                 <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
               </div>
@@ -210,7 +210,7 @@ export default function FilesPage() {
         <div className="flex-1 p-6 overflow-y-auto">
           {/* Folders Section */}
           <div className="mb-8">
-            <h2 className="text-lg font-semibold mb-4">Folders</h2>
+            <h2 className="text-lg font-semibold mb-4 text-gray-900">Folders</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {folders.map((folder) => (
                 <div
@@ -225,7 +225,7 @@ export default function FilesPage() {
                       <MoreHorizontal className="w-4 h-4 text-gray-500" />
                     </button>
                   </div>
-                  <h3 className="font-medium mb-1">{folder.name}</h3>
+                  <h3 className="font-medium mb-1 text-gray-900">{folder.name}</h3>
                   <p className="text-sm text-gray-500">{folder.files} files</p>
                 </div>
               ))}
@@ -234,7 +234,7 @@ export default function FilesPage() {
                 <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-3">
                   <Plus className="w-5 h-5 text-gray-500" />
                 </div>
-                <h3 className="font-medium mb-1">Create New Folder</h3>
+                <h3 className="font-medium mb-1 text-gray-900">Create New Folder</h3>
                 <p className="text-sm text-gray-500">Organize your files</p>
               </div>
             </div>
@@ -243,7 +243,7 @@ export default function FilesPage() {
           {/* Recent Files Section */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Recent Files</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Recent Files</h2>
               <button className="text-sm text-gray-500 hover:text-gray-700">View All</button>
             </div>
 
@@ -269,7 +269,7 @@ export default function FilesPage() {
                         </button>
                       </div>
                     </div>
-                    <h3 className="font-medium mb-1 truncate">{file.name}</h3>
+                    <h3 className="font-medium mb-1 truncate text-gray-900">{file.name}</h3>
                     <div className="flex items-center justify-between">
                       <p className="text-xs text-gray-500">{file.size}</p>
                       <p className="text-xs text-gray-500">{file.modified}</p>
@@ -309,7 +309,7 @@ export default function FilesPage() {
                               {getFileIcon(file.type)}
                             </div>
                             <div className="flex items-center">
-                              <span className="font-medium">{file.name}</span>
+                              <span className="font-medium text-gray-900">{file.name}</span>
                               {file.starred && <Star className="w-4 h-4 ml-2 fill-yellow-400 text-yellow-400" />}
                             </div>
                           </div>

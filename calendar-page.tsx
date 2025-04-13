@@ -158,13 +158,13 @@ export default function CalendarPage() {
         {/* Header */}
         <div className="p-6 border-b border-gray-100">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold">Calendar</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Calendar</h1>
             <div className="flex items-center gap-3">
               <div className="relative">
                 <input
                   type="text"
                   placeholder="Search events..."
-                  className="w-64 bg-gray-100 rounded-full px-4 py-2 pl-10 text-sm focus:outline-none"
+                  className="w-64 bg-gray-100 rounded-full px-4 py-2 pl-10 text-sm focus:outline-none text-gray-700"
                 />
                 <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
               </div>
@@ -183,29 +183,29 @@ export default function CalendarPage() {
               <button className="p-2 rounded-lg hover:bg-gray-100" onClick={goToPreviousMonth}>
                 <ChevronLeft className="w-5 h-5 text-gray-500" />
               </button>
-              <h2 className="text-lg font-medium">{formatMonth(currentDate)}</h2>
+              <h2 className="text-lg font-medium text-gray-900">{formatMonth(currentDate)}</h2>
               <button className="p-2 rounded-lg hover:bg-gray-100" onClick={goToNextMonth}>
                 <ChevronRight className="w-5 h-5 text-gray-500" />
               </button>
-              <button className="ml-2 px-3 py-1 text-sm bg-gray-100 rounded-lg hover:bg-gray-200" onClick={goToToday}>
+              <button className="ml-2 px-3 py-1 text-sm bg-gray-100 rounded-lg hover:bg-gray-200 text-gray-700" onClick={goToToday}>
                 Today
               </button>
             </div>
             <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
               <button
-                className={`px-3 py-1 rounded-md text-sm ${viewMode === "month" ? "bg-white shadow-sm" : ""}`}
+                className={`px-3 py-1 rounded-md text-sm ${viewMode === "month" ? "bg-white shadow-sm text-gray-900" : "text-gray-600"}`}
                 onClick={() => setViewMode("month")}
               >
                 Month
               </button>
               <button
-                className={`px-3 py-1 rounded-md text-sm ${viewMode === "week" ? "bg-white shadow-sm" : ""}`}
+                className={`px-3 py-1 rounded-md text-sm ${viewMode === "week" ? "bg-white shadow-sm text-gray-900" : "text-gray-600"}`}
                 onClick={() => setViewMode("week")}
               >
                 Week
               </button>
               <button
-                className={`px-3 py-1 rounded-md text-sm ${viewMode === "day" ? "bg-white shadow-sm" : ""}`}
+                className={`px-3 py-1 rounded-md text-sm ${viewMode === "day" ? "bg-white shadow-sm text-gray-900" : "text-gray-600"}`}
                 onClick={() => setViewMode("day")}
               >
                 Day
@@ -250,7 +250,7 @@ export default function CalendarPage() {
                     <div className="flex justify-between items-center p-1">
                       <div
                         className={`w-7 h-7 flex items-center justify-center rounded-full text-sm ${
-                          isToday(day) ? "bg-blue-500 text-white" : ""
+                          isToday(day) ? "bg-blue-500 text-white" : "text-gray-700"
                         }`}
                       >
                         {day}
@@ -280,7 +280,7 @@ export default function CalendarPage() {
           {/* Right Sidebar - Event Details */}
           <div className="w-80 border-l border-gray-100 p-4 overflow-y-auto">
             <div className="mb-6">
-              <h3 className="font-bold text-lg mb-2">
+              <h3 className="font-bold text-lg mb-2 text-gray-900">
                 {selectedDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
               </h3>
               {selectedDateEvents.length === 0 ? (
@@ -309,7 +309,7 @@ export default function CalendarPage() {
                       <MoreHorizontal className="w-4 h-4 text-gray-500" />
                     </button>
                   </div>
-                  <h4 className="font-medium mb-1">{event.title}</h4>
+                  <h4 className="font-medium mb-1 text-gray-900">{event.title}</h4>
                   <p className="text-sm text-gray-500 mb-3">
                     {event.client} - {event.project}
                   </p>
@@ -334,7 +334,7 @@ export default function CalendarPage() {
 
             {/* Upcoming Events */}
             <div>
-              <h3 className="font-bold text-md mb-3">Upcoming Events</h3>
+              <h3 className="font-bold text-md mb-3 text-gray-900">Upcoming Events</h3>
               <div className="space-y-2">
                 {events
                   .filter((event) => event.date >= new Date())
@@ -348,7 +348,7 @@ export default function CalendarPage() {
                         <Calendar className="w-4 h-4" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-medium truncate">{event.title}</h4>
+                        <h4 className="text-sm font-medium truncate text-gray-900">{event.title}</h4>
                         <p className="text-xs text-gray-500 truncate">
                           {event.date.toLocaleDateString("en-US", { month: "short", day: "numeric" })} •{" "}
                           {event.startTime}
