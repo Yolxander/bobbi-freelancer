@@ -218,7 +218,6 @@ export default function TaskIssuesTab({ taskId, issues, onIssuesChange }: TaskIs
                           : "bg-green-500"
                     }`}
                   ></span>
-                  <h3 className="font-medium">{issue.title}</h3>
                   <span
                     className={`text-xs px-2 py-0.5 rounded-full ${
                       issue.status === "open"
@@ -234,6 +233,8 @@ export default function TaskIssuesTab({ taskId, issues, onIssuesChange }: TaskIs
                         ? "In Progress"
                         : "Fixed"}
                   </span>
+                  <h3 className="text-gray-700 font-medium">{issue.title}</h3>
+
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-gray-500">
