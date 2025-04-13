@@ -14,6 +14,8 @@ import {
   Users,
   Filter,
   X,
+  Edit,
+  Trash,
 } from "lucide-react"
 import Sidebar from "@/components/sidebar"
 import { 
@@ -43,22 +45,23 @@ interface Event {
 }
 
 // Event Modal Component
-function EventModal({ isOpen, onClose, onSave, selectedDate }: { 
+function EventModal({ isOpen, onClose, onSave, selectedDate, editingEvent }: { 
   isOpen: boolean; 
   onClose: () => void; 
   onSave: (event: Omit<Event, "id">) => void;
   selectedDate: Date;
+  editingEvent?: Event | null;
 }) {
   const { user } = useAuth()
-  const [title, setTitle] = useState("")
-  const [clientId, setClientId] = useState<number>(1)
-  const [projectId, setProjectId] = useState<number>(1)
-  const [date, setDate] = useState(selectedDate)
-  const [startTime, setStartTime] = useState("")
-  const [endTime, setEndTime] = useState("")
-  const [location, setLocation] = useState("")
-  const [attendees, setAttendees] = useState(1)
-  const [color, setColor] = useState("bg-blue-100 text-blue-700")
+  const [title, setTitle] = useState(editingEvent?.title || "")
+  const [clientId, setClientId] = useState<number>(editingEvent?.client_id || 1)
+  const [projectId, setProjectId] = useState<number>(editingEvent?.project_id || 1)
+  const [date, setDate] = useState(editingEvent?.date || selectedDate)
+  const [startTime, setStartTime] = useState(editingEvent?.start_time || "")
+  const [endTime, setEndTime] = useState(editingEvent?.end_time || "")
+  const [location, setLocation] = useState(editingEvent?.location || "")
+  const [attendees, setAttendees] = useState(editingEvent?.attendees || 1)
+  const [color, setColor] = useState(editingEvent?.color || "bg-blue-100 text-blue-700")
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [showStartTimePicker, setShowStartTimePicker] = useState(false)
   const [showEndTimePicker, setShowEndTimePicker] = useState(false)
@@ -76,6 +79,21 @@ function EventModal({ isOpen, onClose, onSave, selectedDate }: {
       fetchProjects()
     }
   }, [isOpen])
+
+  // Reset form when editing event changes
+  useEffect(() => {
+    if (editingEvent) {
+      setTitle(editingEvent.title)
+      setClientId(editingEvent.client_id)
+      setProjectId(editingEvent.project_id)
+      setDate(editingEvent.date)
+      setStartTime(editingEvent.start_time)
+      setEndTime(editingEvent.end_time)
+      setLocation(editingEvent.location)
+      setAttendees(editingEvent.attendees)
+      setColor(editingEvent.color)
+    }
+  }, [editingEvent])
 
   // Fetch clients from API
   const fetchClients = async () => {
@@ -276,7 +294,9 @@ function EventModal({ isOpen, onClose, onSave, selectedDate }: {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-xl w-full max-w-2xl p-5">
         <div className="flex justify-between items-center mb-3">
-          <h2 className="text-xl font-bold text-gray-900">Add New Event</h2>
+          <h2 className="text-xl font-bold text-gray-900">
+            {editingEvent ? "Edit Event" : "Add New Event"}
+          </h2>
           <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-100">
             <X className="w-5 h-5 text-gray-500" />
           </button>
@@ -545,6 +565,7 @@ function EventModal({ isOpen, onClose, onSave, selectedDate }: {
 }
 
 export default function CalendarPage() {
+  const { user } = useAuth()
   const [viewMode, setViewMode] = useState("month")
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -623,6 +644,8 @@ export default function CalendarPage() {
   ])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showEventDropdown, setShowEventDropdown] = useState<number | null>(null)
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null)
 
   // Fetch calendar events on component mount
   useEffect(() => {
@@ -828,6 +851,7 @@ export default function CalendarPage() {
               } 
             : event
         ))
+        setEditingEvent(null)
       }
     } catch (err) {
       setError("Failed to update calendar event")
@@ -854,6 +878,7 @@ export default function CalendarPage() {
       if (success) {
         // Update the local state by removing the deleted event
         setEvents(events.filter(event => event.id !== eventId))
+        setShowEventDropdown(null)
       }
     } catch (err) {
       setError("Failed to delete calendar event")
@@ -861,6 +886,17 @@ export default function CalendarPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Toggle event dropdown
+  const toggleEventDropdown = (eventId: number | null) => {
+    setShowEventDropdown(showEventDropdown === eventId ? null : eventId)
+  }
+
+  // Start editing an event
+  const startEditingEvent = (event: Event) => {
+    setEditingEvent(event)
+    setShowEventDropdown(null)
   }
 
   return (
@@ -1023,9 +1059,34 @@ export default function CalendarPage() {
                     >
                       <Calendar className="w-5 h-5" />
                     </div>
-                    <button className="p-1 rounded-full hover:bg-gray-100">
-                      <MoreHorizontal className="w-4 h-4 text-gray-500" />
-                    </button>
+                    <div className="relative">
+                      <button 
+                        className="p-1 rounded-full hover:bg-gray-100"
+                        onClick={() => toggleEventDropdown(event.id)}
+                      >
+                        <MoreHorizontal className="w-4 h-4 text-gray-500" />
+                      </button>
+                      
+                      {/* Event Actions Dropdown */}
+                      {showEventDropdown === event.id && (
+                        <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-10">
+                          <button 
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                            onClick={() => startEditingEvent(event)}
+                          >
+                            <Edit className="w-4 h-4" />
+                            <span>Edit Event</span>
+                          </button>
+                          <button 
+                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex items-center gap-2"
+                            onClick={() => handleDeleteEvent(event.id)}
+                          >
+                            <Trash className="w-4 h-4" />
+                            <span>Delete Event</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <h4 className="font-medium mb-1 text-gray-900">{event.title}</h4>
                   <p className="text-sm text-gray-500 mb-3">
@@ -1084,10 +1145,20 @@ export default function CalendarPage() {
 
       {/* Event Modal */}
       <EventModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSave={handleAddEvent}
-        selectedDate={selectedDate}
+        isOpen={isModalOpen || editingEvent !== null} 
+        onClose={() => {
+          setIsModalOpen(false)
+          setEditingEvent(null)
+        }} 
+        onSave={(newEvent) => {
+          if (editingEvent) {
+            handleUpdateEvent(editingEvent.id, newEvent)
+          } else {
+            handleAddEvent(newEvent)
+          }
+        }}
+        selectedDate={editingEvent ? editingEvent.date : selectedDate}
+        editingEvent={editingEvent}
       />
     </div>
   )
