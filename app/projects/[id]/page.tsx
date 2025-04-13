@@ -932,8 +932,40 @@ export default function ProjectDetailsPage() {
                 </div>
               </div>
 
-              {/* Client Info */}
+              {/* Project Info */}
               <div className="space-y-6">
+
+                            {/* Quick Stats */}
+                            <div className="bg-white rounded-3xl p-6 shadow-sm">
+                  <h2 className="text-gray-900 text-lg font-semibold mb-4">Quick Stats</h2>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-gray-50 rounded-xl p-4 text-center">
+                      <p className="text-3xl font-bold text-blue-600">
+                        {tasks.filter((t) => t?.status === "todo").length}
+                      </p>
+                      <p className="text-sm text-gray-500">To Do</p>
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-4 text-center">
+                      <p className="text-3xl font-bold text-green-600">
+                        {tasks.filter((t) => t?.status === "in-progress").length}
+                      </p>
+                      <p className="text-sm text-gray-500">In Progress</p>
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-4 text-center">
+                      <p className="text-3xl font-bold text-yellow-600">
+                        {tasks.filter((t) => t?.status === "review").length}
+                      </p>
+                      <p className="text-sm text-gray-500">Review</p>
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-4 text-center">
+                      <p className="text-3xl font-bold text-purple-600">
+                        {tasks.filter((t) => t?.status === "completed").length}
+                      </p>
+                      <p className="text-sm text-gray-500">Completed</p>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Client */}
                 <div className="bg-white rounded-3xl p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
@@ -952,7 +984,7 @@ export default function ProjectDetailsPage() {
                           <Users className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
-                          <h3 className="font-medium">{project.client.name}</h3>
+                          <h3 className="text-gray-600 font-medium">{project.client.name}</h3>
                           <p className="text-sm text-gray-600">{project.client.email || "No email"}</p>
                         </div>
                       </div>
@@ -993,6 +1025,7 @@ export default function ProjectDetailsPage() {
                     </div>
                   )}
                 </div>
+
 
                 {/* Team Members Summary */}
                 {project?.client_id && (
@@ -1057,36 +1090,7 @@ export default function ProjectDetailsPage() {
                   </div>
                 )}
 
-                {/* Quick Stats */}
-                <div className="bg-white rounded-3xl p-6 shadow-sm">
-                  <h2 className="text-lg font-semibold mb-4">Quick Stats</h2>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gray-50 rounded-xl p-4 text-center">
-                      <p className="text-3xl font-bold text-blue-600">
-                        {tasks.filter((t) => t?.status === "todo").length}
-                      </p>
-                      <p className="text-sm text-gray-500">To Do</p>
-                    </div>
-                    <div className="bg-gray-50 rounded-xl p-4 text-center">
-                      <p className="text-3xl font-bold text-green-600">
-                        {tasks.filter((t) => t?.status === "in-progress").length}
-                      </p>
-                      <p className="text-sm text-gray-500">In Progress</p>
-                    </div>
-                    <div className="bg-gray-50 rounded-xl p-4 text-center">
-                      <p className="text-3xl font-bold text-yellow-600">
-                        {tasks.filter((t) => t?.status === "review").length}
-                      </p>
-                      <p className="text-sm text-gray-500">Review</p>
-                    </div>
-                    <div className="bg-gray-50 rounded-xl p-4 text-center">
-                      <p className="text-3xl font-bold text-purple-600">
-                        {tasks.filter((t) => t?.status === "completed").length}
-                      </p>
-                      <p className="text-sm text-gray-500">Completed</p>
-                    </div>
-                  </div>
-                </div>
+              
               </div>
             </div>
           )}

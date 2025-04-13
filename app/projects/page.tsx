@@ -29,6 +29,7 @@ export default function ProjectsPage() {
         try {
           const result = await getProjects(user.providerId)
           if (result.success) {
+            console.log('Fetched projects:', result.data)
             setProjects(result.data)
           } else {
             setError(result.error || "Failed to fetch projects")
@@ -290,7 +291,7 @@ function ProjectCard({ project, viewMode }) {
                 <h3 className="font-medium text-lg text-gray-900">{project.name}</h3>
                 <div className="flex items-center">
                   {project.client_id ? (
-                    <p className="text-sm text-gray-500">{project.client || "No client"}</p>
+                    <p className="text-sm text-gray-500">{project.client?.name || "No client"}</p>
                   ) : (
                     <span className="text-sm bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Personal</span>
                   )}
@@ -341,7 +342,7 @@ function ProjectCard({ project, viewMode }) {
                 <h3 className="font-medium text-gray-900">{project.name}</h3>
                 <div className="flex items-center">
                   {project.client_id ? (
-                    <p className="text-xs text-gray-500">{project.client || "No client"}</p>
+                    <p className="text-xs text-gray-500">{project.client?.name || "No client"}</p>
                   ) : (
                     <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Personal</span>
                   )}
