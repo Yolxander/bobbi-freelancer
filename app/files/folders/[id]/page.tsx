@@ -218,6 +218,45 @@ export default function FolderDetailsPage() {
     }
   }
 
+  // Format date to be more user-friendly
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "Recently"
+    
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return "Recently"
+    
+    const now = new Date()
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+    
+    // Less than a minute ago
+    if (diffInSeconds < 60) return "Just now"
+    
+    // Less than an hour ago
+    if (diffInSeconds < 3600) {
+      const minutes = Math.floor(diffInSeconds / 60)
+      return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`
+    }
+    
+    // Less than a day ago
+    if (diffInSeconds < 86400) {
+      const hours = Math.floor(diffInSeconds / 3600)
+      return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`
+    }
+    
+    // Less than a week ago
+    if (diffInSeconds < 604800) {
+      const days = Math.floor(diffInSeconds / 86400)
+      return `${days} ${days === 1 ? 'day' : 'days'} ago`
+    }
+    
+    // Format as date
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    })
+  }
+
   const [viewMode, setViewMode] = useState("grid")
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -407,7 +446,7 @@ export default function FolderDetailsPage() {
                               </div>
                             </div>
                             <div className="flex items-center justify-between">
-                              <div className="text-xs text-gray-500">Modified {file.modified}</div>
+                              <div className="text-xs text-gray-500">Modified {formatDate(file.modified)}</div>
                               <div className="flex items-center gap-2">
                                 <button className="p-1 rounded-full hover:bg-gray-100">
                                   <Download className="w-4 h-4 text-gray-700" />
@@ -447,7 +486,7 @@ export default function FolderDetailsPage() {
                                 </div>
                               </td>
                               <td className="py-3 px-4 text-sm text-gray-500">{file.size}</td>
-                              <td className="py-3 px-4 text-sm text-gray-500">{file.modified}</td>
+                              <td className="py-3 px-4 text-sm text-gray-500">{formatDate(file.modified)}</td>
                               <td className="py-3 px-4">
                                 <div className="flex items-center justify-end gap-2">
                                   <button className="p-1 rounded-full hover:bg-gray-100">

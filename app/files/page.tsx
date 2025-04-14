@@ -188,6 +188,73 @@ export default function FilesPage() {
     }
   }
 
+  const getFileTypeColor = (type: string) => {
+    switch (type) {
+      case "pdf":
+        return "bg-red-100 text-red-700"
+      case "image":
+      case "png":
+      case "jpg":
+      case "jpeg":
+        return "bg-purple-100 text-purple-700"
+      case "pptx":
+      case "ppt":
+        return "bg-orange-100 text-orange-700"
+      case "docx":
+      case "doc":
+        return "bg-blue-100 text-blue-700"
+      case "sketch":
+        return "bg-yellow-100 text-yellow-700"
+      case "xlsx":
+      case "xls":
+        return "bg-green-100 text-green-700"
+      case "zip":
+      case "rar":
+        return "bg-gray-100 text-gray-700"
+      default:
+        return "bg-gray-100 text-gray-700"
+    }
+  }
+
+  // Format date to be more user-friendly
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "Recently"
+    
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return "Recently"
+    
+    const now = new Date()
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+    
+    // Less than a minute ago
+    if (diffInSeconds < 60) return "Just now"
+    
+    // Less than an hour ago
+    if (diffInSeconds < 3600) {
+      const minutes = Math.floor(diffInSeconds / 60)
+      return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`
+    }
+    
+    // Less than a day ago
+    if (diffInSeconds < 86400) {
+      const hours = Math.floor(diffInSeconds / 3600)
+      return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`
+    }
+    
+    // Less than a week ago
+    if (diffInSeconds < 604800) {
+      const days = Math.floor(diffInSeconds / 86400)
+      return `${days} ${days === 1 ? 'day' : 'days'} ago`
+    }
+    
+    // Format as date
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    })
+  }
+
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Left Sidebar */}
@@ -332,7 +399,7 @@ export default function FilesPage() {
                             </div>
                           </div>
                           <div className="flex items-center justify-between">
-                            <div className="text-xs text-gray-500">Created {folder.created_at || "Recently"}</div>
+                            <div className="text-xs text-gray-500">Created {formatDate(folder.created_at || "")}</div>
                             <div className="text-sm text-gray-500">
                               <ChevronRight className="w-5 h-5" />
                             </div>
