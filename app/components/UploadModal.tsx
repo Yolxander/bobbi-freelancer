@@ -2,6 +2,8 @@
 
 import { useState, useRef } from "react"
 import { X, Upload, Folder, File, Check, Plus, ChevronDown } from "lucide-react"
+import { createFile } from "@/app/actions/file-actions"
+import { useAuth } from "@/lib/auth-context"
 
 interface UploadModalProps {
   isOpen: boolean
@@ -10,6 +12,7 @@ interface UploadModalProps {
 }
 
 export default function UploadModal({ isOpen, onClose, folders }: UploadModalProps) {
+  const { user } = useAuth()
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [selectedFolder, setSelectedFolder] = useState<number | null>(null)
   const [uploading, setUploading] = useState(false)
@@ -17,6 +20,7 @@ export default function UploadModal({ isOpen, onClose, folders }: UploadModalPro
   const [showNewFolderInput, setShowNewFolderInput] = useState(false)
   const [newFolderName, setNewFolderName] = useState("")
   const [customFolders, setCustomFolders] = useState<{ id: number; name: string }[]>([])
+  const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const newFolderInputRef = useRef<HTMLInputElement>(null)
 
@@ -28,14 +32,28 @@ export default function UploadModal({ isOpen, onClose, folders }: UploadModalPro
     }
   }
 
-  const handleUpload = () => {
-    if (selectedFiles.length === 0) return
+  const handleUpload = async () => {
+    if (selectedFiles.length === 0 || !selectedFolder || !user?.providerId) return
 
     setUploading(true)
+    setError(null)
     
-    // Simulate upload process
-    setTimeout(() => {
-      setUploading(false)
+    try {
+      // Create FormData for each file
+      for (const file of selectedFiles) {
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('folder_id', selectedFolder.toString())
+        formData.append('provider_id', user.providerId)
+        
+        // Upload the file
+        const result = await createFile(selectedFolder.toString(), formData)
+        
+        if (!result.success) {
+          throw new Error(result.error || "Failed to upload file")
+        }
+      }
+      
       setUploadComplete(true)
       
       // Reset after showing completion
@@ -45,7 +63,12 @@ export default function UploadModal({ isOpen, onClose, folders }: UploadModalPro
         setSelectedFolder(null)
         onClose()
       }, 1500)
-    }, 2000)
+    } catch (error) {
+      console.error("Error uploading files:", error)
+      setError(error instanceof Error ? error.message : "Failed to upload files")
+    } finally {
+      setUploading(false)
+    }
   }
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -96,6 +119,14 @@ export default function UploadModal({ isOpen, onClose, folders }: UploadModalPro
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
           {!uploadComplete ? (
             <>
+              {/* Error message */}
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+                  <X className="w-5 h-5" />
+                  <p className="text-sm">{error}</p>
+                </div>
+              )}
+              
               {/* Folder Selection */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
@@ -265,9 +296,9 @@ export default function UploadModal({ isOpen, onClose, folders }: UploadModalPro
             </button>
             <button
               onClick={handleUpload}
-              disabled={selectedFiles.length === 0 || uploading}
+              disabled={selectedFiles.length === 0 || uploading || !selectedFolder}
               className={`px-4 py-2 text-sm font-medium text-white rounded-lg ${
-                selectedFiles.length === 0 || uploading
+                selectedFiles.length === 0 || uploading || !selectedFolder
                   ? "bg-blue-300 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700"
               }`}

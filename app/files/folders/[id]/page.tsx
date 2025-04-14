@@ -35,6 +35,7 @@ import Sidebar from "../../../../components/sidebar"
 import UploadModal from "../../../components/UploadModal"
 import { useAuth } from "@/lib/auth-context"
 import { updateFolder, deleteFolder, getFolder, getFolderFiles, type FolderData, type FileData } from "@/app/actions/folder-actions"
+import { getFiles, deleteFile, downloadFile } from "@/app/actions/file-actions"
 
 interface FolderOption {
   id: number
@@ -99,9 +100,13 @@ export default function FolderDetailsPage() {
         setFolderDescription(folderData.description || "")
         setFolderColor(folderData.color || "bg-blue-100")
 
-        // Fetch folder files
-        const folderFiles = await getFolderFiles(folderId)
-        setFiles(folderFiles)
+        // Fetch folder files using the file-actions
+        const response = await getFiles(folderId)
+        if (response.success) {
+          setFiles(response.data)
+        } else {
+          throw new Error("Failed to fetch files")
+        }
       } catch (error) {
         console.error("Error fetching folder data:", error)
         setError("Failed to load folder data. Please try again.")
@@ -172,6 +177,47 @@ export default function FolderDetailsPage() {
       setError("Failed to delete folder. Please try again.")
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleDeleteFile = async (fileId: string) => {
+    if (!user || !user.providerId) {
+      setError("You must be logged in to delete a file")
+      return
+    }
+
+    setIsLoading(true)
+    setError("")
+
+    try {
+      await deleteFile(fileId, folderId)
+      
+      // Refresh files list
+      const response = await getFiles(folderId)
+      if (response.success) {
+        setFiles(response.data)
+      } else {
+        throw new Error("Failed to refresh files list")
+      }
+    } catch (error) {
+      console.error("Error deleting file:", error)
+      setError("Failed to delete file. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleDownloadFile = async (fileId: string) => {
+    if (!user || !user.providerId) {
+      setError("You must be logged in to download a file")
+      return
+    }
+
+    try {
+      await downloadFile(fileId)
+    } catch (error) {
+      console.error("Error downloading file:", error)
+      setError("Failed to download file. Please try again.")
     }
   }
 
@@ -328,51 +374,51 @@ export default function FolderDetailsPage() {
             <div className="flex items-center gap-3">
               <Link href="/files" className="text-gray-500 hover:text-gray-700">
                 <ChevronLeft className="w-5 h-5" />
-              </Link>
+            </Link>
               <h1 className="text-gray-700"> Back to Folders</h1>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <input
-                  type="text"
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <input
+                      type="text"
                   placeholder="Search files..."
-                  className="w-64 bg-white rounded-full px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
+                      className="w-64 bg-white rounded-full px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
-              </div>
+                    />
+                    <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+                  </div>
               <button
                 className={`p-2 rounded-full ${isFilterOpen ? "bg-gray-200" : "hover:bg-gray-100"} transition-colors shadow-sm`}
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
               >
-                <Filter className="w-5 h-5 text-gray-500" />
-              </button>
-              <div className="flex border border-gray-200 rounded-lg shadow-sm">
-                <button
-                  className={`p-2 ${viewMode === "grid" ? "bg-gray-100" : "bg-white"} transition-colors`}
-                  onClick={() => setViewMode("grid")}
-                  aria-label="Grid view"
-                >
-                  <GridIcon className="w-5 h-5 text-gray-500" />
-                </button>
-                <button
+                    <Filter className="w-5 h-5 text-gray-500" />
+                  </button>
+                  <div className="flex border border-gray-200 rounded-lg shadow-sm">
+                    <button
+                      className={`p-2 ${viewMode === "grid" ? "bg-gray-100" : "bg-white"} transition-colors`}
+                      onClick={() => setViewMode("grid")}
+                      aria-label="Grid view"
+                    >
+                      <GridIcon className="w-5 h-5 text-gray-500" />
+                    </button>
+                    <button
                   className={`p-2 ${viewMode === "list" ? "bg-white" : "bg-gray-100"} transition-colors`}
-                  onClick={() => setViewMode("list")}
-                  aria-label="List view"
-                >
-                  <ListFilter className="w-5 h-5 text-gray-500" />
-                </button>
+                      onClick={() => setViewMode("list")}
+                      aria-label="List view"
+                    >
+                      <ListFilter className="w-5 h-5 text-gray-500" />
+                    </button>
+                  </div>
+                  <button
+                    className="flex items-center gap-2 bg-gray-900 text-white rounded-full px-4 py-2 hover:bg-gray-800 transition-colors shadow-sm hover:shadow-md"
+                    onClick={() => setIsUploadModalOpen(true)}
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span className="text-sm font-medium">Upload</span>
+                  </button>
+                </div>
               </div>
-              <button
-                className="flex items-center gap-2 bg-gray-900 text-white rounded-full px-4 py-2 hover:bg-gray-800 transition-colors shadow-sm hover:shadow-md"
-                onClick={() => setIsUploadModalOpen(true)}
-              >
-                <Plus className="w-4 h-4" />
-                <span className="text-sm font-medium">Upload</span>
-              </button>
-            </div>
-          </div>
 
           {/* Filter dropdown */}
           {isFilterOpen && (
@@ -522,8 +568,8 @@ export default function FolderDetailsPage() {
                     <p className="text-sm font-medium text-gray-900">
                       {files.length} total
                     </p>
-                  </div>
-                </div>
+            </div>
+          </div>
 
                 <div className="bg-gray-50 rounded-xl p-4">
                   <p className="text-xs text-gray-500 mb-1">OWNER</p>
@@ -538,7 +584,7 @@ export default function FolderDetailsPage() {
             </div>
           )}
 
-          {/* Files Section */}
+            {/* Files Section */}
           {!isLoading && (
             <div>
               <div className="flex items-center justify-between mb-4">
@@ -577,14 +623,20 @@ export default function FolderDetailsPage() {
                         <div className="flex items-center justify-between">
                           <div className="text-xs text-gray-500">Modified {formatDate(file.modified)}</div>
                           <div className="flex items-center gap-2">
-                            <button className="p-1 rounded-full hover:bg-gray-100">
+                            <button 
+                              className="p-1 rounded-full hover:bg-gray-100"
+                              onClick={() => file.id && handleDownloadFile(file.id.toString())}
+                            >
                               <Download className="w-4 h-4 text-gray-700" />
                             </button>
                             <button className="p-1 rounded-full hover:bg-gray-100">
                               <Share2 className="w-4 h-4 text-gray-700" />
                             </button>
-                            <button className="p-1 rounded-full hover:bg-gray-100">
-                              <MoreHorizontal className="w-4 h-4 text-gray-700" />
+                            <button 
+                              className="p-1 rounded-full hover:bg-gray-100"
+                              onClick={() => file.id && handleDeleteFile(file.id.toString())}
+                            >
+                              <Trash2 className="w-4 h-4 text-gray-700" />
                             </button>
                           </div>
                         </div>
