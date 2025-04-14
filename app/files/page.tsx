@@ -24,6 +24,7 @@ import {
 import Link from "next/link"
 import Sidebar from "@/components/sidebar"
 import UploadModal from "../components/UploadModal"
+import CreateFolderModal from "../components/CreateFolderModal"
 
 interface Folder {
   id: number
@@ -43,6 +44,7 @@ export default function FilesPage() {
   const [activeTab, setActiveTab] = useState("all")
   const [viewMode, setViewMode] = useState("grid")
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
+  const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
 
@@ -292,6 +294,24 @@ export default function FilesPage() {
           <div className="mb-10">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Folders</h2>
             <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
+              {/* Create New Folder Card */}
+              <div
+                className={`
+                  bg-white border border-dashed border-gray-200 rounded-xl p-6 
+                  flex flex-col items-center justify-center text-center 
+                  hover:bg-gray-50 transition-colors cursor-pointer shadow-sm hover:shadow-md
+                  ${viewMode === "grid" ? "h-full" : "py-8"}
+                `}
+                onClick={() => setIsCreateFolderModalOpen(true)}
+              >
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-3 shadow-sm">
+                  <Plus className="w-6 h-6 text-gray-500" />
+                </div>
+                <h3 className="font-medium text-gray-900 mb-1">Create New Folder</h3>
+                <p className="text-sm text-gray-500">Organize your files in a new folder</p>
+              </div>
+
+              {/* Existing Folders */}
               {folders.map((folder) => (
                 <Link href={`/files/folders/${folder.id}`} key={folder.id}>
                   <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer h-full">
@@ -358,6 +378,12 @@ export default function FilesPage() {
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
         folders={folders.map(folder => ({ id: folder.id, name: folder.name }))}
+      />
+
+      {/* Create Folder Modal */}
+      <CreateFolderModal
+        isOpen={isCreateFolderModalOpen}
+        onClose={() => setIsCreateFolderModalOpen(false)}
       />
     </div>
   )
