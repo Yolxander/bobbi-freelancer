@@ -688,35 +688,25 @@ export default function CalendarPage() {
     fetchEvents()
   }, [])
 
-  // Generate days for the current month
-  const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()
-
-  const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay()
-
-  // Get events for a specific day
-  const getEventsForDay = (day: number): Event[] => {
-    const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
-    return events.filter(
-      (event) =>
-        event.date.getDate() === date.getDate() &&
-        event.date.getMonth() === date.getMonth() &&
-        event.date.getFullYear() === date.getFullYear(),
-    )
-  }
-
-  // Get events for today
-  const todayEvents = getEventsForDay(new Date().getDate())
-
-  // Get events for selected date
-  const selectedDateEvents = getEventsForDay(selectedDate.getDate())
-
   // Navigation functions
   const goToPreviousMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
+    if (viewMode === "month") {
+      setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
+    } else if (viewMode === "week") {
+      setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 7))
+    } else if (viewMode === "day") {
+      setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 1))
+    }
   }
 
   const goToNextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
+    if (viewMode === "month") {
+      setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
+    } else if (viewMode === "week") {
+      setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 7))
+    } else if (viewMode === "day") {
+      setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1))
+    }
   }
 
   const goToToday = () => {
@@ -727,6 +717,20 @@ export default function CalendarPage() {
   // Format date for display
   const formatMonth = (date: Date): string => {
     return date.toLocaleString("default", { month: "long", year: "numeric" })
+  }
+
+  const formatWeek = (date: Date): string => {
+    const startOfWeek = new Date(date)
+    startOfWeek.setDate(date.getDate() - date.getDay())
+    
+    const endOfWeek = new Date(startOfWeek)
+    endOfWeek.setDate(startOfWeek.getDate() + 6)
+    
+    return `${startOfWeek.toLocaleDateString("default", { month: "short", day: "numeric" })} - ${endOfWeek.toLocaleDateString("default", { month: "short", day: "numeric", year: "numeric" })}`
+  }
+
+  const formatDay = (date: Date): string => {
+    return date.toLocaleDateString("default", { weekday: "long", month: "long", day: "numeric", year: "numeric" })
   }
 
   // Day names
@@ -750,6 +754,54 @@ export default function CalendarPage() {
       currentDate.getFullYear() === selectedDate.getFullYear()
     )
   }
+
+  // Get events for a specific day
+  const getEventsForDay = (day: number): Event[] => {
+    const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
+    return events.filter(
+      (event) =>
+        event.date.getDate() === date.getDate() &&
+        event.date.getMonth() === date.getMonth() &&
+        event.date.getFullYear() === date.getFullYear(),
+    )
+  }
+
+  // Get events for a specific date
+  const getEventsForDate = (date: Date): Event[] => {
+    return events.filter(
+      (event) =>
+        event.date.getDate() === date.getDate() &&
+        event.date.getMonth() === date.getMonth() &&
+        event.date.getFullYear() === date.getFullYear(),
+    )
+  }
+
+  // Get events for a specific week
+  const getEventsForWeek = (date: Date): Event[] => {
+    const startOfWeek = new Date(date)
+    startOfWeek.setDate(date.getDate() - date.getDay())
+    startOfWeek.setHours(0, 0, 0, 0)
+    
+    const endOfWeek = new Date(startOfWeek)
+    endOfWeek.setDate(startOfWeek.getDate() + 6)
+    endOfWeek.setHours(23, 59, 59, 999)
+    
+    return events.filter(
+      (event) => event.date >= startOfWeek && event.date <= endOfWeek
+    )
+  }
+
+  // Get events for today
+  const todayEvents = getEventsForDay(new Date().getDate())
+
+  // Get events for selected date
+  const selectedDateEvents = getEventsForDay(selectedDate.getDate())
+
+  // Get events for current week
+  const currentWeekEvents = getEventsForWeek(currentDate)
+
+  // Get events for current day
+  const currentDayEvents = getEventsForDate(currentDate)
 
   // Handle adding a new event
   const handleAddEvent = async (newEvent: Omit<Event, "id">) => {
@@ -899,6 +951,228 @@ export default function CalendarPage() {
     setShowEventDropdown(null)
   }
 
+  // Month View Component
+  const MonthView = () => {
+    // Generate days for the current month
+    const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()
+    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay()
+
+    return (
+      <>
+        {/* Calendar Header */}
+        <div className="grid grid-cols-7 gap-1 mb-1">
+          {dayNames.map((day, index) => (
+            <div key={index} className="text-center text-sm font-medium text-gray-500 py-2">
+              {day}
+            </div>
+          ))}
+        </div>
+
+        {/* Calendar Days */}
+        <div className="grid grid-cols-7 gap-1 auto-rows-fr">
+          {/* Empty cells for days before the first day of month */}
+          {Array.from({ length: firstDayOfMonth }).map((_, index) => (
+            <div key={`empty-${index}`} className="bg-gray-50 rounded-lg"></div>
+          ))}
+
+          {/* Days of the month */}
+          {Array.from({ length: daysInMonth }).map((_, index) => {
+            const day = index + 1
+            const dayEvents = getEventsForDay(day)
+
+            return (
+              <div
+                key={day}
+                className={`bg-white border border-gray-100 rounded-lg p-1 min-h-[120px] cursor-pointer transition-colors ${
+                  isSelected(day) ? "border-blue-500 ring-1 ring-blue-200" : ""
+                }`}
+                onClick={() => setSelectedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day))}
+              >
+                <div className="flex justify-between items-center p-1">
+                  <div
+                    className={`w-7 h-7 flex items-center justify-center rounded-full text-sm ${
+                      isToday(day) ? "bg-blue-500 text-white" : "text-gray-700"
+                    }`}
+                  >
+                    {day}
+                  </div>
+                  {dayEvents.length > 0 && (
+                    <div className="text-xs text-gray-500">
+                      {dayEvents.length} event{dayEvents.length > 1 ? "s" : ""}
+                    </div>
+                  )}
+                </div>
+                <div className="mt-1 space-y-1 overflow-hidden max-h-[80px]">
+                  {dayEvents.slice(0, 2).map((event) => (
+                    <div key={event.id} className={`${event.color} text-xs p-1 rounded truncate`}>
+                      {event.start_time} - {event.title}
+                    </div>
+                  ))}
+                  {dayEvents.length > 2 && (
+                    <div className="text-xs text-gray-500 p-1">+ {dayEvents.length - 2} more</div>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </>
+    )
+  }
+
+  // Week View Component
+  const WeekView = () => {
+    // Calculate the start and end dates of the week
+    const startOfWeek = new Date(currentDate)
+    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay())
+    
+    const weekDays = Array.from({ length: 7 }).map((_, index) => {
+      const date = new Date(startOfWeek)
+      date.setDate(startOfWeek.getDate() + index)
+      return date
+    })
+
+    // Generate time slots for the day
+    const timeSlots = Array.from({ length: 24 }).map((_, index) => {
+      const hour = index.toString().padStart(2, '0')
+      return `${hour}:00`
+    })
+
+    return (
+      <div className="flex flex-col h-full">
+        {/* Week header */}
+        <div className="grid grid-cols-8 gap-1 mb-1">
+          <div className="text-center text-sm font-medium text-gray-500 py-2"></div>
+          {weekDays.map((date, index) => (
+            <div 
+              key={index} 
+              className={`text-center text-sm font-medium py-2 ${
+                date.getDate() === new Date().getDate() && 
+                date.getMonth() === new Date().getMonth() && 
+                date.getFullYear() === new Date().getFullYear()
+                  ? "text-blue-600 font-bold"
+                  : "text-gray-500"
+              }`}
+            >
+              <div>{dayNames[date.getDay()]}</div>
+              <div className="text-xs">{date.getDate()}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Week grid */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="grid grid-cols-8 gap-1">
+            {/* Time column */}
+            <div className="space-y-1">
+              {timeSlots.map((time, index) => (
+                <div key={index} className="h-12 text-xs text-gray-500 text-right pr-2">
+                  {time}
+                </div>
+              ))}
+            </div>
+
+            {/* Days columns */}
+            {weekDays.map((date, dayIndex) => (
+              <div key={dayIndex} className="space-y-1">
+                {timeSlots.map((time, timeIndex) => {
+                  const hour = parseInt(time.split(':')[0])
+                  const dayEvents = currentWeekEvents.filter(event => {
+                    const eventDate = new Date(event.date)
+                    const eventHour = parseInt(event.start_time.split(':')[0])
+                    return (
+                      eventDate.getDate() === date.getDate() &&
+                      eventDate.getMonth() === date.getMonth() &&
+                      eventDate.getFullYear() === date.getFullYear() &&
+                      eventHour === hour
+                    )
+                  })
+
+                  return (
+                    <div 
+                      key={timeIndex} 
+                      className={`h-12 border-b border-gray-100 ${
+                        dayIndex === 0 ? "border-l" : ""
+                      }`}
+                    >
+                      {dayEvents.map(event => (
+                        <div 
+                          key={event.id} 
+                          className={`${event.color} text-xs p-1 rounded truncate`}
+                        >
+                          {event.title}
+                        </div>
+                      ))}
+                    </div>
+                  )
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Day View Component
+  const DayView = () => {
+    // Generate time slots for the day
+    const timeSlots = Array.from({ length: 24 }).map((_, index) => {
+      const hour = index.toString().padStart(2, '0')
+      return `${hour}:00`
+    })
+
+    return (
+      <div className="flex flex-col h-full">
+        {/* Day header */}
+        <div className="grid grid-cols-2 gap-1 mb-1">
+          <div className="text-center text-sm font-medium text-gray-500 py-2"></div>
+          <div className="text-center text-sm font-medium py-2 text-blue-600 font-bold">
+            {currentDate.toLocaleDateString("default", { weekday: "long", month: "long", day: "numeric" })}
+          </div>
+        </div>
+
+        {/* Day grid */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="grid grid-cols-2 gap-1">
+            {/* Time column */}
+            <div className="space-y-1">
+              {timeSlots.map((time, index) => (
+                <div key={index} className="h-12 text-xs text-gray-500 text-right pr-2">
+                  {time}
+                </div>
+              ))}
+            </div>
+
+            {/* Events column */}
+            <div className="space-y-1">
+              {timeSlots.map((time, index) => {
+                const hour = parseInt(time.split(':')[0])
+                const hourEvents = currentDayEvents.filter(event => {
+                  const eventHour = parseInt(event.start_time.split(':')[0])
+                  return eventHour === hour
+                })
+
+                return (
+                  <div key={index} className="h-12 border-b border-gray-100 border-l">
+                    {hourEvents.map(event => (
+                      <div 
+                        key={event.id} 
+                        className={`${event.color} text-xs p-1 rounded truncate`}
+                      >
+                        {event.title}
+                      </div>
+                    ))}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex h-screen bg-white">
       {/* Left Sidebar */}
@@ -937,7 +1211,11 @@ export default function CalendarPage() {
               <button className="p-2 rounded-lg hover:bg-gray-100" onClick={goToPreviousMonth}>
                 <ChevronLeft className="w-5 h-5 text-gray-500" />
               </button>
-              <h2 className="text-lg font-medium text-gray-900">{formatMonth(currentDate)}</h2>
+              <h2 className="text-lg font-medium text-gray-900">
+                {viewMode === "month" && formatMonth(currentDate)}
+                {viewMode === "week" && formatWeek(currentDate)}
+                {viewMode === "day" && formatDay(currentDate)}
+              </h2>
               <button className="p-2 rounded-lg hover:bg-gray-100" onClick={goToNextMonth}>
                 <ChevronRight className="w-5 h-5 text-gray-500" />
               </button>
@@ -972,63 +1250,9 @@ export default function CalendarPage() {
         <div className="flex-1 flex overflow-hidden">
           {/* Calendar Grid */}
           <div className="flex-1 p-6 overflow-y-auto">
-            {/* Calendar Header */}
-            <div className="grid grid-cols-7 gap-1 mb-1">
-              {dayNames.map((day, index) => (
-                <div key={index} className="text-center text-sm font-medium text-gray-500 py-2">
-                  {day}
-                </div>
-              ))}
-            </div>
-
-            {/* Calendar Days */}
-            <div className="grid grid-cols-7 gap-1 auto-rows-fr">
-              {/* Empty cells for days before the first day of month */}
-              {Array.from({ length: firstDayOfMonth }).map((_, index) => (
-                <div key={`empty-${index}`} className="bg-gray-50 rounded-lg"></div>
-              ))}
-
-              {/* Days of the month */}
-              {Array.from({ length: daysInMonth }).map((_, index) => {
-                const day = index + 1
-                const dayEvents = getEventsForDay(day)
-
-                return (
-                  <div
-                    key={day}
-                    className={`bg-white border border-gray-100 rounded-lg p-1 min-h-[120px] cursor-pointer transition-colors ${
-                      isSelected(day) ? "border-blue-500 ring-1 ring-blue-200" : ""
-                    }`}
-                    onClick={() => setSelectedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day))}
-                  >
-                    <div className="flex justify-between items-center p-1">
-                      <div
-                        className={`w-7 h-7 flex items-center justify-center rounded-full text-sm ${
-                          isToday(day) ? "bg-blue-500 text-white" : "text-gray-700"
-                        }`}
-                      >
-                        {day}
-                      </div>
-                      {dayEvents.length > 0 && (
-                        <div className="text-xs text-gray-500">
-                          {dayEvents.length} event{dayEvents.length > 1 ? "s" : ""}
-                        </div>
-                      )}
-                    </div>
-                    <div className="mt-1 space-y-1 overflow-hidden max-h-[80px]">
-                      {dayEvents.slice(0, 2).map((event) => (
-                        <div key={event.id} className={`${event.color} text-xs p-1 rounded truncate`}>
-                          {event.start_time} - {event.title}
-                        </div>
-                      ))}
-                      {dayEvents.length > 2 && (
-                        <div className="text-xs text-gray-500 p-1">+ {dayEvents.length - 2} more</div>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+            {viewMode === "month" && <MonthView />}
+            {viewMode === "week" && <WeekView />}
+            {viewMode === "day" && <DayView />}
           </div>
 
           {/* Right Sidebar - Event Details */}
