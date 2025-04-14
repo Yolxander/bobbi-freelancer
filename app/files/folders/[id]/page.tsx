@@ -361,6 +361,50 @@ export default function FolderDetailsPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  const handleUpload = async (files: File[]) => {
+    if (!user || !user.providerId) {
+      setError("You must be logged in to upload files")
+      return
+    }
+
+    setIsLoading(true)
+    setError("")
+
+    try {
+      for (const file of files) {
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('folder_id', folderId)
+        formData.append('provider_id', parseInt(user.providerId, 10).toString())
+        formData.append('project_id', folder?.project_id?.toString() || '')
+
+        const response = await fetch('/api/files', {
+          method: 'POST',
+          body: formData,
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+          console.error("Upload error:", errorData)
+          throw new Error(`Failed to upload ${file.name}: ${errorData.message || response.statusText}`)
+        }
+      }
+
+      // Refresh files list
+      const response = await getFiles(folderId)
+      if (response.success) {
+        setFiles(response.data)
+      } else {
+        throw new Error("Failed to refresh files list")
+      }
+    } catch (error) {
+      console.error("Error uploading files:", error)
+      setError("Failed to upload files. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Left Sidebar */}
