@@ -198,4 +198,36 @@ export async function downloadFile(fileId: string) {
     console.error("Error downloading file:", error)
     return { success: false, error: error instanceof Error ? error.message : "Failed to download file" }
   }
+}
+
+export async function getAllProviderFiles(providerId: string) {
+  try {
+    console.log("Fetching all files for provider:", providerId)
+
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/files/${providerId}/files`
+    console.log("Fetching files from:", apiUrl)
+
+    const response = await fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    })
+
+    if (!response.ok) {
+      console.error("Failed to fetch provider files:", response.status, response.statusText)
+      // Return empty array instead of throwing error to prevent page from breaking
+      return { success: true, data: [] }
+    }
+
+    const data = await response.json()
+    
+    // Ensure we always return an array
+    return { success: true, data: Array.isArray(data) ? data : [] }
+  } catch (error) {
+    console.error("Error getting provider files:", error)
+    // Return empty array instead of error to prevent page from breaking
+    return { success: true, data: [] }
+  }
 } 

@@ -28,6 +28,7 @@ import UploadModal from "../components/UploadModal"
 import CreateFolderModal from "../components/CreateFolderModal"
 import { useAuth } from "@/lib/auth-context"
 import { getFolders } from "@/app/actions/folder-actions"
+import { getAllProviderFiles } from "@/app/actions/file-actions"
 
 interface Folder {
   id: number
@@ -53,6 +54,7 @@ export default function FilesPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [folders, setFolders] = useState<Folder[]>([])
+  const [allFiles, setAllFiles] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -86,88 +88,44 @@ export default function FilesPage() {
     fetchFolders()
   }, [user])
 
-  const recentFiles = [
-    {
-      id: 1,
-      name: "Website Mockup v2.pdf",
-      type: "pdf",
-      size: "2.4 MB",
-      modified: "Today, 2:30 PM",
-      client: "Acme Inc.",
-      shared: true,
-      starred: true,
-    },
-    {
-      id: 2,
-      name: "Logo Options.zip",
-      type: "zip",
-      size: "4.7 MB",
-      modified: "Yesterday",
-      client: "GreenGrow",
-      shared: true,
-      starred: false,
-    },
-    {
-      id: 3,
-      name: "Project Timeline.xlsx",
-      type: "xlsx",
-      size: "1.2 MB",
-      modified: "Mar 20, 2023",
-      client: "TechStart",
-      shared: false,
-      starred: false,
-    },
-    {
-      id: 4,
-      name: "Homepage Design.png",
-      type: "image",
-      size: "3.8 MB",
-      modified: "Mar 18, 2023",
-      client: "Acme Inc.",
-      shared: true,
-      starred: true,
-    },
-    {
-      id: 5,
-      name: "Contract Draft.docx",
-      type: "docx",
-      size: "0.9 MB",
-      modified: "Mar 15, 2023",
-      client: "BlueSky Media",
-      shared: false,
-      starred: false,
-    },
-    {
-      id: 6,
-      name: "Social Media Assets.zip",
-      type: "zip",
-      size: "8.2 MB",
-      modified: "Mar 12, 2023",
-      client: "BlueSky Media",
-      shared: true,
-      starred: false,
-    },
-    {
-      id: 7,
-      name: "App Wireframes.sketch",
-      type: "sketch",
-      size: "5.1 MB",
-      modified: "Mar 10, 2023",
-      client: "TechStart",
-      shared: false,
-      starred: true,
-    },
-    {
-      id: 8,
-      name: "Meeting Notes.pdf",
-      type: "pdf",
-      size: "0.5 MB",
-      modified: "Mar 8, 2023",
-      client: "GreenGrow",
-      shared: true,
-      starred: false,
-    },
-  ]
+  // Fetch all files for the user's provider ID
+  useEffect(() => {
+    const fetchFiles = async () => {
+      if (user && user.providerId) {
+        setIsLoading(true)
+        setError(null)
+        
+        try {
+          const response = await getAllProviderFiles(user.providerId)
+          if (response.success) {
+            setAllFiles(response.data)
+            // console.log("All files:", response.data)
+          } else {
+            throw new Error("Failed to fetch files")
+          }
+        } catch (err) {
+          console.error("Error fetching files:", err)
+          setError("Failed to load files. Please try again later.")
+        } finally {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    fetchFiles()
+  }, [user])
+
+  // Replace the hardcoded recentFiles with the actual files from the API
+  const recentFiles = allFiles.slice(0, 8).map(file => ({
+    id: file.id,
+    name: file.name,
+    type: file.type,
+    size: file.size,
+    modified: file.modified,
+    client: "Client", // This might need to be updated based on your data structure
+    shared: false, // This might need to be updated based on your data structure
+    starred: false, // This might need to be updated based on your data structure
+  }))
 
   const getFileIcon = (type: string) => {
     switch (type) {
