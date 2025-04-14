@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   ArrowLeft,
@@ -23,31 +23,13 @@ import {
   Star,
   Trash2,
   Edit,
+  X,
+  AlertCircle,
 } from "lucide-react"
 import Sidebar from "../../../../components/sidebar"
 import UploadModal from "../../../components/UploadModal"
-
-interface FileType {
-  id: number
-  name: string
-  type: string
-  size: string
-  modified: string
-  starred: boolean
-}
-
-interface FolderType {
-  id: number
-  name: string
-  color: string
-  description: string
-  created: string
-  files: FileType[]
-}
-
-interface FolderData {
-  [key: string]: FolderType
-}
+import { useAuth } from "@/lib/auth-context"
+import { updateFolder, deleteFolder, getFolder, getFolderFiles, type FolderData, type FileData } from "@/app/actions/folder-actions"
 
 interface FolderOption {
   id: number
@@ -56,152 +38,128 @@ interface FolderOption {
 
 export default function FolderDetailsPage() {
   const params = useParams()
+  const router = useRouter()
   const folderId = params.id as string
+  const { user } = useAuth()
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isFolderDropdownOpen, setIsFolderDropdownOpen] = useState(false)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [folderName, setFolderName] = useState("")
+  const [folderDescription, setFolderDescription] = useState("")
+  const [folderColor, setFolderColor] = useState("bg-blue-100")
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [folder, setFolder] = useState<FolderData | null>(null)
+  const [files, setFiles] = useState<FileData[]>([])
+  const [isInitialLoading, setIsInitialLoading] = useState(true)
+  const folderDropdownRef = useRef<HTMLDivElement>(null)
 
-  // Dummy folder data based on ID
-  const folderData: FolderData = {
-    1: {
-      id: 1,
-      name: "Website Projects",
-      color: "bg-blue-100",
-      description: "All website design and development projects",
-      created: "Mar 15, 2023",
-      files: [
-        {
-          id: 101,
-          name: "Homepage Redesign.sketch",
-          type: "sketch",
-          size: "4.2 MB",
-          modified: "Today, 11:30 AM",
-          starred: true,
-        },
-        {
-          id: 102,
-          name: "Color Palette.pdf",
-          type: "pdf",
-          size: "1.8 MB",
-          modified: "Yesterday, 3:45 PM",
-          starred: false,
-        },
-        {
-          id: 103,
-          name: "Wireframes.png",
-          type: "image",
-          size: "2.7 MB",
-          modified: "Mar 20, 2023",
-          starred: false,
-        },
-        {
-          id: 104,
-          name: "Client Feedback.docx",
-          type: "docx",
-          size: "0.5 MB",
-          modified: "Mar 18, 2023",
-          starred: true,
-        },
-      ],
-    },
-    2: {
-      id: 2,
-      name: "Brand Assets",
-      color: "bg-green-100",
-      description: "Logo files and brand guidelines",
-      created: "Feb 28, 2023",
-      files: [
-        {
-          id: 201,
-          name: "Logo - Dark.png",
-          type: "image",
-          size: "1.2 MB",
-          modified: "Mar 10, 2023",
-          starred: true,
-        },
-        {
-          id: 202,
-          name: "Logo - Light.png",
-          type: "image",
-          size: "1.1 MB",
-          modified: "Mar 10, 2023",
-          starred: true,
-        },
-        {
-          id: 203,
-          name: "Brand Guidelines.pdf",
-          type: "pdf",
-          size: "3.5 MB",
-          modified: "Mar 5, 2023",
-          starred: false,
-        },
-      ],
-    },
-    3: {
-      id: 3,
-      name: "Client Presentations",
-      color: "bg-purple-100",
-      description: "Presentation files for client meetings",
-      created: "Jan 15, 2023",
-      files: [
-        {
-          id: 301,
-          name: "Q1 Progress Report.pptx",
-          type: "pptx",
-          size: "5.8 MB",
-          modified: "Mar 15, 2023",
-          starred: false,
-        },
-        {
-          id: 302,
-          name: "Project Proposal.pdf",
-          type: "pdf",
-          size: "2.3 MB",
-          modified: "Feb 28, 2023",
-          starred: true,
-        },
-      ],
-    },
-    4: {
-      id: 4,
-      name: "Contracts & Agreements",
-      color: "bg-yellow-100",
-      description: "Legal documents and contracts",
-      created: "Dec 10, 2022",
-      files: [
-        {
-          id: 401,
-          name: "Service Agreement.pdf",
-          type: "pdf",
-          size: "1.5 MB",
-          modified: "Mar 1, 2023",
-          starred: true,
-        },
-        {
-          id: 402,
-          name: "NDA.docx",
-          type: "docx",
-          size: "0.7 MB",
-          modified: "Feb 15, 2023",
-          starred: false,
-        },
-        {
-          id: 403,
-          name: "Terms of Service.pdf",
-          type: "pdf",
-          size: "0.9 MB",
-          modified: "Jan 20, 2023",
-          starred: false,
-        },
-      ],
-    },
+  const colorOptions = [
+    { name: "Blue", value: "bg-blue-100" },
+    { name: "Green", value: "bg-green-100" },
+    { name: "Purple", value: "bg-purple-100" },
+    { name: "Yellow", value: "bg-yellow-100" },
+    { name: "Red", value: "bg-red-100" },
+    { name: "Pink", value: "bg-pink-100" },
+  ]
+
+  // Fetch folder data and files
+  useEffect(() => {
+    const fetchFolderData = async () => {
+      if (!user || !user.providerId) {
+        setError("You must be logged in to view this folder")
+        setIsInitialLoading(false)
+        return
+      }
+
+      try {
+        setIsInitialLoading(true)
+        setError("")
+
+        // Fetch folder details
+        const folderData = await getFolder(folderId)
+        setFolder(folderData)
+        
+        // Set form values
+        setFolderName(folderData.name)
+        setFolderDescription(folderData.description || "")
+        setFolderColor(folderData.color || "bg-blue-100")
+
+        // Fetch folder files
+        const folderFiles = await getFolderFiles(folderId)
+        setFiles(folderFiles)
+      } catch (error) {
+        console.error("Error fetching folder data:", error)
+        setError("Failed to load folder data. Please try again.")
+      } finally {
+        setIsInitialLoading(false)
+      }
+    }
+
+    fetchFolderData()
+  }, [folderId, user])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (folderDropdownRef.current && !folderDropdownRef.current.contains(event.target as Node)) {
+        setIsFolderDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  const handleEditFolder = async () => {
+    if (!user || !user.providerId) {
+      setError("You must be logged in to edit a folder")
+      return
+    }
+
+    setIsLoading(true)
+    setError("")
+
+    try {
+      await updateFolder(folderId, {
+        name: folderName,
+        description: folderDescription,
+        color: folderColor,
+        provider_id: user.providerId,
+      })
+
+      // Refresh folder data
+      const updatedFolder = await getFolder(folderId)
+      setFolder(updatedFolder)
+      
+      setIsEditModalOpen(false)
+    } catch (error) {
+      console.error("Error updating folder:", error)
+      setError("Failed to update folder. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const folder = folderData[folderId] || {
-    id: parseInt(folderId),
-    name: `Folder ${folderId}`,
-    color: "bg-gray-100",
-    description: "Folder description",
-    created: "Unknown date",
-    files: [],
+  const handleDeleteFolder = async () => {
+    if (!user || !user.providerId) {
+      setError("You must be logged in to delete a folder")
+      return
+    }
+
+    setIsLoading(true)
+    setError("")
+
+    try {
+      await deleteFolder(folderId)
+      router.push("/files")
+    } catch (error) {
+      console.error("Error deleting folder:", error)
+      setError("Failed to delete folder. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const getFileIcon = (type: string) => {
@@ -318,55 +276,92 @@ export default function FolderDetailsPage() {
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <div className="p-6 max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="mb-6">
-            <Link href="/files" className="inline-flex items-center text-gray-500 hover:text-gray-700 mb-4">
-              <ArrowLeft className="w-4 h-4 mr-1" />
-              <span>Back to Files</span>
-            </Link>
-
-            <div className="bg-white rounded-3xl p-6 shadow-sm">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          {/* Loading State */}
+          {isInitialLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="w-12 h-12 border-4 border-gray-200 border-t-gray-800 rounded-full animate-spin"></div>
+            </div>
+          ) : error ? (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 text-red-700">
+              <AlertCircle className="w-5 h-5" />
+              <p>{error}</p>
+            </div>
+          ) : (
+            <>
+              {/* Header */}
+              <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-4">
-                  <div className={`w-16 h-16 ${folder.color} rounded-xl flex items-center justify-center`}>
-                    <Folder className="w-8 h-8 text-gray-700" />
-                  </div>
+                  <Link
+                    href="/files"
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <ArrowLeft className="w-5 h-5 text-gray-500" />
+                  </Link>
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900">{folder.name}</h1>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-gray-600">
-                        Created {folder.created} • {folder.files.length} files
-                      </span>
-                    </div>
+                    <h1 className="text-2xl font-bold text-gray-900">{folder?.name}</h1>
+                    <p className="text-sm text-gray-500">{folder?.description}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <input
                       type="text"
-                      placeholder="Search in folder..."
+                      placeholder="Search files..."
                       className="w-64 bg-white rounded-full px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
                     />
                     <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
                   </div>
-                  <button className="p-2 rounded-full hover:bg-gray-100 shadow-sm">
+                  <button
+                    className={`p-2 rounded-full ${isFilterOpen ? "bg-gray-200" : "hover:bg-gray-100"} transition-colors shadow-sm`}
+                    onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  >
                     <Filter className="w-5 h-5 text-gray-500" />
                   </button>
                   <div className="flex border border-gray-200 rounded-lg shadow-sm">
                     <button
                       className={`p-2 ${viewMode === "grid" ? "bg-gray-100" : "bg-white"} transition-colors`}
                       onClick={() => setViewMode("grid")}
-                      aria-label="Grid view"
                     >
                       <GridIcon className="w-5 h-5 text-gray-500" />
                     </button>
                     <button
-                      className={`p-2 ${viewMode === "list" ? "bg-gray-100" : "bg-white"} transition-colors`}
+                      className={`p-2 ${viewMode === "list" ? "bg-white" : "bg-gray-100"} transition-colors`}
                       onClick={() => setViewMode("list")}
-                      aria-label="List view"
                     >
                       <ListFilter className="w-5 h-5 text-gray-500" />
                     </button>
+                  </div>
+                  <div className="relative" ref={folderDropdownRef}>
+                    <button
+                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                      onClick={() => setIsFolderDropdownOpen(!isFolderDropdownOpen)}
+                    >
+                      <MoreHorizontal className="w-5 h-5 text-gray-500" />
+                    </button>
+                    {isFolderDropdownOpen && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-10">
+                        <button
+                          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                          onClick={() => {
+                            setIsEditModalOpen(true)
+                            setIsFolderDropdownOpen(false)
+                          }}
+                        >
+                          <Edit className="w-4 h-4" />
+                          Edit Folder
+                        </button>
+                        <button
+                          className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100 flex items-center gap-2"
+                          onClick={() => {
+                            setIsDeleteModalOpen(true)
+                            setIsFolderDropdownOpen(false)
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Delete Folder
+                        </button>
+                      </div>
+                    )}
                   </div>
                   <button
                     className="flex items-center gap-2 bg-gray-900 text-white rounded-full px-4 py-2 hover:bg-gray-800 transition-colors shadow-sm hover:shadow-md"
@@ -377,88 +372,102 @@ export default function FolderDetailsPage() {
                   </button>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Content */}
-          <div className="space-y-6">
-            {/* Files Section */}
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Files</h2>
-              {viewMode === "grid" ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {folder.files.map((file) => (
-                    <div key={file.id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
-                      <div className="p-6">
-                        <div className="flex items-center gap-3 mb-4">
-                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center shadow-sm">
-                            {getFileIcon(file.type)}
-                          </div>
-                          <div>
-                            <h3 className="font-medium text-lg text-gray-900">{file.name}</h3>
-                            <p className="text-sm text-gray-500">{file.size}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div className="text-xs text-gray-500">Modified {file.modified}</div>
-                          <div className="flex items-center gap-2">
-                            <button className="p-1 rounded-full hover:bg-gray-100">
-                              <Download className="w-4 h-4 text-gray-700" />
-                            </button>
-                            <button className="p-1 rounded-full hover:bg-gray-100">
-                              <Share2 className="w-4 h-4 text-gray-700" />
-                            </button>
-                          </div>
-                        </div>
+              {/* Files Section */}
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Files</h2>
+                  {files.length === 0 ? (
+                    <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Folder className="w-8 h-8 text-gray-400" />
                       </div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-1">No files in this folder</h3>
+                      <p className="text-gray-500 mb-6">Upload files to get started</p>
+                      <button
+                        className="inline-flex items-center gap-2 bg-gray-900 text-white rounded-full px-5 py-2 hover:bg-gray-800 transition-colors shadow-sm hover:shadow-md"
+                        onClick={() => setIsUploadModalOpen(true)}
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span className="text-sm font-medium">Upload Files</span>
+                      </button>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-gray-50 border-b border-gray-200">
-                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Name</th>
-                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Size</th>
-                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Modified</th>
-                        <th className="text-right py-3 px-4 text-sm font-medium text-gray-500">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {folder.files.map((file) => (
-                        <tr key={file.id} className="border-b border-gray-200 last:border-0">
-                          <td className="py-3 px-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                  ) : viewMode === "grid" ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {files.map((file: FileData) => (
+                        <div key={file.id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+                          <div className="p-6">
+                            <div className="flex items-center gap-3 mb-4">
+                              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center shadow-sm">
                                 {getFileIcon(file.type)}
                               </div>
                               <div>
-                                <div className="font-medium text-gray-900">{file.name}</div>
-                                <div className="text-sm text-gray-500">{file.type.toUpperCase()}</div>
+                                <h3 className="font-medium text-lg text-gray-900">{file.name}</h3>
+                                <p className="text-sm text-gray-500">{file.size}</p>
                               </div>
                             </div>
-                          </td>
-                          <td className="py-3 px-4 text-sm text-gray-500">{file.size}</td>
-                          <td className="py-3 px-4 text-sm text-gray-500">{file.modified}</td>
-                          <td className="py-3 px-4">
-                            <div className="flex items-center justify-end gap-2">
-                              <button className="p-1 rounded-full hover:bg-gray-100">
-                                <Download className="w-4 h-4 text-gray-500" />
-                              </button>
-                              <button className="p-1 rounded-full hover:bg-gray-100">
-                                <Share2 className="w-4 h-4 text-gray-500" />
-                              </button>
+                            <div className="flex items-center justify-between">
+                              <div className="text-xs text-gray-500">Modified {file.modified}</div>
+                              <div className="flex items-center gap-2">
+                                <button className="p-1 rounded-full hover:bg-gray-100">
+                                  <Download className="w-4 h-4 text-gray-700" />
+                                </button>
+                                <button className="p-1 rounded-full hover:bg-gray-100">
+                                  <Share2 className="w-4 h-4 text-gray-700" />
+                                </button>
+                              </div>
                             </div>
-                          </td>
-                        </tr>
+                          </div>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
+                    </div>
+                  ) : (
+                    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="bg-gray-50 border-b border-gray-200">
+                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Name</th>
+                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Size</th>
+                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Modified</th>
+                            <th className="text-right py-3 px-4 text-sm font-medium text-gray-500">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {files.map((file: FileData) => (
+                            <tr key={file.id} className="border-b border-gray-200 last:border-0">
+                              <td className="py-3 px-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                                    {getFileIcon(file.type)}
+                                  </div>
+                                  <div>
+                                    <div className="font-medium text-gray-900">{file.name}</div>
+                                    <div className="text-sm text-gray-500">{file.type.toUpperCase()}</div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 text-sm text-gray-500">{file.size}</td>
+                              <td className="py-3 px-4 text-sm text-gray-500">{file.modified}</td>
+                              <td className="py-3 px-4">
+                                <div className="flex items-center justify-end gap-2">
+                                  <button className="p-1 rounded-full hover:bg-gray-100">
+                                    <Download className="w-4 h-4 text-gray-500" />
+                                  </button>
+                                  <button className="p-1 rounded-full hover:bg-gray-100">
+                                    <Share2 className="w-4 h-4 text-gray-500" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -467,9 +476,171 @@ export default function FolderDetailsPage() {
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
         folders={[
-          { id: parseInt(folderId), name: folder.name },
+          { id: parseInt(folderId), name: folder?.name || "" },
         ]}
       />
+
+      {/* Edit Folder Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Edit Folder</h2>
+              <button 
+                onClick={() => setIsEditModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+                disabled={isLoading}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <label htmlFor="folder-name" className="block text-sm font-medium text-gray-700 mb-1">
+                Folder Name
+              </label>
+              <input
+                id="folder-name"
+                type="text"
+                value={folderName}
+                onChange={(e) => setFolderName(e.target.value)}
+                className="text-gray-900 w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200"
+                placeholder="Enter folder name"
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="mb-4">
+              <label htmlFor="folder-description" className="block text-sm font-medium text-gray-700 mb-1">
+                Description (Optional)
+              </label>
+              <textarea
+                id="folder-description"
+                value={folderDescription}
+                onChange={(e) => setFolderDescription(e.target.value)}
+                className="text-gray-900 w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200"
+                placeholder="Enter folder description"
+                rows={3}
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Folder Color
+              </label>
+              <div className="grid grid-cols-6 gap-2">
+                {colorOptions.map((color) => (
+                  <button
+                    key={color.value}
+                    className={`w-8 h-8 rounded-full ${color.value} ${
+                      folderColor === color.value ? "ring-2 ring-offset-2 ring-gray-900" : ""
+                    }`}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setFolderColor(color.value)
+                    }}
+                    disabled={isLoading}
+                    aria-label={`Select ${color.name} color`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+                <AlertCircle className="w-5 h-5" />
+                <p className="text-sm">{error}</p>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3">
+              <button
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                onClick={() => setIsEditModalOpen(false)}
+                disabled={isLoading}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
+                onClick={handleEditFolder}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Folder className="w-4 h-4" />
+                    Save Changes
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Folder Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Delete Folder</h2>
+              <button 
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+                disabled={isLoading}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <p className="text-gray-700">
+                Are you sure you want to delete this folder? This action cannot be undone.
+              </p>
+            </div>
+
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+                <AlertCircle className="w-5 h-5" />
+                <p className="text-sm">{error}</p>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3">
+              <button
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                onClick={() => setIsDeleteModalOpen(false)}
+                disabled={isLoading}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+                onClick={handleDeleteFolder}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    Delete Folder
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 } 
