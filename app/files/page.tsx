@@ -218,7 +218,8 @@ export default function FilesPage() {
             <h2 className="text-lg font-semibold mb-4 text-gray-900">Folders</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {folders.map((folder) => (
-                <div
+                <Link 
+                  href={`/files/folders/${folder.id}`} 
                   key={folder.id}
                   className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-shadow cursor-pointer"
                 >
@@ -226,13 +227,19 @@ export default function FilesPage() {
                     <div className={`w-10 h-10 ${folder.color} rounded-lg flex items-center justify-center`}>
                       <Folder className="w-5 h-5 text-gray-700" />
                     </div>
-                    <button className="p-1 rounded-full hover:bg-gray-100">
+                    <button 
+                      className="p-1 rounded-full hover:bg-gray-100"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        // Handle folder options here
+                      }}
+                    >
                       <MoreHorizontal className="w-4 h-4 text-gray-500" />
                     </button>
                   </div>
                   <h3 className="font-medium mb-1 text-gray-900">{folder.name}</h3>
                   <p className="text-sm text-gray-500">{folder.files} files</p>
-                </div>
+                </Link>
               ))}
 
               <div className="bg-gray-50 border border-dashed border-gray-200 rounded-xl p-4 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-100 transition-colors">
