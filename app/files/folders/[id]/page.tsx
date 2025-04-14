@@ -26,6 +26,10 @@ import {
   X,
   AlertCircle,
   ChevronLeft,
+  Pencil,
+  Clock,
+  Calendar,
+  User,
 } from "lucide-react"
 import Sidebar from "../../../../components/sidebar"
 import UploadModal from "../../../components/UploadModal"
@@ -50,13 +54,16 @@ export default function FolderDetailsPage() {
   const [folderName, setFolderName] = useState("")
   const [folderDescription, setFolderDescription] = useState("")
   const [folderColor, setFolderColor] = useState("bg-blue-100")
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [folder, setFolder] = useState<FolderData | null>(null)
   const [files, setFiles] = useState<FileData[]>([])
   const [isInitialLoading, setIsInitialLoading] = useState(true)
   const folderDropdownRef = useRef<HTMLDivElement>(null)
   const [viewMode, setViewMode] = useState("grid")
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const buttonRefs = useRef<{ [key: number]: HTMLButtonElement | null }>({})
   const [searchQuery, setSearchQuery] = useState("")
 
   const colorOptions = [
@@ -74,11 +81,13 @@ export default function FolderDetailsPage() {
       if (!user || !user.providerId) {
         setError("You must be logged in to view this folder")
         setIsInitialLoading(false)
+        setIsLoading(false)
         return
       }
 
       try {
         setIsInitialLoading(true)
+        setIsLoading(true)
         setError("")
 
         // Fetch folder details
@@ -98,6 +107,7 @@ export default function FolderDetailsPage() {
         setError("Failed to load folder data. Please try again.")
       } finally {
         setIsInitialLoading(false)
+        setIsLoading(false)
       }
     }
 
@@ -260,10 +270,6 @@ export default function FolderDetailsPage() {
     })
   }
 
-  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-  const buttonRefs = useRef<{ [key: number]: HTMLButtonElement | null }>({})
-
   const setButtonRef = (id: number) => (el: HTMLButtonElement | null) => {
     buttonRefs.current[id] = el
   }
@@ -323,7 +329,7 @@ export default function FolderDetailsPage() {
               <Link href="/files" className="text-gray-500 hover:text-gray-700">
                 <ChevronLeft className="w-5 h-5" />
               </Link>
-              <h1 className="text-2xl font-bold text-gray-900">{folder?.name || "Folder"}</h1>
+              <h1 className="text-gray-700"> Back to Folders</h1>
             </div>
             <div className="flex items-center gap-3">
               <div className="relative">
@@ -331,6 +337,8 @@ export default function FolderDetailsPage() {
                   type="text"
                   placeholder="Search files..."
                   className="w-64 bg-white rounded-full px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
               </div>
@@ -414,19 +422,131 @@ export default function FolderDetailsPage() {
           )}
 
           {/* Loading state */}
-          {isLoading && (
+          {isInitialLoading && (
             <div className="mb-10 flex justify-center">
               <div className="w-12 h-12 border-4 border-gray-200 border-t-gray-800 rounded-full animate-spin"></div>
+            </div>
+          )}
+
+          {/* Folder Details Card */}
+          {!isInitialLoading && folder && (
+            <div className="bg-white rounded-3xl p-6 shadow-sm mb-8">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`w-16 h-16 rounded-xl ${folder.color || "bg-blue-100"} flex items-center justify-center`}
+                  >
+                    <Folder className="w-8 h-8 text-blue-600" />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-bold text-gray-900">{folder.name}</h1>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-gray-600">
+                        {folder.description || "No description provided"}
+                      </span>
+                      <span className="text-gray-300">•</span>
+                      <div className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                        {files.length} files
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setIsEditModalOpen(true)}
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2"
+                  >
+                    <Edit className="w-4 h-4" />
+                    <span>Edit</span>
+                  </button>
+                  <button
+                    onClick={() => setIsUploadModalOpen(true)}
+                    className="px-4 py-2 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Upload Files</span>
+                  </button>
+                  <div className="relative">
+                    <button
+                      className="p-2 rounded-full hover:bg-gray-100"
+                      onClick={() => {
+                        const dropdown = document.getElementById("folder-actions-dropdown")
+                        dropdown?.classList.toggle("hidden")
+                      }}
+                    >
+                      <MoreHorizontal className="w-5 h-5 text-gray-500" />
+                    </button>
+                    <div
+                      id="folder-actions-dropdown"
+                      className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-10 hidden"
+                    >
+                      <button
+                        onClick={() => setIsDeleteModalOpen(true)}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex items-center gap-2"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span>Delete Folder</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Key Details */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <p className="text-xs text-gray-500 mb-1">CREATED</p>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-gray-400" />
+                    <p className="text-sm font-medium text-gray-900">
+                      {formatDate(folder.created_at || "")}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <p className="text-xs text-gray-500 mb-1">LAST MODIFIED</p>
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-gray-400" />
+                    <p className="text-sm font-medium text-gray-900">
+                      {formatDate(folder.updated_at || "")}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <p className="text-xs text-gray-500 mb-1">FILES</p>
+                  <div className="flex items-center gap-2">
+                    <File className="w-4 h-4 text-gray-400" />
+                    <p className="text-sm font-medium text-gray-900">
+                      {files.length} total
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <p className="text-xs text-gray-500 mb-1">OWNER</p>
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-gray-400" />
+                    <p className="text-sm font-medium text-gray-900">
+                      {user?.name || "You"}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
           {/* Files Section */}
           {!isLoading && (
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Files</h2>
-              
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">Files</h2>
+              </div>
+
               {files.length === 0 ? (
-                <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+                <div className="bg-white rounded-xl shadow-sm p-12 text-center">
                   <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
                     <Folder className="w-8 h-8 text-gray-400" />
                   </div>
@@ -482,8 +602,170 @@ export default function FolderDetailsPage() {
       <UploadModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
-        folders={[{ id: Number(folderId), name: folder?.name || "" }]}
+        folders={folder ? [{ id: parseInt(folderId), name: folder.name }] : []}
       />
+
+      {/* Edit Folder Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Edit Folder</h2>
+              <button 
+                onClick={() => setIsEditModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+                disabled={isLoading}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <label htmlFor="folder-name" className="block text-sm font-medium text-gray-700 mb-1">
+                Folder Name
+              </label>
+              <input
+                id="folder-name"
+                type="text"
+                value={folderName}
+                onChange={(e) => setFolderName(e.target.value)}
+                className="text-gray-900 w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200"
+                placeholder="Enter folder name"
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="mb-4">
+              <label htmlFor="folder-description" className="block text-sm font-medium text-gray-700 mb-1">
+                Description (Optional)
+              </label>
+              <textarea
+                id="folder-description"
+                value={folderDescription}
+                onChange={(e) => setFolderDescription(e.target.value)}
+                className="text-gray-900 w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200"
+                placeholder="Enter folder description"
+                rows={3}
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Folder Color
+              </label>
+              <div className="grid grid-cols-6 gap-2">
+                {colorOptions.map((color) => (
+                  <button
+                    key={color.value}
+                    className={`w-8 h-8 rounded-full ${color.value} ${
+                      folderColor === color.value ? "ring-2 ring-offset-2 ring-gray-900" : ""
+                    }`}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setFolderColor(color.value)
+                    }}
+                    disabled={isLoading}
+                    aria-label={`Select ${color.name} color`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+                <AlertCircle className="w-5 h-5" />
+                <p className="text-sm">{error}</p>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3">
+              <button
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                onClick={() => setIsEditModalOpen(false)}
+                disabled={isLoading}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
+                onClick={handleEditFolder}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Folder className="w-4 h-4" />
+                    Save Changes
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Folder Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Delete Folder</h2>
+              <button 
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+                disabled={isLoading}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <p className="text-gray-700">
+                Are you sure you want to delete this folder? This action cannot be undone.
+              </p>
+            </div>
+
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+                <AlertCircle className="w-5 h-5" />
+                <p className="text-sm">{error}</p>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3">
+              <button
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                onClick={() => setIsDeleteModalOpen(false)}
+                disabled={isLoading}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+                onClick={handleDeleteFolder}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    Delete Folder
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 } 
