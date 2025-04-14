@@ -9,6 +9,9 @@ export type FolderData = {
   color?: string
   created_at?: string
   updated_at?: string
+  provider_id?: string
+  project_id?: string
+  parent_id?: string
 }
 
 export type FileData = {
@@ -29,9 +32,9 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/a
 /**
  * Get all folders
  */
-export async function getFolders() {
+export async function getFolders(providerId: string) {
   try {
-    const response = await fetch(`${API_BASE_URL}/folders`, {
+    const response = await fetch(`${API_BASE_URL}/folders?provider_id=${providerId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -94,7 +97,8 @@ export async function createFolder(data: FolderData) {
     })
 
     if (!response.ok) {
-      throw new Error(`Failed to create folder: ${response.statusText}`)
+      const errorData = await response.json()
+      throw new Error(`Failed to create folder: ${errorData.message || response.statusText}`)
     }
 
     const result = await response.json()

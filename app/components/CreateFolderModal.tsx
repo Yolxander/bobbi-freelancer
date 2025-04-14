@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { X, Folder, Check } from "lucide-react"
 import { createFolder } from "@/app/actions/folder-actions"
+import { useAuth } from "@/lib/auth-context"
 
 interface CreateFolderModalProps {
   isOpen: boolean
@@ -10,6 +11,7 @@ interface CreateFolderModalProps {
 }
 
 export default function CreateFolderModal({ isOpen, onClose }: CreateFolderModalProps) {
+  const { user } = useAuth()
   const [folderName, setFolderName] = useState("")
   const [folderDescription, setFolderDescription] = useState("")
   const [folderColor, setFolderColor] = useState("bg-blue-100")
@@ -41,6 +43,11 @@ export default function CreateFolderModal({ isOpen, onClose }: CreateFolderModal
       return
     }
 
+    if (!user || !user.providerId) {
+      setError("You must be logged in to create a folder")
+      return
+    }
+
     setCreating(true)
     setError("")
 
@@ -49,6 +56,7 @@ export default function CreateFolderModal({ isOpen, onClose }: CreateFolderModal
         name: folderName,
         description: folderDescription,
         color: folderColor,
+        provider_id: user.providerId,
       })
 
       setCreateComplete(true)

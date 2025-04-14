@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Star,
   Search,
@@ -20,16 +20,19 @@ import {
   ListFilter,
   ChevronRight,
   X,
+  AlertCircle,
 } from "lucide-react"
 import Link from "next/link"
 import Sidebar from "@/components/sidebar"
 import UploadModal from "../components/UploadModal"
 import CreateFolderModal from "../components/CreateFolderModal"
+import { useAuth } from "@/lib/auth-context"
+import { getFolders } from "@/app/actions/folder-actions"
 
 interface Folder {
   id: number
   name: string
-  files: Array<{
+  files?: Array<{
     id: number
     name: string
     type: string
@@ -38,15 +41,20 @@ interface Folder {
   }>
   color: string
   created: string
+  created_at?: string
 }
 
 export default function FilesPage() {
+  const { user, loading: authLoading } = useAuth()
   const [activeTab, setActiveTab] = useState("all")
   const [viewMode, setViewMode] = useState("grid")
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [folders, setFolders] = useState<Folder[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const fileCategories = [
     { id: "all", name: "All Files", count: 43 },
@@ -56,46 +64,27 @@ export default function FilesPage() {
     { id: "trash", name: "Trash", count: 2 },
   ]
 
-  const folders = [
-    { 
-      id: 1, 
-      name: "Website Projects", 
-      files: [
-        { id: 1, name: "Homepage.sketch", type: "sketch", size: "2.4 MB", modified: "Today, 2:30 PM" },
-        { id: 2, name: "About.sketch", type: "sketch", size: "1.8 MB", modified: "Today, 1:45 PM" }
-      ],
-      color: "bg-blue-100",
-      created: "Today, 2:30 PM"
-    },
-    { 
-      id: 2, 
-      name: "Brand Assets", 
-      files: [
-        { id: 3, name: "Logo.png", type: "image", size: "1.2 MB", modified: "Yesterday" },
-        { id: 4, name: "Brand Guide.pdf", type: "pdf", size: "4.7 MB", modified: "Yesterday" }
-      ],
-      color: "bg-green-100",
-      created: "Yesterday"
-    },
-    { 
-      id: 3, 
-      name: "Client Presentations", 
-      files: [
-        { id: 5, name: "Q1 Review.pptx", type: "pptx", size: "1.2 MB", modified: "Mar 20, 2023" }
-      ],
-      color: "bg-purple-100",
-      created: "Mar 20, 2023"
-    },
-    { 
-      id: 4, 
-      name: "Contracts & Agreements", 
-      files: [
-        { id: 6, name: "Service Agreement.pdf", type: "pdf", size: "3.8 MB", modified: "Mar 18, 2023" }
-      ],
-      color: "bg-yellow-100",
-      created: "Mar 18, 2023"
+  // Fetch folders when the component mounts or when the user changes
+  useEffect(() => {
+    const fetchFolders = async () => {
+      if (user && user.providerId) {
+        setIsLoading(true)
+        setError(null)
+        
+        try {
+          const data = await getFolders(user.providerId)
+          setFolders(data)
+        } catch (err) {
+          console.error("Error fetching folders:", err)
+          setError("Failed to load folders. Please try again later.")
+        } finally {
+          setIsLoading(false)
+        }
+      }
     }
-  ]
+
+    fetchFolders()
+  }, [user])
 
   const recentFiles = [
     {
@@ -234,7 +223,7 @@ export default function FilesPage() {
                   <GridIcon className="w-5 h-5 text-gray-500" />
                 </button>
                 <button
-                  className={`p-2 ${viewMode === "list" ? "bg-gray-100" : "bg-white"} transition-colors`}
+                  className={`p-2 ${viewMode === "list" ? "bg-white" : "bg-gray-100"} transition-colors`}
                   onClick={() => setViewMode("list")}
                   aria-label="List view"
                 >
@@ -290,53 +279,87 @@ export default function FilesPage() {
             </div>
           )}
 
-          {/* Folders Section */}
-          <div className="mb-10">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Folders</h2>
-            <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
-              {/* Create New Folder Card */}
-              <div
-                className={`
-                  bg-white border border-dashed border-gray-200 rounded-xl p-6 
-                  flex flex-col items-center justify-center text-center 
-                  hover:bg-gray-50 transition-colors cursor-pointer shadow-sm hover:shadow-md
-                  ${viewMode === "grid" ? "h-full" : "py-8"}
-                `}
-                onClick={() => setIsCreateFolderModalOpen(true)}
-              >
-                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-3 shadow-sm">
-                  <Plus className="w-6 h-6 text-gray-500" />
-                </div>
-                <h3 className="font-medium text-gray-900 mb-1">Create New Folder</h3>
-                <p className="text-sm text-gray-500">Organize your files in a new folder</p>
-              </div>
-
-              {/* Existing Folders */}
-              {folders.map((folder) => (
-                <Link href={`/files/folders/${folder.id}`} key={folder.id}>
-                  <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer h-full">
-                    <div className="p-6">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className={`w-12 h-12 ${folder.color} rounded-lg flex items-center justify-center shadow-sm`}>
-                          <Folder className="w-6 h-6 text-gray-700" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-lg text-gray-900">{folder.name}</h3>
-                          <p className="text-sm text-gray-500">{folder.files.length} files</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="text-xs text-gray-500">Created {folder.created}</div>
-                        <div className="text-sm text-gray-500">
-                          <ChevronRight className="w-5 h-5" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+          {/* Error message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 text-red-700 shadow-sm">
+              <AlertCircle className="w-5 h-5" />
+              <p>{error}</p>
             </div>
-          </div>
+          )}
+
+          {/* Loading state */}
+          {isLoading && (
+            <div className="mb-10 flex justify-center">
+              <div className="w-12 h-12 border-4 border-gray-200 border-t-gray-800 rounded-full animate-spin"></div>
+            </div>
+          )}
+
+          {/* Folders Section */}
+          {!isLoading && (
+            <div className="mb-10">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Folders</h2>
+              <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
+                {/* Create New Folder Card */}
+                <div
+                  className={`
+                    bg-white border border-dashed border-gray-200 rounded-xl p-6 
+                    flex flex-col items-center justify-center text-center 
+                    hover:bg-gray-50 transition-colors cursor-pointer shadow-sm hover:shadow-md
+                    ${viewMode === "grid" ? "h-full" : "py-8"}
+                  `}
+                  onClick={() => setIsCreateFolderModalOpen(true)}
+                >
+                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-3 shadow-sm">
+                    <Plus className="w-6 h-6 text-gray-500" />
+                  </div>
+                  <h3 className="font-medium text-gray-900 mb-1">Create New Folder</h3>
+                  <p className="text-sm text-gray-500">Organize your files in a new folder</p>
+                </div>
+
+                {/* Existing Folders */}
+                {folders.length > 0 ? (
+                  folders.map((folder) => (
+                    <Link href={`/files/folders/${folder.id}`} key={folder.id}>
+                      <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer h-full">
+                        <div className="p-6">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className={`w-12 h-12 ${folder.color} rounded-lg flex items-center justify-center shadow-sm`}>
+                              <Folder className="w-6 h-6 text-gray-700" />
+                            </div>
+                            <div>
+                              <h3 className="font-medium text-lg text-gray-900">{folder.name}</h3>
+                              <p className="text-sm text-gray-500">{folder.files?.length || 0} files</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="text-xs text-gray-500">Created {folder.created_at || "Recently"}</div>
+                            <div className="text-sm text-gray-500">
+                              <ChevronRight className="w-5 h-5" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-12">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                      <Folder className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-1">No folders found</h3>
+                    <p className="text-gray-500 mb-6">Get started by creating your first folder</p>
+                    <button
+                      className="inline-flex items-center gap-2 bg-gray-900 text-white rounded-full px-5 py-2 hover:bg-gray-800 transition-colors shadow-sm hover:shadow-md"
+                      onClick={() => setIsCreateFolderModalOpen(true)}
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span className="text-sm font-medium">Create Folder</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Recent Files Section */}
           <div>
