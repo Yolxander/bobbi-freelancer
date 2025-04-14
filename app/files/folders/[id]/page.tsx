@@ -311,283 +311,154 @@ export default function FolderDetailsPage() {
   }, [])
 
   return (
-    <div className="flex h-screen bg-white">
+    <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Left Sidebar */}
       <Sidebar />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <div className="p-6 border-b border-gray-100">
-          <div className="flex items-center mb-6">
-            <Link href="/files" className="mr-4">
-              <ArrowLeft className="w-5 h-5 text-gray-700" />
+      <div className="flex-1 overflow-auto">
+        <div className="p-6 max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="mb-6">
+            <Link href="/files" className="inline-flex items-center text-gray-500 hover:text-gray-700 mb-4">
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              <span>Back to Files</span>
             </Link>
-            <div className={`w-10 h-10 ${folder.color} rounded-lg flex items-center justify-center mr-3`}>
-              <Folder className="w-5 h-5 text-gray-700" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{folder.name}</h1>
-              <p className="text-sm text-gray-700">
-                Created {folder.created} • {folder.files.length} files
-              </p>
-            </div>
-            <div className="ml-auto flex items-center gap-3">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search in folder..."
-                  className="w-64 bg-gray-100 rounded-full px-4 py-2 pl-10 text-sm focus:outline-none text-gray-700"
-                />
-                <Search className="w-4 h-4 text-gray-500 absolute left-3 top-2.5" />
-              </div>
-              <button className="p-2 rounded-full hover:bg-gray-100">
-                <Filter className="w-5 h-5 text-gray-700" />
-              </button>
-              <button 
-                className="flex items-center gap-2 bg-gray-900 text-white rounded-full px-4 py-2"
-                onClick={() => setIsUploadModalOpen(true)}
-              >
-                <Plus className="w-4 h-4" />
-                <span className="text-sm font-medium">Upload</span>
-              </button>
-            </div>
-          </div>
 
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-700">{folder.description}</p>
-            <div className="flex items-center gap-2">
-              <button
-                className={`p-2 rounded ${viewMode === "grid" ? "bg-gray-100 text-gray-900" : "hover:bg-gray-100 text-gray-700"}`}
-                onClick={() => setViewMode("grid")}
-                aria-label="Grid view"
-              >
-                <GridIcon className="w-5 h-5" />
-              </button>
-              <button
-                className={`p-2 rounded ${viewMode === "list" ? "bg-gray-100 text-gray-900" : "hover:bg-gray-100 text-gray-700"}`}
-                onClick={() => setViewMode("list")}
-                aria-label="List view"
-              >
-                <ListFilter className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 p-6 overflow-y-auto">
-          {folder.files.length > 0 ? (
-            viewMode === "grid" ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {folder.files.map((file: FileType) => (
-                  <div
-                    key={file.id}
-                    className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-shadow relative"
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div
-                        className={`w-12 h-12 ${getFileTypeColor(file.type).split(" ")[0]} rounded-lg flex items-center justify-center`}
-                      >
-                        {getFileIcon(file.type)}
-                      </div>
-                      <div className="flex items-center">
-                        {file.starred && (
-                          <button className="p-1 rounded-full">
-                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          </button>
-                        )}
-                        <button
-                          ref={(el) => setButtonRef(file.id)(el)}
-                          className="p-1 rounded-full hover:bg-gray-100"
-                          onClick={(e) => toggleDropdown(file.id, e)}
-                          aria-label="More options"
-                          aria-expanded={activeDropdown === file.id}
-                          aria-haspopup="true"
-                        >
-                          <MoreHorizontal className="w-4 h-4 text-gray-700" />
-                        </button>
-                        {activeDropdown === file.id && (
-                          <div
-                            ref={dropdownRef}
-                            className="absolute right-4 top-8 w-48 bg-white rounded-md shadow-lg z-20 py-1 border border-gray-200"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <button
-                              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                              onClick={(e) => handleFileAction("download", file.id, e)}
-                            >
-                              <Download className="w-4 h-4" /> Download
-                            </button>
-                            <button
-                              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                              onClick={(e) => handleFileAction("share", file.id, e)}
-                            >
-                              <Share2 className="w-4 h-4" /> Share
-                            </button>
-                            <button
-                              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                              onClick={(e) => handleFileAction(file.starred ? "unstar" : "star", file.id, e)}
-                            >
-                              <Star className="w-4 h-4" /> {file.starred ? "Unfavorite" : "Favorite"}
-                            </button>
-                            <div className="border-t border-gray-100 my-1"></div>
-                            <button
-                              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center gap-2"
-                              onClick={(e) => handleFileAction("delete", file.id, e)}
-                            >
-                              <Trash2 className="w-4 h-4" /> Delete
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <h3 className="font-medium mb-1 truncate text-gray-900">{file.name}</h3>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${getFileTypeColor(file.type)}`}>
-                        {file.type.toUpperCase()}
+            <div className="bg-white rounded-3xl p-6 shadow-sm">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className={`w-16 h-16 ${folder.color} rounded-xl flex items-center justify-center`}>
+                    <Folder className="w-8 h-8 text-gray-700" />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-bold text-gray-900">{folder.name}</h1>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-gray-600">
+                        Created {folder.created} • {folder.files.length} files
                       </span>
-                      <p className="text-xs text-gray-700">{file.size}</p>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs text-gray-700">{file.modified}</p>
-                      <div className="flex items-center gap-2">
-                        <button className="p-1 rounded-full hover:bg-gray-100">
-                          <Download className="w-4 h-4 text-gray-700" />
-                        </button>
-                        <button className="p-1 rounded-full hover:bg-gray-100">
-                          <Share2 className="w-4 h-4 text-gray-700" />
-                        </button>
-                      </div>
                     </div>
                   </div>
-                ))}
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search in folder..."
+                      className="w-64 bg-white rounded-full px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
+                    />
+                    <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+                  </div>
+                  <button className="p-2 rounded-full hover:bg-gray-100 shadow-sm">
+                    <Filter className="w-5 h-5 text-gray-500" />
+                  </button>
+                  <div className="flex border border-gray-200 rounded-lg shadow-sm">
+                    <button
+                      className={`p-2 ${viewMode === "grid" ? "bg-gray-100" : "bg-white"} transition-colors`}
+                      onClick={() => setViewMode("grid")}
+                      aria-label="Grid view"
+                    >
+                      <GridIcon className="w-5 h-5 text-gray-500" />
+                    </button>
+                    <button
+                      className={`p-2 ${viewMode === "list" ? "bg-gray-100" : "bg-white"} transition-colors`}
+                      onClick={() => setViewMode("list")}
+                      aria-label="List view"
+                    >
+                      <ListFilter className="w-5 h-5 text-gray-500" />
+                    </button>
+                  </div>
+                  <button
+                    className="flex items-center gap-2 bg-gray-900 text-white rounded-full px-4 py-2 hover:bg-gray-800 transition-colors shadow-sm hover:shadow-md"
+                    onClick={() => setIsUploadModalOpen(true)}
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span className="text-sm font-medium">Upload</span>
+                  </button>
+                </div>
               </div>
-            ) : (
-              <div className="border rounded-xl overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-b">
-                    <tr>
-                      <th className="text-left py-3 px-4 text-xs font-medium text-gray-700 uppercase tracking-wider w-1/2">
-                        Name
-                      </th>
-                      <th className="text-left py-3 px-4 text-xs font-medium text-gray-700 uppercase tracking-wider">
-                        Size
-                      </th>
-                      <th className="text-left py-3 px-4 text-xs font-medium text-gray-700 uppercase tracking-wider">
-                        Modified
-                      </th>
-                      <th className="text-right py-3 px-4 text-xs font-medium text-gray-700 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {folder.files.map((file: FileType) => (
-                      <tr key={file.id} className="hover:bg-gray-50 relative">
-                        <td className="py-3 px-4">
-                          <div className="flex items-center">
-                            <div
-                              className={`w-10 h-10 ${getFileTypeColor(file.type).split(" ")[0]} rounded-lg flex items-center justify-center mr-3`}
-                            >
-                              {getFileIcon(file.type)}
-                            </div>
-                            <div className="flex flex-col">
-                              <div className="flex items-center">
-                                <span className="font-medium text-gray-900">{file.name}</span>
-                                {file.starred && <Star className="w-4 h-4 ml-2 fill-yellow-400 text-yellow-400" />}
-                              </div>
-                              <span
-                                className={`text-xs px-2 py-0.5 rounded-full ${getFileTypeColor(file.type)} inline-block mt-1 w-fit`}
-                              >
-                                {file.type.toUpperCase()}
-                              </span>
-                            </div>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="space-y-6">
+            {/* Files Section */}
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Files</h2>
+              {viewMode === "grid" ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {folder.files.map((file) => (
+                    <div key={file.id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+                      <div className="p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center shadow-sm">
+                            {getFileIcon(file.type)}
                           </div>
-                        </td>
-                        <td className="py-3 px-4 text-sm text-gray-700">{file.size}</td>
-                        <td className="py-3 px-4 text-sm text-gray-700">{file.modified}</td>
-                        <td className="py-3 px-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
+                          <div>
+                            <h3 className="font-medium text-lg text-gray-900">{file.name}</h3>
+                            <p className="text-sm text-gray-500">{file.size}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="text-xs text-gray-500">Modified {file.modified}</div>
+                          <div className="flex items-center gap-2">
                             <button className="p-1 rounded-full hover:bg-gray-100">
                               <Download className="w-4 h-4 text-gray-700" />
                             </button>
                             <button className="p-1 rounded-full hover:bg-gray-100">
                               <Share2 className="w-4 h-4 text-gray-700" />
                             </button>
-                            <button
-                              ref={(el) => setButtonRef(file.id)(el)}
-                              className="p-1 rounded-full hover:bg-gray-100"
-                              onClick={(e) => toggleDropdown(file.id, e)}
-                              aria-label="More options"
-                              aria-expanded={activeDropdown === file.id}
-                              aria-haspopup="true"
-                            >
-                              <MoreHorizontal className="w-4 h-4 text-gray-700" />
-                            </button>
-                            {activeDropdown === file.id && (
-                              <div
-                                ref={dropdownRef}
-                                className="absolute right-4 top-12 w-48 bg-white rounded-md shadow-lg z-20 py-1 border border-gray-200"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <button
-                                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                                  onClick={(e) => handleFileAction("download", file.id, e)}
-                                >
-                                  <Download className="w-4 h-4" /> Download
-                                </button>
-                                <button
-                                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                                  onClick={(e) => handleFileAction("share", file.id, e)}
-                                >
-                                  <Share2 className="w-4 h-4" /> Share
-                                </button>
-                                <button
-                                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                                  onClick={(e) => handleFileAction(file.starred ? "unstar" : "star", file.id, e)}
-                                >
-                                  <Star className="w-4 h-4" /> {file.starred ? "Unfavorite" : "Favorite"}
-                                </button>
-                                <button
-                                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                                  onClick={(e) => handleFileAction("rename", file.id, e)}
-                                >
-                                  <Edit className="w-4 h-4" /> Rename
-                                </button>
-                                <div className="border-t border-gray-100 my-1"></div>
-                                <button
-                                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center gap-2"
-                                  onClick={(e) => handleFileAction("delete", file.id, e)}
-                                >
-                                  <Trash2 className="w-4 h-4" /> Delete
-                                </button>
-                              </div>
-                            )}
                           </div>
-                        </td>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200">
+                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Name</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Size</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Modified</th>
+                        <th className="text-right py-3 px-4 text-sm font-medium text-gray-500">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )
-          ) : (
-            <div className="flex flex-col items-center justify-center h-64 text-center">
-              <Folder className="w-16 h-16 text-gray-300 mb-4" />
-              <h3 className="text-xl font-medium text-gray-900 mb-2">This folder is empty</h3>
-              <p className="text-gray-700 mb-6 max-w-md">
-                Upload files to this folder or create new content to get started.
-              </p>
-              <button 
-                className="flex items-center gap-2 bg-gray-900 text-white rounded-full px-4 py-2"
-                onClick={() => setIsUploadModalOpen(true)}
-              >
-                <Plus className="w-4 h-4" />
-                <span className="text-sm font-medium">Upload Files</span>
-              </button>
+                    </thead>
+                    <tbody>
+                      {folder.files.map((file) => (
+                        <tr key={file.id} className="border-b border-gray-200 last:border-0">
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                                {getFileIcon(file.type)}
+                              </div>
+                              <div>
+                                <div className="font-medium text-gray-900">{file.name}</div>
+                                <div className="text-sm text-gray-500">{file.type.toUpperCase()}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-sm text-gray-500">{file.size}</td>
+                          <td className="py-3 px-4 text-sm text-gray-500">{file.modified}</td>
+                          <td className="py-3 px-4">
+                            <div className="flex items-center justify-end gap-2">
+                              <button className="p-1 rounded-full hover:bg-gray-100">
+                                <Download className="w-4 h-4 text-gray-500" />
+                              </button>
+                              <button className="p-1 rounded-full hover:bg-gray-100">
+                                <Share2 className="w-4 h-4 text-gray-500" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
 
