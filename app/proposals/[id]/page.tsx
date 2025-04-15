@@ -129,6 +129,21 @@ export default function ProposalPage() {
     console.log("Sending proposal...")
   }
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "draft":
+        return "bg-yellow-50 text-yellow-700 border-yellow-200"
+      case "sent":
+        return "bg-blue-50 text-blue-700 border-blue-200"
+      case "accepted":
+        return "bg-green-50 text-green-700 border-green-200"
+      case "rejected":
+        return "bg-red-50 text-red-700 border-red-200"
+      default:
+        return "bg-gray-50 text-gray-700 border-gray-200"
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -173,7 +188,7 @@ export default function ProposalPage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push("/proposals")}
-                className="text-gray-700 hover:text-gray-900"
+                className="text-gray-700 hover:text-gray-900 transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -185,14 +200,14 @@ export default function ProposalPage() {
                 <>
                   <button
                     onClick={handleExportPDF}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 transition-all"
                   >
                     <Download className="w-4 h-4" />
                     <span>Export PDF</span>
                   </button>
                   <button
                     onClick={handleSend}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
                   >
                     <Send className="w-4 h-4" />
                     <span>Send to Client</span>
@@ -218,7 +233,7 @@ export default function ProposalPage() {
               {!isEditing && (
                 <button
                   onClick={handleDelete}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 hover:text-red-700 transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
                   <span>Delete</span>
@@ -242,7 +257,7 @@ export default function ProposalPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
                 <input
                   type="text"
-                  className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 text-gray-900"
+                  className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 text-gray-900 transition-colors"
                   value={proposal?.title || ""}
                   onChange={(e) => setProposal({ ...proposal, title: e.target.value })}
                   readOnly={!isEditing}
@@ -250,8 +265,8 @@ export default function ProposalPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <div className="p-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700">
-                  {proposal?.status || "Draft"}
+                <div className={`p-2 rounded-lg border ${getStatusColor(proposal?.status || "draft")} transition-colors`}>
+                  {proposal?.status?.charAt(0).toUpperCase() + proposal?.status?.slice(1) || "Draft"}
                 </div>
               </div>
             </div>
@@ -259,26 +274,30 @@ export default function ProposalPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Client</label>
-                <ClientAutoFill
-                  value={proposal?.client_id || ""}
-                  onChange={(value) => setProposal({ ...proposal, client_id: value })}
-                  readOnly={!isEditing}
-                />
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-2">
+                  <ClientAutoFill
+                    value={proposal?.client_id || ""}
+                    onChange={(value) => setProposal({ ...proposal, client_id: value })}
+                    readOnly={!isEditing}
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Project</label>
-                <ProjectSelector
-                  value={proposal?.project_id || ""}
-                  onChange={(value) => setProposal({ ...proposal, project_id: value })}
-                  readOnly={!isEditing}
-                />
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-2">
+                  <ProjectSelector
+                    value={proposal?.project_id || ""}
+                    onChange={(value) => setProposal({ ...proposal, project_id: value })}
+                    readOnly={!isEditing}
+                  />
+                </div>
               </div>
             </div>
 
             <div className="mt-6">
               <label className="block text-sm font-medium text-gray-700 mb-1">Scope of Work</label>
               <textarea
-                className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 min-h-[200px] text-gray-900"
+                className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 min-h-[200px] text-gray-900 transition-colors"
                 value={proposal?.content?.scope || ""}
                 onChange={(e) =>
                   setProposal({
@@ -293,7 +312,7 @@ export default function ProposalPage() {
             <div className="mt-6">
               <label className="block text-sm font-medium text-gray-700 mb-1">Deliverables</label>
               <textarea
-                className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 min-h-[200px] text-gray-900"
+                className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 min-h-[200px] text-gray-900 transition-colors"
                 value={proposal?.content?.deliverables?.join("\n") || ""}
                 onChange={(e) =>
                   setProposal({
@@ -307,16 +326,18 @@ export default function ProposalPage() {
 
             <div className="mt-6">
               <label className="block text-sm font-medium text-gray-700 mb-1">Timeline</label>
-              <DateRangePicker
-                value={proposal?.content?.timeline || { start: "", end: "" }}
-                onChange={(value) =>
-                  setProposal({
-                    ...proposal,
-                    content: { ...proposal.content, timeline: value },
-                  })
-                }
-                readOnly={!isEditing}
-              />
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <DateRangePicker
+                  value={proposal?.content?.timeline || { start: "", end: "" }}
+                  onChange={(value) =>
+                    setProposal({
+                      ...proposal,
+                      content: { ...proposal.content, timeline: value },
+                    })
+                  }
+                  readOnly={!isEditing}
+                />
+              </div>
             </div>
 
             <div className="mt-6">
@@ -338,7 +359,7 @@ export default function ProposalPage() {
             <div className="mt-6">
               <label className="block text-sm font-medium text-gray-700 mb-1">Terms</label>
               <textarea
-                className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 min-h-[200px] text-gray-900"
+                className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 min-h-[200px] text-gray-900 transition-colors"
                 value={proposal?.content?.terms || ""}
                 onChange={(e) =>
                   setProposal({

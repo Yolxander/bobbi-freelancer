@@ -99,7 +99,7 @@ export default function NewProposalPage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.back()}
-                className="text-gray-700 hover:text-gray-900"
+                className="text-gray-700 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
@@ -107,7 +107,7 @@ export default function NewProposalPage() {
             </div>
             <div className="flex items-center gap-3">
               <button
-                className="flex items-center gap-2 bg-gray-100 text-gray-700 rounded-full px-4 py-2 hover:bg-gray-200 hover:text-gray-900 transition-colors"
+                className="flex items-center gap-2 bg-gray-50 text-gray-700 rounded-xl px-4 py-2 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 border border-gray-200 transition-all"
                 onClick={handleSave}
                 disabled={isLoading}
               >
@@ -115,21 +115,21 @@ export default function NewProposalPage() {
                 <span className="text-sm font-medium">Save Draft</span>
               </button>
               <button
-                className="flex items-center gap-2 bg-gray-100 text-gray-700 rounded-full px-4 py-2 hover:bg-gray-200 hover:text-gray-900 transition-colors"
+                className="flex items-center gap-2 bg-gray-50 text-gray-700 rounded-xl px-4 py-2 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 border border-gray-200 transition-all"
                 onClick={handlePreview}
               >
                 <Eye className="w-4 h-4" />
                 <span className="text-sm font-medium">Preview</span>
               </button>
               <button
-                className="flex items-center gap-2 bg-gray-100 text-gray-700 rounded-full px-4 py-2 hover:bg-gray-200 hover:text-gray-900 transition-colors"
+                className="flex items-center gap-2 bg-gray-50 text-gray-700 rounded-xl px-4 py-2 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 border border-gray-200 transition-all"
                 onClick={handleExportPDF}
               >
                 <Download className="w-4 h-4" />
                 <span className="text-sm font-medium">Export PDF</span>
               </button>
               <button
-                className="flex items-center gap-2 bg-gray-900 text-white rounded-full px-4 py-2 hover:bg-gray-800 transition-colors"
+                className="flex items-center gap-2 bg-blue-600 text-white rounded-xl px-4 py-2 hover:bg-blue-700 transition-colors"
                 onClick={handleSend}
               >
                 <Send className="w-4 h-4" />
@@ -150,14 +150,24 @@ export default function NewProposalPage() {
           <div className="space-y-6">
             {/* Project & Client Selection */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <ProjectSelector
-                value={proposal.project_id || ""}
-                onChange={(projectId) => setProposal({ ...proposal, project_id: projectId })}
-              />
-              <ClientAutoFill
-                value={proposal.client_id || ""}
-                onChange={(clientId) => setProposal({ ...proposal, client_id: clientId })}
-              />
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Project</h2>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-2">
+                  <ProjectSelector
+                    value={proposal.project_id || ""}
+                    onChange={(projectId) => setProposal({ ...proposal, project_id: projectId })}
+                  />
+                </div>
+              </div>
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Client</h2>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-2">
+                  <ClientAutoFill
+                    value={proposal.client_id || ""}
+                    onChange={(clientId) => setProposal({ ...proposal, client_id: clientId })}
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Title */}
@@ -165,7 +175,7 @@ export default function NewProposalPage() {
               <input
                 type="text"
                 placeholder="Proposal Title"
-                className="w-full text-2xl font-bold text-gray-900 bg-transparent focus:outline-none placeholder:text-gray-700"
+                className="w-full text-2xl font-bold text-gray-900 bg-transparent focus:outline-none placeholder:text-gray-700 transition-colors"
                 value={proposal.title}
                 onChange={(e) => setProposal({ ...proposal, title: e.target.value })}
               />
@@ -174,85 +184,97 @@ export default function NewProposalPage() {
             {/* Scope of Work */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Scope of Work</h2>
-              <TextEditor
-                value={proposal.content?.scopeOfWork || ""}
-                onChange={(value) =>
-                  setProposal({
-                    ...proposal,
-                    content: { ...proposal.content, scopeOfWork: value },
-                  })
-                }
-              />
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <TextEditor
+                  value={proposal.content?.scopeOfWork || ""}
+                  onChange={(value) =>
+                    setProposal({
+                      ...proposal,
+                      content: { ...proposal.content, scopeOfWork: value },
+                    })
+                  }
+                />
+              </div>
             </div>
 
             {/* Deliverables */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Deliverables</h2>
-              <TextEditor
-                value={proposal.content?.deliverables || ""}
-                onChange={(value) =>
-                  setProposal({
-                    ...proposal,
-                    content: { ...proposal.content, deliverables: value },
-                  })
-                }
-              />
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <TextEditor
+                  value={proposal.content?.deliverables || ""}
+                  onChange={(value) =>
+                    setProposal({
+                      ...proposal,
+                      content: { ...proposal.content, deliverables: value },
+                    })
+                  }
+                />
+              </div>
             </div>
 
             {/* Timeline */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Timeline</h2>
-              <DateRangePicker
-                value={proposal.content?.timeline || { start: "", end: "" }}
-                onChange={(value) =>
-                  setProposal({
-                    ...proposal,
-                    content: { ...proposal.content, timeline: value },
-                  })
-                }
-              />
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <DateRangePicker
+                  value={proposal.content?.timeline || { start: "", end: "" }}
+                  onChange={(value) =>
+                    setProposal({
+                      ...proposal,
+                      content: { ...proposal.content, timeline: value },
+                    })
+                  }
+                />
+              </div>
             </div>
 
             {/* Budget & Pricing */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Budget & Pricing</h2>
-              <BudgetInputList
-                value={proposal.content?.budget || []}
-                onChange={(value) =>
-                  setProposal({
-                    ...proposal,
-                    content: { ...proposal.content, budget: value },
-                  })
-                }
-              />
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <BudgetInputList
+                  value={proposal.content?.budget || []}
+                  onChange={(value) =>
+                    setProposal({
+                      ...proposal,
+                      content: { ...proposal.content, budget: value },
+                    })
+                  }
+                />
+              </div>
             </div>
 
             {/* Terms & Notes */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Terms & Notes</h2>
-              <TextEditor
-                value={proposal.content?.terms || ""}
-                onChange={(value) =>
-                  setProposal({
-                    ...proposal,
-                    content: { ...proposal.content, terms: value },
-                  })
-                }
-              />
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <TextEditor
+                  value={proposal.content?.terms || ""}
+                  onChange={(value) =>
+                    setProposal({
+                      ...proposal,
+                      content: { ...proposal.content, terms: value },
+                    })
+                  }
+                />
+              </div>
             </div>
 
             {/* Signature Section */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Signature Section</h2>
-              <SignatureBlock
-                value={proposal.content?.signature || { provider: "", client: "" }}
-                onChange={(value) =>
-                  setProposal({
-                    ...proposal,
-                    content: { ...proposal.content, signature: value },
-                  })
-                }
-              />
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <SignatureBlock
+                  value={proposal.content?.signature || { provider: "", client: "" }}
+                  onChange={(value) =>
+                    setProposal({
+                      ...proposal,
+                      content: { ...proposal.content, signature: value },
+                    })
+                  }
+                />
+              </div>
             </div>
           </div>
         </div>
