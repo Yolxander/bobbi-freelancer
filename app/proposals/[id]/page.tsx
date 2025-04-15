@@ -25,6 +25,7 @@ import ClientAutoFill from "@/components/proposals/ClientAutoFill"
 import DateRangePicker from "@/components/proposals/DateRangePicker"
 import BudgetInputList from "@/components/proposals/BudgetInputList"
 import SignatureBlock from "@/components/proposals/SignatureBlock"
+import DeliverablesInputList from "@/components/proposals/DeliverablesInputList"
 
 // Dummy data
 const DUMMY_PROPOSAL = {
@@ -311,17 +312,18 @@ export default function ProposalPage() {
 
             <div className="mt-6">
               <label className="block text-sm font-medium text-gray-700 mb-1">Deliverables</label>
-              <textarea
-                className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 min-h-[200px] text-gray-900 transition-colors"
-                value={proposal?.content?.deliverables?.join("\n") || ""}
-                onChange={(e) =>
-                  setProposal({
-                    ...proposal,
-                    content: { ...proposal.content, deliverables: e.target.value.split("\n") },
-                  })
-                }
-                readOnly={!isEditing}
-              />
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <DeliverablesInputList
+                  value={proposal?.content?.deliverables || []}
+                  onChange={(value) =>
+                    setProposal({
+                      ...proposal,
+                      content: { ...proposal.content, deliverables: value },
+                    })
+                  }
+                  readOnly={!isEditing}
+                />
+              </div>
             </div>
 
             <div className="mt-6">

@@ -1,29 +1,40 @@
 // Dummy data for proposals
-const dummyProposals = [
+const proposals: Proposal[] = [
   {
     id: "1",
     provider_id: "1",
     client_id: "1",
     project_id: "1",
-    title: "Website Redesign Proposal",
+    title: "Website Development Proposal",
     status: "draft",
     content: {
-      scope: "Complete website redesign including UI/UX improvements",
-      deliverables: ["New homepage design", "Mobile responsive layout", "Content management system"],
-      timeline: "6 weeks",
-      budget: [
-        { item: "Design", amount: 5000 },
-        { item: "Development", amount: 8000 },
-        { item: "Content", amount: 3000 }
+      scope: "Develop a modern website with responsive design",
+      deliverables: [
+        "Homepage design and development",
+        "About page with team section",
+        "Services page with pricing tables",
+        "Contact form with email integration"
       ],
-      terms: "50% upfront, 50% upon completion",
-      signature: "John Doe"
+      timeline: {
+        start: "2024-03-01",
+        end: "2024-04-15"
+      },
+      budget: [
+        { item: "Design", amount: 2000 },
+        { item: "Development", amount: 3000 },
+        { item: "Content Creation", amount: 1000 }
+      ],
+      terms: "Payment: 50% upfront, 50% upon completion",
+      signature: {
+        provider: "",
+        client: ""
+      }
     },
     pdf_url: null,
     sent_at: null,
     accepted_at: null,
-    created_at: "2024-03-15T10:00:00Z",
-    updated_at: "2024-03-15T10:00:00Z",
+    created_at: "2024-02-20T10:00:00Z",
+    updated_at: "2024-02-20T10:00:00Z",
     client_name: "Acme Corp",
     project_name: "Website Redesign"
   },
@@ -37,14 +48,20 @@ const dummyProposals = [
     content: {
       scope: "iOS and Android app development",
       deliverables: ["Native iOS app", "Native Android app", "Backend API"],
-      timeline: "12 weeks",
+      timeline: {
+        start: "2024-03-01",
+        end: "2024-05-24"
+      },
       budget: [
         { item: "iOS Development", amount: 15000 },
         { item: "Android Development", amount: 15000 },
         { item: "Backend Development", amount: 10000 }
       ],
       terms: "30% upfront, 40% mid-project, 30% upon completion",
-      signature: "John Doe"
+      signature: {
+        provider: "",
+        client: ""
+      }
     },
     pdf_url: "https://example.com/proposal2.pdf",
     sent_at: "2024-03-20T14:30:00Z",
@@ -82,31 +99,46 @@ const dummyComments = [
 ];
 
 // Dummy data for signatures
-const dummySignatures = [
+const signatures: Signature[] = [
   {
     id: "1",
     proposal_id: "1",
     user_id: "1",
     type: "provider",
-    signed_at: "2024-03-15T10:00:00Z"
+    signed_at: "2024-02-20T10:00:00Z"
   }
 ];
 
 // Dummy data for versions
-const dummyVersions = [
+const versions: Version[] = [
   {
     id: "1",
     proposal_id: "1",
     version: 1,
     content: {
-      scope: "Initial scope",
-      deliverables: ["Initial deliverables"],
-      timeline: "Initial timeline",
-      budget: [{ item: "Initial item", amount: 1000 }],
-      terms: "Initial terms",
-      signature: ""
+      scope: "Develop a modern website with responsive design",
+      deliverables: [
+        "Homepage design and development",
+        "About page with team section",
+        "Services page with pricing tables",
+        "Contact form with email integration"
+      ],
+      timeline: {
+        start: "2024-03-01",
+        end: "2024-04-15"
+      },
+      budget: [
+        { item: "Design", amount: 2000 },
+        { item: "Development", amount: 3000 },
+        { item: "Content Creation", amount: 1000 }
+      ],
+      terms: "Payment: 50% upfront, 50% upon completion",
+      signature: {
+        provider: "",
+        client: ""
+      }
     },
-    created_at: "2024-03-15T10:00:00Z"
+    created_at: "2024-02-20T10:00:00Z"
   }
 ];
 
@@ -120,10 +152,16 @@ export type Proposal = {
   content: {
     scope: string;
     deliverables: string[];
-    timeline: string;
+    timeline: {
+      start: string;
+      end: string;
+    };
     budget: { item: string; amount: number }[];
     terms: string;
-    signature: string;
+    signature: {
+      provider: string;
+      client: string;
+    };
   };
   pdf_url: string | null;
   sent_at: string | null;
@@ -172,51 +210,57 @@ export type Version = {
 // Basic CRUD Operations
 export async function getProposals(providerId: string): Promise<Proposal[]> {
   await new Promise(resolve => setTimeout(resolve, 500));
-  return dummyProposals;
+  return proposals;
 }
 
 export async function getProposal(id: string): Promise<Proposal | null> {
   await new Promise(resolve => setTimeout(resolve, 500));
-  return dummyProposals.find(p => p.id === id) || null;
+  return proposals.find(p => p.id === id) || null;
 }
 
-export async function createProposal(proposal: Omit<Proposal, "id" | "created_at" | "updated_at">): Promise<Proposal> {
-  await new Promise(resolve => setTimeout(resolve, 500));
+export const createProposal = async (
+  proposal: Omit<Proposal, "id" | "created_at" | "updated_at">
+): Promise<Proposal> => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   const newProposal: Proposal = {
     ...proposal,
-    id: (dummyProposals.length + 1).toString(),
+    id: Math.random().toString(36).substr(2, 9),
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   };
-  dummyProposals.push(newProposal);
+  proposals.push(newProposal);
   return newProposal;
-}
+};
 
-export async function updateProposal(id: string, proposal: Partial<Proposal>): Promise<Proposal> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const index = dummyProposals.findIndex(p => p.id === id);
-  if (index === -1) throw new Error("Proposal not found");
-  
+export const updateProposal = async (
+  id: string,
+  proposal: Partial<Proposal>
+): Promise<Proposal> => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  const index = proposals.findIndex((p) => p.id === id);
+  if (index === -1) {
+    throw new Error("Proposal not found");
+  }
   const updatedProposal = {
-    ...dummyProposals[index],
+    ...proposals[index],
     ...proposal,
     updated_at: new Date().toISOString()
   };
-  dummyProposals[index] = updatedProposal;
+  proposals[index] = updatedProposal;
   return updatedProposal;
-}
+};
 
 export async function deleteProposal(id: string): Promise<void> {
   await new Promise(resolve => setTimeout(resolve, 500));
-  const index = dummyProposals.findIndex(p => p.id === id);
+  const index = proposals.findIndex(p => p.id === id);
   if (index === -1) throw new Error("Proposal not found");
-  dummyProposals.splice(index, 1);
+  proposals.splice(index, 1);
 }
 
 // Status Management
 export async function sendProposal(id: string, email: string): Promise<void> {
   await new Promise(resolve => setTimeout(resolve, 500));
-  const proposal = dummyProposals.find(p => p.id === id);
+  const proposal = proposals.find(p => p.id === id);
   if (!proposal) throw new Error("Proposal not found");
   
   proposal.status = "sent";
@@ -226,7 +270,7 @@ export async function sendProposal(id: string, email: string): Promise<void> {
 
 export async function acceptProposal(id: string): Promise<void> {
   await new Promise(resolve => setTimeout(resolve, 500));
-  const proposal = dummyProposals.find(p => p.id === id);
+  const proposal = proposals.find(p => p.id === id);
   if (!proposal) throw new Error("Proposal not found");
   
   proposal.status = "accepted";
@@ -236,7 +280,7 @@ export async function acceptProposal(id: string): Promise<void> {
 
 export async function rejectProposal(id: string): Promise<void> {
   await new Promise(resolve => setTimeout(resolve, 500));
-  const proposal = dummyProposals.find(p => p.id === id);
+  const proposal = proposals.find(p => p.id === id);
   if (!proposal) throw new Error("Proposal not found");
   
   proposal.status = "rejected";
@@ -245,7 +289,7 @@ export async function rejectProposal(id: string): Promise<void> {
 
 export async function duplicateProposal(id: string): Promise<Proposal> {
   await new Promise(resolve => setTimeout(resolve, 500));
-  const proposal = dummyProposals.find(p => p.id === id);
+  const proposal = proposals.find(p => p.id === id);
   if (!proposal) throw new Error("Proposal not found");
 
   const newProposal: Omit<Proposal, "id" | "created_at" | "updated_at"> = {
@@ -332,39 +376,39 @@ export async function deleteComment(proposalId: string, commentId: string): Prom
 // Signatures
 export async function getSignatures(proposalId: string): Promise<Signature[]> {
   await new Promise(resolve => setTimeout(resolve, 500));
-  return dummySignatures.filter(s => s.proposal_id === proposalId);
+  return signatures.filter(s => s.proposal_id === proposalId);
 }
 
 export async function addSignature(proposalId: string, userId: string, type: "provider" | "client"): Promise<Signature> {
   await new Promise(resolve => setTimeout(resolve, 500));
   const newSignature: Signature = {
-    id: (dummySignatures.length + 1).toString(),
+    id: (signatures.length + 1).toString(),
     proposal_id: proposalId,
     user_id: userId,
     type,
     signed_at: new Date().toISOString()
   };
-  dummySignatures.push(newSignature);
+  signatures.push(newSignature);
   return newSignature;
 }
 
 // Versions
 export async function getVersions(proposalId: string): Promise<Version[]> {
   await new Promise(resolve => setTimeout(resolve, 500));
-  return dummyVersions.filter(v => v.proposal_id === proposalId);
+  return versions.filter(v => v.proposal_id === proposalId);
 }
 
 export async function getVersion(proposalId: string, versionId: string): Promise<Version | null> {
   await new Promise(resolve => setTimeout(resolve, 500));
-  return dummyVersions.find(v => v.id === versionId && v.proposal_id === proposalId) || null;
+  return versions.find(v => v.id === versionId && v.proposal_id === proposalId) || null;
 }
 
 export async function restoreVersion(proposalId: string, versionId: string): Promise<Proposal> {
   await new Promise(resolve => setTimeout(resolve, 500));
-  const version = dummyVersions.find(v => v.id === versionId && v.proposal_id === proposalId);
+  const version = versions.find(v => v.id === versionId && v.proposal_id === proposalId);
   if (!version) throw new Error("Version not found");
 
-  const proposal = dummyProposals.find(p => p.id === proposalId);
+  const proposal = proposals.find(p => p.id === proposalId);
   if (!proposal) throw new Error("Proposal not found");
 
   const updatedProposal = {
@@ -390,7 +434,7 @@ export async function generateProposalDOCX(id: string): Promise<string> {
 // Search and Filter
 export async function searchProposals(query: string): Promise<Proposal[]> {
   await new Promise(resolve => setTimeout(resolve, 500));
-  return dummyProposals.filter(p => 
+  return proposals.filter(p => 
     p.title.toLowerCase().includes(query.toLowerCase()) ||
     p.content.scope.toLowerCase().includes(query.toLowerCase())
   );
@@ -402,7 +446,7 @@ export async function filterProposals(filters: {
   project_id?: string;
 }): Promise<Proposal[]> {
   await new Promise(resolve => setTimeout(resolve, 500));
-  return dummyProposals.filter(p => {
+  return proposals.filter(p => {
     if (filters.status && p.status !== filters.status) return false;
     if (filters.client_id && p.client_id !== filters.client_id) return false;
     if (filters.project_id && p.project_id !== filters.project_id) return false;

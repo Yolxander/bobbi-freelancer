@@ -19,6 +19,7 @@ import ProjectSelector from "@/components/proposals/ProjectSelector"
 import ClientAutoFill from "@/components/proposals/ClientAutoFill"
 import TextEditor from "@/components/proposals/TextEditor"
 import BudgetInputList from "@/components/proposals/BudgetInputList"
+import DeliverablesInputList from "@/components/proposals/DeliverablesInputList"
 import DateRangePicker from "@/components/proposals/DateRangePicker"
 import SignatureBlock from "@/components/proposals/SignatureBlock"
 
@@ -30,11 +31,11 @@ export default function NewProposalPage() {
   const [proposal, setProposal] = useState<Partial<Proposal>>({
     title: "",
     client_id: "",
-    project_id: null,
+    project_id: "",
     status: "draft",
     content: {
-      scopeOfWork: "",
-      deliverables: "",
+      scope: "",
+      deliverables: [],
       timeline: {
         start: "",
         end: "",
@@ -174,7 +175,7 @@ export default function NewProposalPage() {
             <div className="bg-white rounded-xl shadow-sm p-6">
               <input
                 type="text"
-                placeholder="Proposal Title"
+                placeholder="Enter proposal title ...."
                 className="w-full text-2xl font-bold text-gray-900 bg-transparent focus:outline-none placeholder:text-gray-700 transition-colors"
                 value={proposal.title}
                 onChange={(e) => setProposal({ ...proposal, title: e.target.value })}
@@ -186,11 +187,11 @@ export default function NewProposalPage() {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Scope of Work</h2>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <TextEditor
-                  value={proposal.content?.scopeOfWork || ""}
+                  value={proposal.content?.scope || ""}
                   onChange={(value) =>
                     setProposal({
                       ...proposal,
-                      content: { ...proposal.content, scopeOfWork: value },
+                      content: { ...proposal.content, scope: value },
                     })
                   }
                 />
@@ -201,8 +202,8 @@ export default function NewProposalPage() {
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Deliverables</h2>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <TextEditor
-                  value={proposal.content?.deliverables || ""}
+                <DeliverablesInputList
+                  value={proposal.content?.deliverables || []}
                   onChange={(value) =>
                     setProposal({
                       ...proposal,
