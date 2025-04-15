@@ -115,7 +115,7 @@ export default function FolderDetailsPage() {
         // Fetch folder files using the file-actions
         const response = await getFiles(folderId)
         if (response.success) {
-          console.log('Fetched files data:', response.data)
+         
           setFiles(response.data)
         } else {
           throw new Error("Failed to fetch files")
