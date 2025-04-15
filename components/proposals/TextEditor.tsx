@@ -26,14 +26,14 @@ export default function TextEditor({ value, onChange, readOnly = false }: TextEd
   const [historyIndex, setHistoryIndex] = useState(0)
 
   useEffect(() => {
-    if (editorRef.current) {
+    if (editorRef.current && editorRef.current.innerHTML !== value) {
       editorRef.current.innerHTML = value
     }
   }, [value])
 
   const handleInput = () => {
     if (editorRef.current) {
-      const newValue = editorRef.current.innerHTML
+      const newValue = editorRef.current.innerText
       onChange(newValue)
 
       // Update history
@@ -166,14 +166,16 @@ export default function TextEditor({ value, onChange, readOnly = false }: TextEd
 
       <div
         ref={editorRef}
-        className={`p-4 min-h-[200px] focus:outline-none ${
+        className={`p-4 min-h-[200px] focus:outline-none text-gray-700 ${
           readOnly ? "bg-gray-50" : "bg-white"
         }`}
         contentEditable={!readOnly}
         onInput={handleInput}
         onKeyDown={handleKeyDown}
-        dangerouslySetInnerHTML={{ __html: value }}
-      />
+        suppressContentEditableWarning
+      >
+        {value}
+      </div>
     </div>
   )
 } 
