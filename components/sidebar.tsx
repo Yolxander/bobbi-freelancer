@@ -14,6 +14,7 @@ import {
   Menu,
   X,
   Settings,
+  FileText,
 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import NotificationCenter from "./notification-center"
@@ -139,6 +140,17 @@ export default function Sidebar() {
               >
                 <CheckSquare className="w-5 h-5 text-red-500" />
                 <span className="text-sm font-medium text-gray-900">Tasks</span>
+              </button>
+            </Link>
+          </div>
+
+          <div className="group relative w-full">
+            <Link href="/proposals">
+              <button
+                className={`p-3 ${isActive("/proposals") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
+              >
+                <FileText className="w-5 h-5 text-orange-500" />
+                <span className="text-sm font-medium text-gray-900">Proposals</span>
               </button>
             </Link>
           </div>
