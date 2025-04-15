@@ -99,84 +99,88 @@ export default function Sidebar() {
         </div>
 
         <div className="flex flex-col items-start gap-10 mt-4 w-full px-4">
-          <div className="group relative w-full">
-            <Link href="/clients" passHref>
-              <button
-                onClick={() => router.push("/clients")}
-                className={`p-3 ${isActive("/clients") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
-              >
-                <Users className="w-5 h-5 text-indigo-500" />
-                <span className="text-sm font-medium text-gray-900">Clients</span>
-              </button>
-            </Link>
+          {/* Work Management Group */}
+          <div className="w-full">
+            <div className="mb-2 px-3">
+              <span className="text-xs font-medium text-gray-500">Work Management</span>
+            </div>
+            <div className="space-y-2 w-full">
+              <Link href="/projects">
+                <button
+                  className={`p-3 ${isActive("/projects") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
+                >
+                  <Folder className="w-5 h-5 text-blue-500" />
+                  <span className="text-sm font-medium text-gray-900">Projects</span>
+                </button>
+              </Link>
+              <Link href="/tasks">
+                <button
+                  className={`p-3 ${isActive("/tasks") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
+                >
+                  <CheckSquare className="w-5 h-5 text-red-500" />
+                  <span className="text-sm font-medium text-gray-900">Tasks</span>
+                </button>
+              </Link>
+              <Link href="/proposals">
+                <button
+                  className={`p-3 ${isActive("/proposals") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
+                >
+                  <FileText className="w-5 h-5 text-orange-500" />
+                  <span className="text-sm font-medium text-gray-900">Proposals</span>
+                </button>
+              </Link>
+            </div>
           </div>
 
-          <div className="group relative w-full">
-            <Link href="/projects">
-              <button
-                className={`p-3 ${isActive("/projects") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
-              >
-                <Folder className="w-5 h-5 text-blue-500" />
-                <span className="text-sm font-medium text-gray-900">Projects</span>
-              </button>
-            </Link>
+          {/* Communication Group */}
+          <div className="w-full">
+            <div className="mb-2 px-3">
+              <span className="text-xs font-medium text-gray-500">Communication</span>
+            </div>
+            <div className="space-y-2 w-full">
+              <Link href="/messaging">
+                <button
+                  className={`p-3 ${isActive("/messaging") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
+                >
+                  <MessageSquare className="w-5 h-5 text-green-500" />
+                  <span className="text-sm font-medium text-gray-900">Messages</span>
+                </button>
+              </Link>
+              <Link href="/calendar">
+                <button
+                  className={`p-3 ${isActive("/calendar") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
+                >
+                  <Calendar className="w-5 h-5 text-amber-500" />
+                  <span className="text-sm font-medium text-gray-900">Calendar</span>
+                </button>
+              </Link>
+            </div>
           </div>
 
-          <div className="group relative w-full">
-            <Link href="/messaging">
-              <button
-                className={`p-3 ${isActive("/messaging") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
-              >
-                <MessageSquare className="w-5 h-5 text-green-500" />
-                <span className="text-sm font-medium text-gray-900">Messages</span>
-              </button>
-            </Link>
-          </div>
-
-          <div className="group relative w-full">
-            <Link href="/tasks">
-              <button
-                className={`p-3 ${isActive("/tasks") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
-              >
-                <CheckSquare className="w-5 h-5 text-red-500" />
-                <span className="text-sm font-medium text-gray-900">Tasks</span>
-              </button>
-            </Link>
-          </div>
-
-          <div className="group relative w-full">
-            <Link href="/proposals">
-              <button
-                className={`p-3 ${isActive("/proposals") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
-              >
-                <FileText className="w-5 h-5 text-orange-500" />
-                <span className="text-sm font-medium text-gray-900">Proposals</span>
-              </button>
-            </Link>
-          </div>
-
-          <div className="h-px w-10 bg-gray-200 my-2"></div>
-
-          <div className="group relative w-full">
-            <Link href="/calendar">
-              <button
-                className={`p-3 ${isActive("/calendar") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
-              >
-                <Calendar className="w-5 h-5 text-amber-500" />
-                <span className="text-sm font-medium text-gray-900">Calendar</span>
-              </button>
-            </Link>
-          </div>
-
-          <div className="group relative w-full">
-            <Link href="/files">
-              <button
-                className={`p-3 ${isActive("/files") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
-              >
-                <FileUp className="w-5 h-5 text-purple-500" />
-                <span className="text-sm font-medium text-gray-900">Files</span>
-              </button>
-            </Link>
+          {/* Resources Group */}
+          <div className="w-full">
+            <div className="mb-2 px-3">
+              <span className="text-xs font-medium text-gray-500">Resources</span>
+            </div>
+            <div className="space-y-2 w-full">
+              <Link href="/clients" passHref>
+                <button
+                  onClick={() => router.push("/clients")}
+                  className={`p-3 ${isActive("/clients") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
+                >
+                  <Users className="w-5 h-5 text-indigo-500" />
+                  <span className="text-sm font-medium text-gray-900">Clients</span>
+                </button>
+              </Link>
+              <Link href="/files">
+                <button
+                  className={`p-3 ${isActive("/files") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
+                >
+                  <FileUp className="w-5 h-5 text-purple-500" />
+                  <span className="text-sm font-medium text-gray-900">Files</span>
+                </button>
+              </Link>
+            </div>
           </div>
         </div>
 
