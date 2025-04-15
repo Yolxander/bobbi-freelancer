@@ -67,6 +67,18 @@ export default function FolderDetailsPage() {
   const buttonRefs = useRef<{ [key: number]: HTMLButtonElement | null }>({})
   const [searchQuery, setSearchQuery] = useState("")
 
+  // Transform files into projectFiles format
+  const projectFiles = files.slice(0, 8).map(file => ({
+    id: file.id,
+    name: file.name,
+    type: file.type,
+    size: file.size,
+    modified: file.modified,
+    client: "Client", // This might need to be updated based on your data structure
+    shared: false, // This might need to be updated based on your data structure
+    starred: false, // This might need to be updated based on your data structure
+  }))
+
   const colorOptions = [
     { name: "Blue", value: "bg-blue-100" },
     { name: "Green", value: "bg-green-100" },
@@ -103,6 +115,7 @@ export default function FolderDetailsPage() {
         // Fetch folder files using the file-actions
         const response = await getFiles(folderId)
         if (response.success) {
+          console.log('Fetched files data:', response.data)
           setFiles(response.data)
         } else {
           throw new Error("Failed to fetch files")
@@ -394,6 +407,7 @@ export default function FolderDetailsPage() {
       const response = await getFiles(folderId)
       if (response.success) {
         setFiles(response.data)
+    
       } else {
         throw new Error("Failed to refresh files list")
       }
@@ -635,7 +649,7 @@ export default function FolderDetailsPage() {
                 <h2 className="text-lg font-semibold text-gray-900">Files</h2>
               </div>
 
-              {files.length === 0 ? (
+              {projectFiles.length === 0 ? (
                 <div className="bg-white rounded-xl shadow-sm p-12 text-center">
                   <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
                     <Folder className="w-8 h-8 text-gray-400" />
@@ -652,7 +666,7 @@ export default function FolderDetailsPage() {
                 </div>
               ) : (
                 <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
-                  {files.map((file) => (
+                  {projectFiles.map((file) => (
                     <div key={file.id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
                       <div className="p-6">
                         <div className="flex items-center gap-3 mb-4">
@@ -683,6 +697,11 @@ export default function FolderDetailsPage() {
                               <Trash2 className="w-4 h-4 text-gray-700" />
                             </button>
                           </div>
+                        </div>
+                        <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
+                          <span>{file.client}</span>
+                          {file.shared && <span className="text-blue-500">Shared</span>}
+                          {file.starred && <Star className="w-3 h-3 text-yellow-500" />}
                         </div>
                       </div>
                     </div>
