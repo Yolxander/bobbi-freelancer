@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Github, Twitter, AlertCircle } from 'lucide-react'
@@ -10,7 +10,7 @@ import { Logo } from "@/components/ui/logo"
 
 export default function AuthPage() {
   const router = useRouter()
-  const { signIn, signUp, isLoading } = useAuth()
+  const { signIn, signUp } = useAuth()
   const [isLogin, setIsLogin] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
@@ -21,9 +21,10 @@ export default function AuthPage() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [localLoading, setLocalLoading] = useState(false)
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError("")
+    setLocalLoading(true)
 
     if (!isLogin && password !== confirmPassword) {
       setError("Passwords do not match")
@@ -39,7 +40,6 @@ export default function AuthPage() {
         }
       } else {
         // Sign up - Direct API call for better debugging
-        setLocalLoading(true)
         const API_BASE_URL = "http://127.0.0.1:8000/api"
         console.log("Sending registration request with data:", { name, email, password, password_confirmation: confirmPassword })
         
@@ -91,14 +91,13 @@ export default function AuthPage() {
         } catch (apiError) {
           console.error("API request error:", apiError);
           setError("Network error during registration. Please try again.");
-        } finally {
-          setLocalLoading(false);
         }
       }
     } catch (error: any) {
       console.error("Authentication error:", error)
       setError(error.message || "An error occurred during authentication")
-      setLocalLoading(false);
+    } finally {
+      setLocalLoading(false)
     }
   }
 
@@ -110,239 +109,151 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col md:flex-row">
-      {/* Left side - Branding */}
-      <div className="w-full md:w-1/2 bg-gradient-to-br from-gray-900 to-gray-800 text-white p-8 md:p-16 flex flex-col">
-        <div className="mb-8">
-          <Logo />
-        </div>
-
-        <div className="flex-1 flex flex-col justify-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">Provider Dashboard</h1>
-          <p className="text-gray-300 text-lg mb-12 leading-relaxed">
-            Manage your clients, projects, and tasks all in one place. Streamline your workflow and boost productivity.
-          </p>
-
-          <div className="space-y-8">
-            <div className="flex items-start gap-4 group">
-              <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-500/30 transition-colors">
-                <CheckIcon className="w-6 h-6 text-blue-400" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-xl text-white">Client Management</h3>
-                <p className="text-gray-300 mt-1">Keep track of all your clients and their projects</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4 group">
-              <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-green-500/30 transition-colors">
-                <CheckIcon className="w-6 h-6 text-green-400" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-xl text-white">Project Tracking</h3>
-                <p className="text-gray-300 mt-1">Monitor progress and stay on top of deadlines</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4 group">
-              <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-500/30 transition-colors">
-                <CheckIcon className="w-6 h-6 text-purple-400" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-xl text-white">Task Management</h3>
-                <p className="text-gray-300 mt-1">Organize and prioritize your daily tasks</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-8 text-sm text-gray-400">© 2024 Provider Dashboard. All rights reserved.</div>
-      </div>
-
-      {/* Right side - Auth form */}
-      <div className="w-full md:w-1/2 p-8 md:p-16 flex items-center justify-center">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold mb-3 text-gray-900">
-              {isLogin ? "Welcome back" : "Create your account"}
-            </h2>
-            <p className="text-gray-600 text-lg">
-              {isLogin ? "Sign in to access your dashboard" : "Sign up to get started with Provider Dashboard"}
-            </p>
-          </div>
-
-          {error && (
-            <div className="mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
-              <span className="font-medium">{error}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {!isLogin && (
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name
-                </label>
+    <div className="min-h-screen bg-gray-100">
+      {/* Navigation */}
+      <div className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
+        <div className="max-w-[1200px] mx-auto bg-white/80 backdrop-blur-md rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] px-6 py-3">
+          <nav className="flex items-center justify-between">
+            <div className="flex items-center gap-12">
+              <div className="font-bold text-xl tracking-tight">BOBBI</div>
+              <div className="flex items-center gap-8">
+                <Link href="/" className="text-[15px] text-gray-600 hover:text-gray-900">Home</Link>
                 <div className="relative group">
-                  <input
-                    id="name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-11 transition-all duration-200 group-hover:border-gray-300 text-gray-900 placeholder-gray-400"
-                    placeholder="Enter your name"
-                    required={!isLogin}
-                  />
-                  <div className="absolute left-3.5 top-3.5 text-gray-400 group-hover:text-gray-500 transition-colors">
-                    <UserIcon className="w-5 h-5" />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
-              </label>
-              <div className="relative group">
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-11 transition-all duration-200 group-hover:border-gray-300 text-gray-900 placeholder-gray-400"
-                  placeholder="Enter your email"
-                  required
-                />
-                <div className="absolute left-3.5 top-3.5 text-gray-400 group-hover:text-gray-500 transition-colors">
-                  <Mail className="w-5 h-5" />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <div className="relative group">
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-11 transition-all duration-200 group-hover:border-gray-300 text-gray-900 placeholder-gray-400"
-                  placeholder="Enter your password"
-                  required
-                />
-                <div className="absolute left-3.5 top-3.5 text-gray-400 group-hover:text-gray-500 transition-colors">
-                  <Lock className="w-5 h-5" />
-                </div>
-                <button
-                  type="button"
-                  className="absolute right-3.5 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
-
-            {!isLogin && (
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  Confirm Password
-                </label>
-                <div className="relative group">
-                  <input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-11 transition-all duration-200 group-hover:border-gray-300 text-gray-900 placeholder-gray-400"
-                    placeholder="Confirm your password"
-                    required={!isLogin}
-                  />
-                  <div className="absolute left-3.5 top-3.5 text-gray-400 group-hover:text-gray-500 transition-colors">
-                    <Lock className="w-5 h-5" />
-                  </div>
-                  <button
-                    type="button"
-                    className="absolute right-3.5 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  <button className="text-[15px] text-gray-600 hover:text-gray-900 flex items-center gap-1.5">
+                    Get started
+                    <svg className="w-4 h-4 mt-0.5" viewBox="0 0 16 16" fill="none">
+                      <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" />
+                    </svg>
                   </button>
                 </div>
-                {!isLogin && password !== confirmPassword && (
-                  <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    Passwords do not match
-                  </p>
-                )}
+                <Link href="/about" className="text-[15px] text-gray-600 hover:text-gray-900">About</Link>
+                <Link href="/forum" className="text-[15px] text-gray-600 hover:text-gray-900">Forum</Link>
               </div>
-            )}
+            </div>
 
-            <button
-              type="submit"
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-xl px-4 py-3.5 font-medium hover:from-gray-800 hover:to-gray-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
-              disabled={isLoading || localLoading}
-            >
-              {isLoading || localLoading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span className="text-white">{isLogin ? "Signing in..." : "Creating account..."}</span>
-                </>
-              ) : (
-                <>
-                  <span className="text-white">{isLogin ? "Sign In" : "Create Account"}</span>
-                  <ArrowRight className="w-5 h-5 text-white" />
-                </>
+            <div className="flex items-center gap-4">
+              <div className="bg-gray-100 rounded-full py-1.5 px-4 flex items-center flex-1 min-w-[420px]">
+                <div className="flex items-center gap-3 w-full">
+                  <svg className="w-4 h-4 text-gray-400" viewBox="0 0 16 16" fill="none">
+                    <path d="M14.6666 14.6666L11.2916 11.2916M11.2916 11.2916C12.375 10.2083 13 8.75 13 7.16667C13 3.94454 10.3887 1.33333 7.16667 1.33333C3.94454 1.33333 1.33333 3.94454 1.33333 7.16667C1.33333 10.3888 3.94454 13 7.16667 13C8.75 13 10.2083 12.375 11.2916 11.2916Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <input 
+                    type="text"
+                    placeholder="Try 'Lotus GT 430'"
+                    className="w-full bg-transparent text-[15px] placeholder-gray-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+              <button className="px-6 py-2 bg-[#DBFF8E] rounded-full text-[15px] font-medium hover:bg-[#D1FF75] transition-colors">
+                Login
+              </button>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+      {/* Add padding to account for fixed header */}
+      <div className="pt-20">
+        <div className="min-h-[calc(100vh-5rem)] flex">
+          {/* Left side */}
+          <div className="w-1/2 flex flex-col items-center justify-center">
+            <div className="max-w-[600px]">
+              <div className="text-sm text-gray-500 mb-4">LARGEST IMAGE SOURCE</div>
+              <h1 className="text-[56px] font-medium leading-[1.1] tracking-[-0.02em] mb-20">
+                POWERED BY
+                <br />
+                <span className="relative">
+                  CREATORS AROUND
+                  <div className="absolute left-0 right-0 bottom-1 bg-[#DBFF8E] h-[10px] -z-10"></div>
+                </span>
+                <br />
+                THE WORLD
+                <span className="inline-flex gap-1 ml-2">
+                  <span className="w-4 h-4 rounded-full bg-[#1B1B1B]"></span>
+                  <span className="w-4 h-4 rounded-full bg-[#1B1B1B] opacity-60"></span>
+                  <span className="w-4 h-4 rounded-full bg-[#1B1B1B] opacity-30"></span>
+                  <span className="w-4 h-4 rounded-full bg-[#DBFF8E]"></span>
+                </span>
+              </h1>
+              <div className="flex flex-col items-center gap-2">
+                <div className="text-gray-500">Don't have account?</div>
+                <Link 
+                  href="/register" 
+                  className="inline-flex items-center text-[#1B1B1B] border-b border-[#1B1B1B] pb-0.5 hover:opacity-80 transition-opacity"
+                >
+                  Create account
+                  <svg className="w-4 h-4 ml-1" viewBox="0 0 16 16" fill="none">
+                    <path d="M1 8h14M8 1l7 7-7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Right side */}
+          <div className="w-1/2 bg-[url('/placeholder.jpg')] bg-cover bg-center relative ">
+            <div className="absolute inset-0 bg-black/20 mx-20 my-5 rounded-lg"></div>
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[400px] bg-white rounded-2xl p-8">
+              <h2 className="text-2xl font-semibold mb-6">Login to your account</h2>
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+                  {error}
+                </div>
               )}
-            </button>
-
-            <div className="relative flex items-center justify-center my-8">
-              <div className="border-t border-gray-200 absolute w-full"></div>
-              <div className="bg-white px-4 relative z-10 text-sm text-gray-500">or continue with</div>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label htmlFor="email" className="block text-sm text-gray-600 mb-1.5">
+                    Username
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="password" className="block text-sm text-gray-600 mb-1.5">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500" />
+                    <span className="text-sm text-gray-600">Remember me</span>
+                  </label>
+                  <Link href="/auth/forgot-password" className="text-sm text-gray-600 hover:text-gray-900">
+                    Forgot your password?
+                  </Link>
+                </div>
+                <button
+                  type="submit"
+                  disabled={localLoading}
+                  className="w-full py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
+                >
+                  {localLoading ? "Please wait..." : "Login"}
+                </button>
+              </form>
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                className="flex items-center justify-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-3 font-medium hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md text-gray-700"
-                onClick={() => handleSocialAuth("github")}
-              >
-                <Github className="w-5 h-5 text-gray-700" />
-                <span>GitHub</span>
-              </button>
-              <button
-                type="button"
-                className="flex items-center justify-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-3 font-medium hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md text-gray-700"
-                onClick={() => handleSocialAuth("twitter")}
-              >
-                <Twitter className="w-5 h-5 text-gray-700" />
-                <span>Twitter</span>
-              </button>
-            </div>
-          </form>
-
-          <div className="mt-8 text-center">
-            <p className="text-gray-600">
-              {isLogin ? "Don't have an account?" : "Already have an account?"}
-              <button
-                type="button"
-                className="ml-1 text-blue-600 hover:text-blue-500 font-medium transition-colors"
-                onClick={() => setIsLogin(!isLogin)}
-              >
-                {isLogin ? "Sign up" : "Sign in"}
-              </button>
-            </p>
-            <Link 
-              href="/auth/forgot-password" 
-              className="inline-block text-sm text-blue-600 hover:text-blue-500 mt-3 font-medium transition-colors"
-            >
-              Forgot password?
-            </Link>
           </div>
         </div>
       </div>
