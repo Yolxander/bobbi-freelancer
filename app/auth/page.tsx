@@ -147,7 +147,7 @@ export default function AuthPage() {
                   />
                 </div>
               </div>
-              <button className="px-6 py-2 bg-[#D91ACC] rounded-full text-[15px] font-medium hover:bg-[#D1FF75] transition-colors">
+              <button className="px-6 py-2 bg-[#D91ACC] text-indigo-500 rounded-full text-[15px] text-white font-medium hover:bg-[#D1FF75] transition-colors">
                 Login
               </button>
             </div>
@@ -174,11 +174,12 @@ export default function AuthPage() {
                   <br />
                   AND KEEP EVERYONE IN SYNC
                   <span className="inline-flex gap-1 ml-2">
-                    <span className="w-4 h-4 rounded-full bg-[#1B1B1B]"></span>
-                    <span className="w-4 h-4 rounded-full bg-[#1B1B1B] opacity-60"></span>
-                    <span className="w-4 h-4 rounded-full bg-[#1B1B1B] opacity-30"></span>
+                    <span className="w-4 h-4 rounded-full bg-current text-red-500"></span>
+                    <span className="w-4 h-4 rounded-full bg-current text-green-500"></span>
+                    <span className="w-4 h-4 rounded-full bg-current text-indigo-500"></span>
                     <span className="w-4 h-4 rounded-full bg-[#2BD7D7]"></span>
                   </span>
+
                 </h1>
               </div>
 
