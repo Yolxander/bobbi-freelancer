@@ -273,7 +273,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
 
                 <div
                   id="status-dropdown"
-                  className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-10 w-36 hidden"
+                  className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-10 w-36 hidden"
                 >
                   <div
                     className="px-4 py-2 flex items-center gap-2 hover:bg-gray-50 cursor-pointer transition-colors"
@@ -363,10 +363,10 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
 
             {/* Projects Overview */}
             {activePills.projects && (
-              <div className="flex-1 rounded-3xl overflow-hidden relative bg-white p-6 shadow-sm">
+              <div className="flex-1 rounded-xl overflow-hidden relative bg-white p-6 shadow-sm">
                 <h2 className="text-xl font-bold mb-4 text-gray-900">Projects Overview</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                  <div className="bg-gray-50 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200">
+                  <div className="bg-gray-50 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200">
                     <h3 className="text-gray-500 text-sm mb-1">Active Projects</h3>
                     <p className="text-3xl font-bold text-gray-900">{projects.filter((p) => p.status !== "Completed").length}</p>
                     <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mt-2">
@@ -378,7 +378,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
                       ></div>
                     </div>
                   </div>
-                  <div className="bg-gray-50 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200">
+                  <div className="bg-gray-50 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200">
                     <h3 className="text-gray-500 text-sm mb-1">Completed Projects</h3>
                     <p className="text-3xl font-bold text-gray-900">{projects.filter((p) => p.status === "Completed").length}</p>
                     <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mt-2">
@@ -392,7 +392,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
                   </div>
                 </div>
 
-                <div className="bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+                <div className="bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
                   <div className="p-4 border-b border-gray-100 flex justify-between items-center">
                     <h3 className="font-medium text-gray-900">Recent Projects</h3>
                     <button
@@ -479,7 +479,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
               {/* Tasks Card */}
               {activePills.tasks && (
-                <div className="bg-white rounded-3xl p-6 relative shadow-sm hover:shadow-md transition-all duration-200">
+                <div className="bg-white rounded-xl p-6 relative shadow-sm hover:shadow-md transition-all duration-200">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <div className="flex items-center gap-2">
@@ -559,7 +559,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
 
               {/* Appointments Card */}
               {activePills.pending && (
-                <div className="bg-white rounded-3xl p-6 relative shadow-sm hover:shadow-md transition-all duration-200">
+                <div className="bg-white rounded-xl p-6 relative shadow-sm hover:shadow-md transition-all duration-200">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <div className="flex items-center gap-2">
@@ -572,7 +572,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
                     </div>
                   </div>
 
-                  <div className="bg-gray-50 rounded-xl p-4 mb-4 shadow-sm hover:shadow-md transition-all duration-200">
+                  <div className="bg-gray-50 rounded-lg p-4 mb-4 shadow-sm hover:shadow-md transition-all duration-200">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center">
                         <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3 shadow-sm">
@@ -595,7 +595,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
                     </div>
                   </div>
 
-                  <div className="bg-gray-50 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200">
+                  <div className="bg-gray-50 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center">
                         <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3 shadow-sm">
@@ -630,7 +630,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
           </div>
 
           {/* Right Sidebar */}
-          <div className="col-span-12 md:col-span-4 bg-white rounded-3xl p-4 md:p-6 shadow-sm">
+          <div className="col-span-12 md:col-span-4 bg-white rounded-xl p-4 md:p-6 shadow-sm">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-gray-900">Clients</h2>
               <Info className="w-5 h-5 text-gray-400" />
@@ -684,7 +684,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
             </button>
 
             {/* Messages Card */}
-            <div className="mt-8 bg-gray-50 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-200">
+            <div className="mt-8 bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200">
               <div className="flex justify-between items-center mb-6">
                 <div>
                   <h3 className="font-bold text-lg text-gray-900">Messages</h3>
@@ -730,7 +730,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
       {/* Add Client Modal */}
       {isAddClientModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-4 sm:p-6 w-[calc(100%-2rem)] max-w-md shadow-xl mx-4">
+          <div className="bg-white rounded-xl p-4 sm:p-6 w-[calc(100%-2rem)] max-w-md shadow-xl mx-4">
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h2 className="text-xl font-bold text-gray-900">Add New Client</h2>
@@ -752,7 +752,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
                     type="text"
                     value={newClient.name}
                     onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
+                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
                     placeholder="Enter client name"
                     required
                   />
@@ -764,7 +764,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
                     type="email"
                     value={newClient.email}
                     onChange={(e) => setNewClient({ ...newClient, email: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
+                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
                     placeholder="Enter client email"
                   />
                 </div>
@@ -775,7 +775,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
                     type="tel"
                     value={newClient.phone}
                     onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
+                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
                     placeholder="Enter client phone"
                   />
                 </div>
@@ -784,7 +784,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
                   <textarea
                     value={newClient.description}
                     onChange={(e) => setNewClient({ ...newClient, description: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
+                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
                     placeholder="Enter client description"
                     rows={3}
                   />
@@ -794,14 +794,14 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
               <div className="flex justify-end gap-3 mt-8">
                 <button
                   type="button"
-                  className="px-5 py-3 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors shadow-sm hover:shadow-md"
+                  className="px-5 py-3 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors shadow-sm hover:shadow-md"
                   onClick={() => setIsAddClientModalOpen(false)}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-3 bg-gray-900 text-gray-900 rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors shadow-sm hover:shadow-md"
+                  className="px-5 py-3 bg-gray-900 text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors shadow-sm hover:shadow-md"
                 >
                   Add Client
                 </button>
@@ -814,7 +814,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
       {/* Add Project Modal */}
       {isAddProjectModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-4 sm:p-6 w-[calc(100%-2rem)] max-w-md shadow-xl mx-4">
+          <div className="bg-white rounded-xl p-4 sm:p-6 w-[calc(100%-2rem)] max-w-md shadow-xl mx-4">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-gray-900">Add New Project</h2>
               <button
@@ -833,7 +833,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
                     type="text"
                     value={newProject.name}
                     onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
+                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
                     placeholder="Enter project name"
                     required
                   />
@@ -843,7 +843,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
                   <textarea
                     value={newProject.description}
                     onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
+                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
                     placeholder="Enter project description"
                     rows={3}
                   />
@@ -854,7 +854,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
                   <select
                     value={newProject.client_id}
                     onChange={(e) => setNewProject({ ...newProject, client_id: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
+                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
                     required
                   >
                     <option value="" disabled>
@@ -874,7 +874,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
                   <select
                     value={newProject.status}
                     onChange={(e) => setNewProject({ ...newProject, status: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
+                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
                   >
                     <option value="In Progress">In Progress</option>
                     <option value="Review">Review</option>
@@ -886,14 +886,14 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
               <div className="flex justify-end gap-3 mt-8">
                 <button
                   type="button"
-                  className="px-5 py-3 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors shadow-sm hover:shadow-md"
+                  className="px-5 py-3 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors shadow-sm hover:shadow-md"
                   onClick={() => setIsAddProjectModalOpen(false)}
                 >
                   Skip
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-3 bg-gray-900 text-gray-900 rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors shadow-sm hover:shadow-md"
+                  className="px-5 py-3 bg-gray-900 text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors shadow-sm hover:shadow-md"
                 >
                   Create Project
                 </button>
@@ -906,7 +906,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
       {/* Add Task Modal */}
       {isAddTaskModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-4 sm:p-6 w-[calc(100%-2rem)] max-w-md shadow-xl mx-4">
+          <div className="bg-white rounded-xl p-4 sm:p-6 w-[calc(100%-2rem)] max-w-md shadow-xl mx-4">
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h2 className="text-xl font-bold text-gray-900">Add Task to Project</h2>
@@ -928,7 +928,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
                     type="text"
                     value={newTask.title}
                     onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
+                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
                     placeholder="Enter task title"
                     required
                   />
@@ -939,7 +939,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
                   <textarea
                     value={newTask.description}
                     onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
+                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
                     placeholder="Enter task description"
                     rows={3}
                   />
@@ -950,7 +950,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
                   <select
                     value={newTask.project_id}
                     onChange={(e) => setNewTask({ ...newTask, project_id: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
+                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
                     required
                   >
                     <option value="" disabled>
@@ -970,7 +970,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
                     type="date"
                     value={newTask.due_date}
                     onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
+                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
                     required
                   />
                 </div>
@@ -979,14 +979,14 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
               <div className="flex justify-end gap-3 mt-8">
                 <button
                   type="button"
-                  className="px-5 py-3 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors shadow-sm hover:shadow-md"
+                  className="px-5 py-3 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors shadow-sm hover:shadow-md"
                   onClick={() => setIsAddTaskModalOpen(false)}
                 >
                   Skip
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-3 bg-gray-900 text-gray-900 rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors shadow-sm hover:shadow-md"
+                  className="px-5 py-3 bg-gray-900 text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors shadow-sm hover:shadow-md"
                 >
                   Add Task
                 </button>
@@ -1052,7 +1052,7 @@ function StatusCard({ icon, title, subtitle }) {
 
 function RoomCard({ icon, name, devices, isActive }) {
   return (
-    <div className="bg-gray-50 rounded-xl p-4 flex items-center justify-between shadow-sm hover:shadow-md transition-all duration-200">
+    <div className="bg-gray-50 rounded-lg p-4 flex items-center justify-between shadow-sm hover:shadow-md transition-all duration-200">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center shadow-sm">
           {icon}
