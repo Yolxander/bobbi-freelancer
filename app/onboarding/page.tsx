@@ -194,7 +194,7 @@ export default function OnboardingPage() {
               <div className="p-2 bg-gray-100 rounded-xl mr-2">
                 <div className="w-5 h-5 flex items-center justify-center font-bold text-gray-800">JT</div>
               </div>
-              <span className="font-medium text-gray-800">Jointri</span>
+              <span className="font-medium text-gray-800">Bobb</span>
             </Link>
             <div className="text-sm text-gray-500">Complete Your Profile</div>
           </div>
@@ -434,7 +434,7 @@ export default function OnboardingPage() {
               </form>
             </CardContent>
             <CardFooter className="bg-gray-50 py-4 px-8 text-center border-t">
-              <p className="text-sm text-gray-500">Need help? Contact our support team at support@jointri.com</p>
+              <p className="text-sm text-gray-500">Need help? Contact our support team at support@bobbi.com</p>
             </CardFooter>
           </Card>
         </div>

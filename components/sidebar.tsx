@@ -200,7 +200,7 @@ export default function Sidebar() {
                 </div>
                 <div className="flex-1 text-left">
                   <p className="text-sm font-medium truncate text-gray-900">My Account</p>
-                  <p className="text-xs text-gray-500 truncate">Jointri Dashboard</p>
+                  <p className="text-xs text-gray-500 truncate">Dashboard</p>
                 </div>
                 <Settings className="w-4 h-4 text-gray-400" />
               </button>

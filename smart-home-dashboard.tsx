@@ -364,7 +364,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
             {/* Projects Overview */}
             {activePills.projects && (
               <div className="flex-1 rounded-3xl overflow-hidden relative bg-white p-6 shadow-sm">
-                <h2 className="text-xl font-bold mb-4 text-gray-900">Jointri Projects Overview</h2>
+                <h2 className="text-xl font-bold mb-4 text-gray-900">Projects Overview</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                   <div className="bg-gray-50 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200">
                     <h3 className="text-gray-500 text-sm mb-1">Active Projects</h3>
