@@ -194,7 +194,7 @@ export default function ClientDetailPage() {
               <span>Back to Clients</span>
             </Link>
 
-            <div className="bg-white rounded-3xl p-6 shadow-sm">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 {isEditing ? (
                   <div className="flex-1">

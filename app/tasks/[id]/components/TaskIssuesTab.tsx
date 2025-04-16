@@ -82,7 +82,7 @@ export default function TaskIssuesTab({ taskId, issues, onIssuesChange }: TaskIs
   }
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-sm">
+    <div className="bg-white rounded-xl p-6 shadow-sm">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-gray-900 text-lg font-semibold">Known Issues & Fixes</h2>
         <button

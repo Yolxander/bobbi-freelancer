@@ -97,7 +97,7 @@ export default function CollaborationInvites() {
   }
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-sm mb-6">
+    <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
       <h2 className="text-lg font-semibold mb-4">Collaboration Invitations</h2>
 
       {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg">{error}</div>}

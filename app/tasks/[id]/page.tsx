@@ -742,7 +742,7 @@ export default function TaskDetailsPage() {
               <span>Back to Tasks</span>
             </Link>
 
-            <div className="bg-white rounded-3xl p-6 shadow-sm">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div
@@ -1018,7 +1018,7 @@ export default function TaskDetailsPage() {
           {activeTab === "details" && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Task Description */}
-              <div className="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm">
+              <div className="lg:col-span-2 bg-white rounded-xl p-6 shadow-sm">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Description</h2>
                 <p className="text-gray-700 whitespace-pre-wrap">{task.description || "No description provided."}</p>
 
@@ -1105,7 +1105,7 @@ export default function TaskDetailsPage() {
               {/* Task Info */}
               <div className="space-y-6">
                 {/* Project */}
-                <div className="bg-white rounded-3xl p-6 shadow-sm">
+                <div className="bg-white rounded-xl p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-gray-900">Project</h2>
                     {task.project_id && (
@@ -1131,7 +1131,7 @@ export default function TaskDetailsPage() {
                 </div>
 
                 {/* Task Actions */}
-                <div className="bg-white rounded-3xl p-6 shadow-sm mb-6">
+                <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">Task Actions</h2>
                   <div className="grid grid-cols-2 gap-3">
                     <button
@@ -1176,7 +1176,7 @@ export default function TaskDetailsPage() {
 
                 {/* Developer Actions - Only show if provider is a web developer */}
                 {isWebDeveloper && (
-                  <div className="bg-white rounded-3xl p-6 shadow-sm">
+                  <div className="bg-white rounded-xl p-6 shadow-sm">
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">Developer Actions</h2>
                     <div className="grid grid-cols-2 gap-3">
                       <button
@@ -1223,7 +1223,7 @@ export default function TaskDetailsPage() {
 
           {/* Code Snippets Tab */}
           {activeTab === "code" && isWebDeveloper && (
-            <div className="bg-white rounded-3xl p-6 shadow-sm">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold">Code Snippets</h2>
                 <div className="flex items-center gap-2">
@@ -1339,7 +1339,7 @@ export const ExampleComponent = () => {
 
           {/* Deployments Tab */}
           {activeTab === "deployments" && githubRepo && isWebDeveloper && (
-            <div className="bg-white rounded-3xl p-6 shadow-sm">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold">Deployments</h2>
                 <button
@@ -1395,7 +1395,7 @@ export const ExampleComponent = () => {
 
           {/* Subtasks Tab */}
           {activeTab === "subtasks" && (
-            <div className="bg-white rounded-3xl p-6 shadow-sm">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold">Subtasks</h2>
                 <button
@@ -1572,7 +1572,7 @@ export const ExampleComponent = () => {
 
           {/* Activity Tab */}
           {activeTab === "activity" && (
-            <div className="bg-white rounded-3xl p-6 shadow-sm">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
               <h2 className="text-lg font-semibold mb-6">Activity Timeline</h2>
 
               <div className="space-y-6">
@@ -1657,7 +1657,7 @@ export const ExampleComponent = () => {
       {/* Edit Task Modal */}
       {isEditModalOpen && editedTask && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className={`bg-white rounded-3xl p-6 w-96 shadow-lg transform ${isEditModalOpen ? 'modal-enter' : 'modal-exit'}`}>
+          <div className={`bg-white rounded-xl p-6 w-96 shadow-lg transform ${isEditModalOpen ? 'modal-enter' : 'modal-exit'}`}>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit Task</h3>
             <div className="space-y-4">
               <div>
@@ -1716,7 +1716,7 @@ export const ExampleComponent = () => {
       {/* Update Status Modal */}
       {isStatusModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className={`bg-white rounded-3xl p-6 w-96 shadow-lg transform ${isStatusModalOpen ? 'modal-enter' : 'modal-exit'}`}>
+          <div className={`bg-white rounded-xl p-6 w-96 shadow-lg transform ${isStatusModalOpen ? 'modal-enter' : 'modal-exit'}`}>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Update Status</h3>
             <div className="space-y-4">
               <div>

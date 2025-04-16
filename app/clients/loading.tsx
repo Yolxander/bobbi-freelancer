@@ -23,7 +23,7 @@ export default function ClientsLoading() {
           {/* Clients Grid Skeleton */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, index) => (
-              <div key={index} className="bg-white rounded-3xl p-6 shadow-sm">
+              <div key={index} className="bg-white rounded-xl p-6 shadow-sm">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-gray-200 rounded-full animate-pulse"></div>

@@ -661,7 +661,7 @@ export default function ProjectDetailsPage() {
               <span>Back to Projects</span>
             </Link>
 
-            <div className="bg-white rounded-3xl p-6 shadow-sm">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
              
                   <div className="flex items-center gap-4">
@@ -890,7 +890,7 @@ export default function ProjectDetailsPage() {
           {activeTab === "overview" && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Project Description */}
-              <div className="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm">
+              <div className="lg:col-span-2 bg-white rounded-xl p-6 shadow-sm">
                 <h2 className="text-lg font-semibold mb-4 text-gray-900">Project Description</h2>
                
                   <p className="text-gray-700 whitespace-pre-wrap">
@@ -937,7 +937,7 @@ export default function ProjectDetailsPage() {
               <div className="space-y-6">
 
                             {/* Quick Stats */}
-                            <div className="bg-white rounded-3xl p-6 shadow-sm">
+                            <div className="bg-white rounded-xl p-6 shadow-sm">
                   <h2 className="text-gray-900 text-lg font-semibold mb-4">Quick Stats</h2>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-gray-50 rounded-xl p-4 text-center">
@@ -968,7 +968,7 @@ export default function ProjectDetailsPage() {
                 </div>
 
                 {/* Client */}
-                <div className="bg-white rounded-3xl p-6 shadow-sm">
+                <div className="bg-white rounded-xl p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-gray-900">Client</h2>
                     {project?.client && (
@@ -1030,7 +1030,7 @@ export default function ProjectDetailsPage() {
 
                 {/* Team Members Summary */}
                 {project?.client_id && (
-                  <div className="bg-white rounded-3xl p-6 shadow-sm">
+                  <div className="bg-white rounded-xl p-6 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-lg font-semibold text-gray-900">Team Members</h2>
                       <button
@@ -1097,7 +1097,7 @@ export default function ProjectDetailsPage() {
           )}
 
           {activeTab === "team" && (
-            <div className="bg-white rounded-3xl p-6 shadow-sm">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold text-gray-900">Team Members</h2>
                 {project?.client_id && (
@@ -1150,7 +1150,7 @@ export default function ProjectDetailsPage() {
           )}
 
           {activeTab === "tasks" && (
-            <div className="bg-white rounded-3xl p-6 shadow-sm">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold text-gray-900">Tasks</h2>
                 <div className="flex items-center gap-3">
@@ -1362,7 +1362,7 @@ export default function ProjectDetailsPage() {
           )}
 
           {activeTab === "files" && (
-            <div className="bg-white rounded-3xl p-6 shadow-sm">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold text-gray-900">Files</h2>
                 <button className="flex items-center gap-2 bg-gray-900 text-white rounded-xl px-4 py-2">
@@ -1400,7 +1400,7 @@ export default function ProjectDetailsPage() {
       {/* Add Task Modal */}
       {showAddTaskModal && (
   <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-white rounded-3xl p-8 w-full max-w-2xl shadow-xl">
+    <div className="bg-white rounded-xl p-8 w-full max-w-2xl shadow-xl">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-xl font-bold text-gray-900">Add New Task</h2>
         <button
@@ -1505,7 +1505,7 @@ export default function ProjectDetailsPage() {
       {/* Add Team Member Modal */}
       {showAddTeamMemberModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-xl">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold">Add Team Member</h2>
               <button
@@ -1607,7 +1607,7 @@ export default function ProjectDetailsPage() {
       {/* Create Team Member Modal */}
       {showCreateTeamMemberModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-xl">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold">Create Team Member</h2>
               <button
@@ -1713,7 +1713,7 @@ export default function ProjectDetailsPage() {
       {/* Edit Project Modal */}
       {isEditing && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-8 w-full max-w-2xl shadow-xl">
+          <div className="bg-white rounded-xl p-8 w-full max-w-2xl shadow-xl">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-xl font-bold text-gray-900">Edit Project</h2>
               <button

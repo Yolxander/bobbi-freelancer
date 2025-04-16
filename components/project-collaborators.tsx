@@ -160,7 +160,7 @@ export default function ProjectCollaborators({ projectId, isOwner = false }) {
   }
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-sm">
+    <div className="bg-white rounded-xl p-6 shadow-sm">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold">Collaborators</h2>
         {isOwner && (
@@ -340,7 +340,7 @@ export default function ProjectCollaborators({ projectId, isOwner = false }) {
       {/* Invite Modal */}
       {showInviteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-xl">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold">Invite Collaborator</h2>
               <button

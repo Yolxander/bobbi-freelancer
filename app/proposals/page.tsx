@@ -102,7 +102,7 @@ export default function ProposalsPage() {
           </div>
 
           {/* Filters Card */}
-          <div className="bg-white rounded-3xl shadow-sm p-6 mb-6">
+          <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
@@ -167,7 +167,7 @@ export default function ProposalsPage() {
             </div>
           ) : (
             /* Proposals table */
-            <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-100">

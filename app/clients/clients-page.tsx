@@ -241,7 +241,7 @@ export default function ClientsPage() {
           {filteredClients.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredClients.map((client) => (
-                <div key={client.id} className="bg-white rounded-3xl p-6 shadow-sm">
+                <div key={client.id} className="bg-white rounded-xl p-6 shadow-sm">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
@@ -352,7 +352,7 @@ export default function ClientsPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 bg-white rounded-3xl shadow-sm">
+            <div className="text-center py-12 bg-white rounded-xl shadow-sm">
               <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-indigo-600" />
               </div>
@@ -372,7 +372,7 @@ export default function ClientsPage() {
       {/* Add Client Modal */}
       {showAddClientModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-xl">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold">Add New Client</h2>
               <button
@@ -466,7 +466,7 @@ export default function ClientsPage() {
       {/* Send Credentials Modal */}
       {showCredentialModal && selectedClient && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-xl">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold">Client Credentials</h2>
               <button

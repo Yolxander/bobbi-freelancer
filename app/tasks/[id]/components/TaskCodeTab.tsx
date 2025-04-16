@@ -31,7 +31,7 @@ export default function TaskCodeTab({
   setEditedSnippetContent,
 }: TaskCodeTabProps) {
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-sm">
+    <div className="bg-white rounded-xl p-6 shadow-sm">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold">Code Snippets</h2>
         <button

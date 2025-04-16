@@ -15,7 +15,7 @@ export default function ClientDetailLoading() {
               <span>Back to Clients</span>
             </Link>
 
-            <div className="bg-white rounded-3xl p-6 shadow-sm">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 bg-gray-200 rounded-xl animate-pulse"></div>

@@ -126,7 +126,7 @@ export default function NewProjectPage() {
               <span>Back to Projects</span>
             </Link>
 
-            <div className="bg-white rounded-3xl p-6 shadow-sm">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
               <h1 className="text-2xl font-bold mb-6">Create New Project</h1>
 
               {error && (

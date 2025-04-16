@@ -16,7 +16,7 @@ export default function TaskHeader({ task, completionPercentage, onToggleTaskCom
         <span>Back to Tasks</span>
       </Link>
 
-      <div className="bg-white rounded-3xl p-6 shadow-sm">
+      <div className="bg-white rounded-xl p-6 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-4">
             <div

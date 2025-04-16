@@ -51,7 +51,7 @@ export default function TaskDetailsTab({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Task Description */}
-      <div className="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm">
+      <div className="lg:col-span-2 bg-white rounded-xl p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Description</h2>
         <p className="text-gray-700 whitespace-pre-wrap">{task.description || "No description provided."}</p>
 
@@ -146,7 +146,7 @@ export default function TaskDetailsTab({
       {/* Task Info */}
       <div className="space-y-6">
         {/* Project */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm">
+        <div className="bg-white rounded-xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Project</h2>
             {task.project_id && (
@@ -172,7 +172,7 @@ export default function TaskDetailsTab({
         </div>
 
         {/* Task Actions */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm mb-6">
+        <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Task Actions</h2>
           <div className="grid grid-cols-2 gap-3">
             <button
@@ -217,7 +217,7 @@ export default function TaskDetailsTab({
 
         {/* Developer Actions - Only show if provider is a web developer */}
         {isWebDeveloper && (
-          <div className="bg-white rounded-3xl p-6 shadow-sm">
+          <div className="bg-white rounded-xl p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Developer Actions</h2>
             <div className="grid grid-cols-2 gap-3">
               <button

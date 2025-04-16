@@ -164,7 +164,7 @@ export default function ProjectTimeline({ projectId, isOwner, canEdit }) {
   }
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-sm">
+    <div className="bg-white rounded-xl p-6 shadow-sm">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold">Project Timeline</h2>
         {(isOwner || canEdit) && (
@@ -264,7 +264,7 @@ export default function ProjectTimeline({ projectId, isOwner, canEdit }) {
       {/* Add Event Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-xl">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold">Add Timeline Event</h2>
               <button
@@ -361,7 +361,7 @@ export default function ProjectTimeline({ projectId, isOwner, canEdit }) {
       {/* Edit Event Modal */}
       {showEditModal && currentEvent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-xl">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold">Edit Timeline Event</h2>
               <button

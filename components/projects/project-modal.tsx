@@ -98,7 +98,7 @@ export default function ProjectModal({ isOpen, onClose, clientId }: ProjectModal
 
   return createPortal(
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-xl">
+      <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-900">Create New Project</h2>
           <button className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center" onClick={onClose}>
