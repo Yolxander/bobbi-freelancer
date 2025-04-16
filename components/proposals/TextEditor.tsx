@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState } from "react"
 import {
   Bold,
   Italic,
@@ -21,39 +21,18 @@ interface TextEditorProps {
 }
 
 export default function TextEditor({ value, onChange, readOnly = false }: TextEditorProps) {
-  const editorRef = useRef<HTMLDivElement>(null)
   const [history, setHistory] = useState<string[]>([value])
   const [historyIndex, setHistoryIndex] = useState(0)
 
-  useEffect(() => {
-    if (editorRef.current && editorRef.current.innerHTML !== value) {
-      editorRef.current.innerHTML = value
-    }
-  }, [value])
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value
+    onChange(newValue)
 
-  const handleInput = () => {
-    if (editorRef.current) {
-      const newValue = editorRef.current.innerText
-      onChange(newValue)
-
-      // Update history
-      const newHistory = history.slice(0, historyIndex + 1)
-      newHistory.push(newValue)
-      setHistory(newHistory)
-      setHistoryIndex(newHistory.length - 1)
-    }
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      document.execCommand("insertLineBreak")
-    }
-  }
-
-  const execCommand = (command: string, value?: string) => {
-    document.execCommand(command, false, value)
-    editorRef.current?.focus()
+    // Update history
+    const newHistory = history.slice(0, historyIndex + 1)
+    newHistory.push(newValue)
+    setHistory(newHistory)
+    setHistoryIndex(newHistory.length - 1)
   }
 
   const handleUndo = () => {
@@ -79,7 +58,7 @@ export default function TextEditor({ value, onChange, readOnly = false }: TextEd
           <button
             type="button"
             className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded"
-            onClick={() => execCommand("bold")}
+            onClick={() => document.execCommand("bold", false)}
             title="Bold"
           >
             <Bold className="w-4 h-4" />
@@ -87,7 +66,7 @@ export default function TextEditor({ value, onChange, readOnly = false }: TextEd
           <button
             type="button"
             className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded"
-            onClick={() => execCommand("italic")}
+            onClick={() => document.execCommand("italic", false)}
             title="Italic"
           >
             <Italic className="w-4 h-4" />
@@ -96,7 +75,7 @@ export default function TextEditor({ value, onChange, readOnly = false }: TextEd
           <button
             type="button"
             className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded"
-            onClick={() => execCommand("insertUnorderedList")}
+            onClick={() => document.execCommand("insertUnorderedList", false)}
             title="Bullet List"
           >
             <List className="w-4 h-4" />
@@ -104,7 +83,7 @@ export default function TextEditor({ value, onChange, readOnly = false }: TextEd
           <button
             type="button"
             className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded"
-            onClick={() => execCommand("insertOrderedList")}
+            onClick={() => document.execCommand("insertOrderedList", false)}
             title="Numbered List"
           >
             <ListOrdered className="w-4 h-4" />
@@ -112,7 +91,7 @@ export default function TextEditor({ value, onChange, readOnly = false }: TextEd
           <button
             type="button"
             className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded"
-            onClick={() => execCommand("formatBlock", "blockquote")}
+            onClick={() => document.execCommand("formatBlock", false, "blockquote")}
             title="Quote"
           >
             <Quote className="w-4 h-4" />
@@ -121,7 +100,7 @@ export default function TextEditor({ value, onChange, readOnly = false }: TextEd
           <button
             type="button"
             className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded"
-            onClick={() => execCommand("justifyLeft")}
+            onClick={() => document.execCommand("justifyLeft", false)}
             title="Align Left"
           >
             <AlignLeft className="w-4 h-4" />
@@ -129,7 +108,7 @@ export default function TextEditor({ value, onChange, readOnly = false }: TextEd
           <button
             type="button"
             className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded"
-            onClick={() => execCommand("justifyCenter")}
+            onClick={() => document.execCommand("justifyCenter", false)}
             title="Align Center"
           >
             <AlignCenter className="w-4 h-4" />
@@ -137,7 +116,7 @@ export default function TextEditor({ value, onChange, readOnly = false }: TextEd
           <button
             type="button"
             className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded"
-            onClick={() => execCommand("justifyRight")}
+            onClick={() => document.execCommand("justifyRight", false)}
             title="Align Right"
           >
             <AlignRight className="w-4 h-4" />
@@ -164,18 +143,15 @@ export default function TextEditor({ value, onChange, readOnly = false }: TextEd
         </div>
       )}
 
-      <div
-        ref={editorRef}
-        className={`p-4 min-h-[200px] focus:outline-none text-gray-700 ${
+      <textarea
+        value={value}
+        onChange={handleChange}
+        className={`w-full p-4 min-h-[200px] focus:outline-none text-gray-700 ${
           readOnly ? "bg-gray-50" : "bg-white"
         }`}
-        contentEditable={!readOnly}
-        onInput={handleInput}
-        onKeyDown={handleKeyDown}
-        suppressContentEditableWarning
-      >
-        {value}
-      </div>
+        readOnly={readOnly}
+        placeholder="Enter your text here..."
+      />
     </div>
   )
 } 

@@ -44,7 +44,7 @@ export default function NewProposalPage() {
       timeline_start: "",
       timeline_end: "",
       pricing: JSON.stringify([]),
-      payment_schedule: JSON.stringify({}),
+      payment_schedule: JSON.stringify([]),
       signature: JSON.stringify({ provider: "", client: "" })
     },
     client: {
