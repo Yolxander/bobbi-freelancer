@@ -147,7 +147,7 @@ export default function AuthPage() {
                   />
                 </div>
               </div>
-              <button className="px-6 py-2 bg-[#D91ACC] text-indigo-500 rounded-full text-[15px] text-white font-medium hover:bg-[#D1FF75] transition-colors">
+              <button className="px-6 py-2 bg-[#9E14D9] rounded-full text-[15px] text-white font-medium hover:bg-[#D1FF75] transition-colors">
                 Login
               </button>
             </div>
