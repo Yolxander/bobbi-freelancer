@@ -176,34 +176,53 @@ export default function AuthPage() {
                 </span>
               </h1>
               <div className="flex flex-col items-center gap-2">
-                <div className="text-gray-500">Don't have account?</div>
-                <Link 
-                  href="/register" 
+                <div className="text-gray-500">
+                  {isLogin ? "Don't have account?" : "Already have an account?"}
+                </div>
+                <button 
+                  onClick={() => setIsLogin(!isLogin)}
                   className="inline-flex items-center text-[#1B1B1B] border-b border-[#1B1B1B] pb-0.5 hover:opacity-80 transition-opacity"
                 >
-                  Create account
+                  {isLogin ? "Create account" : "Sign in"}
                   <svg className="w-4 h-4 ml-1" viewBox="0 0 16 16" fill="none">
                     <path d="M1 8h14M8 1l7 7-7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                </Link>
+                </button>
               </div>
             </div>
           </div>
 
           {/* Right side */}
-          <div className="w-1/2 bg-[url('/placeholder.jpg')] bg-cover bg-center relative ">
+          <div className="w-1/2 bg-[url('/placeholder.jpg')] bg-cover bg-center relative">
             <div className="absolute inset-0 bg-black/20 mx-20 my-5 rounded-lg"></div>
             <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[400px] bg-white rounded-2xl p-8">
-              <h2 className="text-2xl font-semibold mb-6">Login to your account</h2>
+              <h2 className="text-2xl font-semibold mb-6">
+                {isLogin ? "Login to your account" : "Create your account"}
+              </h2>
               {error && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
                   {error}
                 </div>
               )}
               <form onSubmit={handleSubmit} className="space-y-4">
+                {!isLogin && (
+                  <div>
+                    <label htmlFor="name" className="block text-sm text-gray-600 mb-1.5">
+                      Full Name
+                    </label>
+                    <input
+                      id="name"
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                      required={!isLogin}
+                    />
+                  </div>
+                )}
                 <div>
                   <label htmlFor="email" className="block text-sm text-gray-600 mb-1.5">
-                    Username
+                    {isLogin ? "Username" : "Email Address"}
                   </label>
                   <input
                     id="email"
@@ -236,21 +255,47 @@ export default function AuthPage() {
                     </button>
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <label className="flex items-center gap-2">
-                    <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500" />
-                    <span className="text-sm text-gray-600">Remember me</span>
-                  </label>
-                  <Link href="/auth/forgot-password" className="text-sm text-gray-600 hover:text-gray-900">
-                    Forgot your password?
-                  </Link>
-                </div>
+                {!isLogin && (
+                  <div>
+                    <label htmlFor="confirmPassword" className="block text-sm text-gray-600 mb-1.5">
+                      Confirm Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                        required={!isLogin}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {isLogin && (
+                  <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-2">
+                      <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500" />
+                      <span className="text-sm text-gray-600">Remember me</span>
+                    </label>
+                    <Link href="/auth/forgot-password" className="text-sm text-gray-600 hover:text-gray-900">
+                      Forgot your password?
+                    </Link>
+                  </div>
+                )}
                 <button
                   type="submit"
                   disabled={localLoading}
                   className="w-full py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
                 >
-                  {localLoading ? "Please wait..." : "Login"}
+                  {localLoading ? "Please wait..." : (isLogin ? "Login" : "Create Account")}
                 </button>
               </form>
             </div>

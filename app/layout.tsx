@@ -6,8 +6,8 @@ import { Providers } from './providers'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Smart Home Dashboard',
-  description: 'A dashboard for managing smart home devices',
+  title: 'Bobbi',
+  description: 'Freelancer and client best friend',
 }
 
 export default function RootLayout({
