@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Check if provider profile exists for the stored user
           // Only proceed if we're not already on the onboarding or auth pages
           const currentPath = pathname
-          if (currentPath !== "/onboarding" && currentPath !== "/auth") {
+          if (currentPath !== "/onboarding" && currentPath !== "/auth" && currentPath !== "/") {
             // Don't redirect if we're on a valid page like /clients, /projects, etc.
             const validPaths = ["/clients", "/projects", "/tasks", "/messaging", "/calendar", "/files", "/profile", "/proposals"]
             const isValidPath = validPaths.some((path) => currentPath.startsWith(path))
@@ -96,8 +96,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.removeItem("authToken")
           router.push("/auth")
         }
-      } else if (window.location.pathname !== "/auth") {
-        // If no user is stored and we're not on the auth page, redirect to auth
+      } else if (window.location.pathname !== "/auth" && window.location.pathname !== "/") {
+        // If no user is stored and we're not on the auth page or landing page, redirect to auth
         router.push("/auth")
       }
       setLoading(false)
