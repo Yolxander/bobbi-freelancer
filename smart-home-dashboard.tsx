@@ -24,6 +24,7 @@ import { createClient } from "./app/actions/client-actions"
 import { createProject } from "./app/actions/project-actions"
 import { createTask } from "./app/actions/task-actions"
 import { useAuth } from "@/lib/auth-context"
+import { Logo } from "./components/ui/logo"
 
 export default function ProviderDashboard({ initialProjects = [], initialClients = [], initialTasks = [], userId }) {
   const router = useRouter()

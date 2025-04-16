@@ -28,6 +28,7 @@ import {
 import { getClients } from "@/app/actions/client-actions"
 import { getProjects } from "@/app/actions/project-actions"
 import { useAuth } from "@/lib/auth-context"
+import { Logo } from "@/components/ui/logo"
 
 interface Event {
   id: number

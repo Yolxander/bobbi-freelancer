@@ -48,6 +48,7 @@ import ProjectTimeline from "@/components/project-timeline"
 import { checkProjectAccess } from "@/app/actions/access-actions"
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { Logo } from "@/components/ui/logo"
 
 // Add these interfaces at the top of the file
 interface Project {

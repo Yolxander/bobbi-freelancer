@@ -18,6 +18,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import Sidebar from "./components/sidebar"
+import { Logo } from "./components/ui/logo"
 
 export default function MessagingPage() {
   const [activeConversation, setActiveConversation] = useState(0)

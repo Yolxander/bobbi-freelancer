@@ -25,6 +25,7 @@ import {
 } from "lucide-react"
 import tasksData from "./tasks-data.json"
 import Sidebar from "./components/sidebar"
+import { Logo } from "./components/ui/logo"
 
 export default function TasksPage() {
   const [viewMode, setViewMode] = useState("list") // "list" or "kanban"

@@ -6,6 +6,7 @@ import Link from "next/link"
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Github, Twitter, AlertCircle } from 'lucide-react'
 import { useAuth } from "@/lib/auth-context"
 import { CheckIcon, UserIcon } from "./icons"
+import { Logo } from "@/components/ui/logo"
 
 export default function AuthPage() {
   const router = useRouter()
@@ -113,16 +114,7 @@ export default function AuthPage() {
       {/* Left side - Branding */}
       <div className="w-full md:w-1/2 bg-gradient-to-br from-gray-900 to-gray-800 text-white p-8 md:p-16 flex flex-col">
         <div className="mb-8">
-          <div className="flex flex-col">
-            <div className="flex items-center gap-1">
-              <div className="w-5 h-5 bg-blue-500 rounded-sm"></div>
-              <div className="w-5 h-5 bg-blue-400 rounded-sm"></div>
-            </div>
-            <div className="flex items-center gap-1 mt-1">
-              <div className="w-5 h-5 bg-blue-400 rounded-sm"></div>
-              <div className="w-5 h-5 bg-blue-300 rounded-sm"></div>
-            </div>
-          </div>
+          <Logo />
         </div>
 
         <div className="flex-1 flex flex-col justify-center">
