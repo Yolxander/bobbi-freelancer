@@ -14,178 +14,237 @@ import {
 } from "lucide-react"
 import Sidebar from "@/components/sidebar"
 import { useAuth } from "@/lib/auth-context"
-import { createProposal, type Proposal } from "@/app/actions/proposal-actions"
+import { useProposals } from '@/lib/proposals-context'
+import { useClients } from '@/lib/clients-context'
+import { useProjects } from '@/lib/projects-context'
+import { useToast } from '@/lib/toast-context'
+import { createProposal } from "@/app/actions/proposal-actions"
 import ProjectSelector from "@/components/proposals/ProjectSelector"
 import ClientAutoFill from "@/components/proposals/ClientAutoFill"
-import TextEditor from "@/components/proposals/TextEditor"
-import BudgetInputList from "@/components/proposals/BudgetInputList"
-import DeliverablesInputList from "@/components/proposals/DeliverablesInputList"
-import DateRangePicker from "@/components/proposals/DateRangePicker"
-import SignatureBlock from "@/components/proposals/SignatureBlock"
-import PaymentScheduleInput from "@/components/proposals/PaymentScheduleInput"
+import TextEditor from '@/components/proposals/TextEditor'
+import DeliverablesInputList from '@/components/proposals/DeliverablesInputList'
+import TimelineInput from '@/components/proposals/TimelineInput'
+import PricingInput from '@/components/proposals/PricingInput'
+import PaymentScheduleInput from '@/components/proposals/PaymentScheduleInput'
+import ProposalSectionToggle from '@/components/proposals/ProposalSectionToggle'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ChevronDown, ChevronUp, Trash2 } from 'lucide-react'
+import TermsAndConditionsInput from '@/components/proposals/TermsAndConditionsInput'
+import SignatureInput from '@/components/proposals/SignatureInput'
+import ClientResponsibilitiesInput from '@/components/proposals/ClientResponsibilitiesInput'
+
+interface Proposal {
+  id?: string
+  title: string
+  client_id: string
+  project_id: string
+  content: {
+    id?: string
+    proposal_id?: string
+    scope_of_work: string
+    deliverables: string
+    timeline_start: string
+    timeline_end: string
+    pricing: string
+    payment_schedule: string
+    terms_and_conditions: string
+    client_responsibilities: string
+    signature: string
+    created_at?: string
+    updated_at?: string
+  }
+  status?: 'draft' | 'sent' | 'accepted' | 'rejected'
+  is_template?: boolean
+  current_version?: number
+}
+
+interface ProposalSection {
+  id: string
+  title: string
+  description?: string
+  isOpen: boolean
+}
 
 export default function NewProposalPage() {
   const router = useRouter()
   const { user } = useAuth()
+  const { addProposal } = useProposals()
+  const { clients } = useClients()
+  const { projects } = useProjects()
+  const { showToast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [proposal, setProposal] = useState<Omit<Proposal, "id" | "created_at" | "updated_at">>({
-    title: "",
-    client_id: "",
-    project_id: "",
-    status: "draft",
+  const [proposal, setProposal] = useState<Proposal>({
+    title: '',
+    client_id: '',
+    project_id: '',
+    status: 'draft',
     is_template: false,
     current_version: 1,
     content: {
-      id: "",
-      proposal_id: "",
-      scope_of_work: "",
-      deliverables: JSON.stringify([]),
-      timeline_start: "",
-      timeline_end: "",
-      pricing: JSON.stringify([]),
-      payment_schedule: JSON.stringify([]),
-      signature: JSON.stringify({ provider: "", client: "" })
-    },
-    client: {
-      id: "",
-      name: "",
-      email: "",
-      phone: ""
-    },
-    project: {
-      id: "",
-      name: "",
-      description: ""
+      scope_of_work: '',
+      deliverables: '[]',
+      timeline_start: '',
+      timeline_end: '',
+      pricing: '{}',
+      payment_schedule: '{}',
+      terms_and_conditions: '',
+      client_responsibilities: '{}',
+      signature: '{}'
     }
   })
 
+  const [sections, setSections] = useState<ProposalSection[]>([
+    { 
+      id: 'scope', 
+      title: 'Scope of Work', 
+      description: 'Detailed description of the project work and objectives.',
+      isOpen: true 
+    },
+    { 
+      id: 'deliverables', 
+      title: 'Deliverables', 
+      description: 'List of all items and outcomes to be delivered to the client.',
+      isOpen: true 
+    },
+    { 
+      id: 'timeline', 
+      title: 'Timeline', 
+      description: 'Project start and end dates, including key milestones.',
+      isOpen: true 
+    },
+    { 
+      id: 'pricing', 
+      title: 'Pricing', 
+      description: 'Breakdown of project costs and pricing structure.',
+      isOpen: true 
+    },
+    { 
+      id: 'payment', 
+      title: 'Payment Schedule', 
+      description: 'Payment milestones and terms for the project.',
+      isOpen: true 
+    },
+    { 
+      id: 'client', 
+      title: 'Client Responsibilities', 
+      description: 'What the client must provide and their responsibilities.',
+      isOpen: true 
+    },
+    { 
+      id: 'terms', 
+      title: 'Terms & Conditions', 
+      description: 'Legal and business policies for transparency.',
+      isOpen: true 
+    },
+    { 
+      id: 'signature', 
+      title: 'Signature', 
+      description: 'For formal acceptance of the proposal.',
+      isOpen: true 
+    }
+  ])
+
+  const handleSectionToggle = (id: string) => {
+    setSections(sections.map(section => 
+      section.id === id ? { ...section, isOpen: !section.isOpen } : section
+    ))
+  }
+
   const handleSave = async () => {
-    if (!user || !user.providerId) {
-      setError("You must be logged in to create a proposal")
-      return
-    }
-
-    // Debug all fields
-    console.log('=== Proposal Data Debug ===')
-    console.log('Title:', proposal.title)
-    console.log('Client ID:', proposal.client_id)
-    console.log('Project ID:', proposal.project_id)
-    console.log('Scope of Work:', proposal.content.scope_of_work)
-    
-    let deliverables
     try {
-      deliverables = JSON.parse(proposal.content.deliverables)
-      console.log('Deliverables:', deliverables)
-    } catch (e) {
-      console.error('Error parsing deliverables:', e)
-      setError("Invalid deliverables format")
-      return
-    }
+      if (!user) {
+        showToast('error', 'Please log in to save proposals')
+        return
+      }
 
-    console.log('Timeline Start:', proposal.content.timeline_start)
-    console.log('Timeline End:', proposal.content.timeline_end)
+      // Validate required fields
+      if (!proposal.title) {
+        showToast('error', 'Please enter a title')
+        return
+      }
 
-    let pricing
-    try {
-      pricing = JSON.parse(proposal.content.pricing)
-      console.log('Pricing:', pricing)
-    } catch (e) {
-      console.error('Error parsing pricing:', e)
-      setError("Invalid pricing format")
-      return
-    }
+      if (!proposal.client_id) {
+        showToast('error', 'Please select a client')
+        return
+      }
 
-    let signature
-    try {
-      signature = JSON.parse(proposal.content.signature)
-      console.log('Signature:', signature)
-    } catch (e) {
-      console.error('Error parsing signature:', e)
-      setError("Invalid signature format")
-      return
-    }
+      if (!proposal.project_id) {
+        showToast('error', 'Please select a project')
+        return
+      }
 
-    // Validate required fields
-    if (!proposal.title) {
-      setError("Please enter a proposal title")
-      return
-    }
+      // Log all field values for debugging
+      console.log('Title:', proposal.title)
+      console.log('Client ID:', proposal.client_id)
+      console.log('Project ID:', proposal.project_id)
+      console.log('Scope of Work:', proposal.content.scope_of_work)
+      console.log('Deliverables:', proposal.content.deliverables)
+      console.log('Timeline Start:', proposal.content.timeline_start)
+      console.log('Timeline End:', proposal.content.timeline_end)
+      console.log('Pricing:', proposal.content.pricing)
+      console.log('Payment Schedule:', proposal.content.payment_schedule)
+      console.log('Signature:', proposal.content.signature)
 
-    if (!proposal.client_id) {
-      setError("Please select a client")
-      return
-    }
+      // Parse deliverables to ensure it's valid JSON
+      let parsedDeliverables: string[] = []
+      try {
+        parsedDeliverables = JSON.parse(proposal.content.deliverables)
+        if (!Array.isArray(parsedDeliverables)) {
+          showToast('error', 'Deliverables must be an array')
+          return
+        }
+      } catch (error) {
+        showToast('error', 'Invalid deliverables format')
+        return
+      }
 
-    if (!proposal.project_id) {
-      setError("Please select a project")
-      return
-    }
+      // Parse pricing to ensure it's valid JSON
+      let parsedPricing: Record<string, any> = {}
+      try {
+        parsedPricing = JSON.parse(proposal.content.pricing)
+        if (typeof parsedPricing !== 'object') {
+          showToast('error', 'Invalid pricing format')
+          return
+        }
+      } catch (error) {
+        showToast('error', 'Invalid pricing format')
+        return
+      }
 
-    if (!proposal.content.scope_of_work) {
-      setError("Please enter the scope of work")
-      return
-    }
+      // Parse signature to ensure it's valid JSON
+      let parsedSignature: Record<string, any> = {}
+      try {
+        parsedSignature = JSON.parse(proposal.content.signature)
+        if (typeof parsedSignature !== 'object') {
+          showToast('error', 'Invalid signature format')
+          return
+        }
+      } catch (error) {
+        showToast('error', 'Invalid signature format')
+        return
+      }
 
-    if (!Array.isArray(deliverables)) {
-      console.error('Deliverables is not an array:', deliverables)
-      setError("Invalid deliverables format")
-      return
-    }
-
-    if (deliverables.length === 0) {
-      setError("Please add at least one deliverable")
-      return
-    }
-
-    if (!proposal.content.timeline_start || !proposal.content.timeline_end) {
-      setError("Please select a valid timeline")
-      return
-    }
-
-    if (!Array.isArray(pricing)) {
-      console.error('Pricing is not an array:', pricing)
-      setError("Invalid pricing format")
-      return
-    }
-
-    if (pricing.length === 0) {
-      setError("Please add at least one pricing item")
-      return
-    }
-
-    if (!signature.provider || !signature.client) {
-      setError("Please fill in both provider and client signature fields")
-      return
-    }
-
-    setIsLoading(true)
-    setError(null)
-
-    try {
       const newProposal = await createProposal({
-        title: proposal.title,
-        client_id: proposal.client_id,
-        project_id: proposal.project_id,
-        status: "draft",
-        is_template: false,
-        current_version: 1,
+        ...proposal,
         content: {
-          scope_of_work: proposal.content.scope_of_work,
-          deliverables: proposal.content.deliverables,
-          timeline_start: proposal.content.timeline_start,
-          timeline_end: proposal.content.timeline_end,
-          pricing: proposal.content.pricing,
-          payment_schedule: "{}", // Empty payment schedule for now
-          signature: proposal.content.signature
+          ...proposal.content,
+          deliverables: JSON.stringify(parsedDeliverables),
+          pricing: JSON.stringify(parsedPricing),
+          signature: JSON.stringify(parsedSignature)
         }
       })
-      router.push(`/proposals/${newProposal.id}`)
+
+      addProposal(newProposal)
+      showToast('success', 'Proposal saved successfully')
+      router.push('/proposals')
     } catch (error) {
-      console.error("Error creating proposal:", error)
-      setError("Failed to create proposal. Please try again.")
-    } finally {
-      setIsLoading(false)
+      console.error('Error saving proposal:', error)
+      showToast('error', 'Failed to save proposal')
     }
   }
 
@@ -230,6 +289,21 @@ export default function NewProposalPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleClientChange = (value: string) => {
+    setProposal(prev => ({
+      ...prev,
+      client_id: value,
+      project_id: ''
+    }))
+  }
+
+  const handleProjectChange = (value: string) => {
+    setProposal(prev => ({
+      ...prev,
+      project_id: value
+    }))
   }
 
   return (
@@ -301,7 +375,7 @@ export default function NewProposalPage() {
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-2">
                   <ProjectSelector
                     value={proposal.project_id || ""}
-                    onChange={(projectId) => setProposal({ ...proposal, project_id: projectId })}
+                    onChange={handleProjectChange}
                   />
                 </div>
               </div>
@@ -310,7 +384,7 @@ export default function NewProposalPage() {
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-2">
                   <ClientAutoFill
                     value={proposal.client_id || ""}
-                    onChange={(clientId) => setProposal({ ...proposal, client_id: clientId })}
+                    onChange={handleClientChange}
                   />
                 </div>
               </div>
@@ -327,9 +401,13 @@ export default function NewProposalPage() {
               />
             </div>
 
-            {/* Scope of Work */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Scope of Work</h2>
+            {/* Project Overview */}
+            <ProposalSectionToggle
+              title={sections[0].title}
+              description={sections[0].description}
+              isOpen={sections[0].isOpen}
+              onToggle={() => handleSectionToggle('scope')}
+            >
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <TextEditor
                   value={proposal.content.scope_of_work}
@@ -341,11 +419,15 @@ export default function NewProposalPage() {
                   }
                 />
               </div>
-            </div>
+            </ProposalSectionToggle>
 
-            {/* Deliverables */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Deliverables</h2>
+            {/* Scope of Work */}
+            <ProposalSectionToggle
+              title={sections[1].title}
+              description={sections[1].description}
+              isOpen={sections[1].isOpen}
+              onToggle={() => handleSectionToggle('deliverables')}
+            >
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <DeliverablesInputList
                   value={JSON.parse(proposal.content.deliverables)}
@@ -357,18 +439,20 @@ export default function NewProposalPage() {
                   }
                 />
               </div>
-            </div>
+            </ProposalSectionToggle>
 
             {/* Timeline */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Timeline</h2>
+            <ProposalSectionToggle
+              title={sections[2].title}
+              description={sections[2].description}
+              isOpen={sections[2].isOpen}
+              onToggle={() => handleSectionToggle('timeline')}
+            >
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <DateRangePicker
-                  value={{
-                    start: proposal.content.timeline_start,
-                    end: proposal.content.timeline_end
-                  }}
-                  onChange={(value: { start: string; end: string }) =>
+                <TimelineInput
+                  startDate={proposal.content.timeline_start}
+                  endDate={proposal.content.timeline_end}
+                  onChange={(value) =>
                     setProposal({
                       ...proposal,
                       content: {
@@ -380,13 +464,17 @@ export default function NewProposalPage() {
                   }
                 />
               </div>
-            </div>
+            </ProposalSectionToggle>
 
             {/* Budget & Pricing */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Budget & Pricing</h2>
+            <ProposalSectionToggle
+              title={sections[3].title}
+              description={sections[3].description}
+              isOpen={sections[3].isOpen}
+              onToggle={() => handleSectionToggle('pricing')}
+            >
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <BudgetInputList
+                <PricingInput
                   value={JSON.parse(proposal.content.pricing)}
                   onChange={(value) =>
                     setProposal({
@@ -396,11 +484,15 @@ export default function NewProposalPage() {
                   }
                 />
               </div>
-            </div>
+            </ProposalSectionToggle>
 
             {/* Payment Schedule */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment Schedule</h2>
+            <ProposalSectionToggle
+              title={sections[4].title}
+              description={sections[4].description}
+              isOpen={sections[4].isOpen}
+              onToggle={() => handleSectionToggle('payment')}
+            >
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <PaymentScheduleInput
                   value={JSON.parse(proposal.content.payment_schedule)}
@@ -412,23 +504,67 @@ export default function NewProposalPage() {
                   }
                 />
               </div>
-            </div>
+            </ProposalSectionToggle>
 
-            {/* Signature Section */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Signature Section</h2>
+            {/* Client Responsibilities */}
+            <ProposalSectionToggle
+              title={sections[5].title}
+              description={sections[5].description}
+              isOpen={sections[5].isOpen}
+              onToggle={() => handleSectionToggle('client')}
+            >
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <SignatureBlock
-                  value={JSON.parse(proposal.content.signature)}
+                <ClientResponsibilitiesInput
+                  value={proposal.content.client_responsibilities}
                   onChange={(value) =>
                     setProposal({
                       ...proposal,
-                      content: { ...proposal.content, signature: JSON.stringify(value) },
+                      content: { ...proposal.content, client_responsibilities: value },
                     })
                   }
                 />
               </div>
-            </div>
+            </ProposalSectionToggle>
+
+            {/* Terms & Conditions */}
+            <ProposalSectionToggle
+              title={sections[6].title}
+              description={sections[6].description}
+              isOpen={sections[6].isOpen}
+              onToggle={() => handleSectionToggle('terms')}
+            >
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <TermsAndConditionsInput
+                  value={proposal.content.terms_and_conditions}
+                  onChange={(value) =>
+                    setProposal({
+                      ...proposal,
+                      content: { ...proposal.content, terms_and_conditions: value },
+                    })
+                  }
+                />
+              </div>
+            </ProposalSectionToggle>
+
+            {/* Signature Section */}
+            <ProposalSectionToggle
+              title={sections[7].title}
+              description={sections[7].description}
+              isOpen={sections[7].isOpen}
+              onToggle={() => handleSectionToggle('signature')}
+            >
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <TextEditor
+                  value={proposal.content.signature}
+                  onChange={(value) =>
+                    setProposal({
+                      ...proposal,
+                      content: { ...proposal.content, signature: value },
+                    })
+                  }
+                />
+              </div>
+            </ProposalSectionToggle>
           </div>
         </div>
       </div>

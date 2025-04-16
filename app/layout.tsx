@@ -1,7 +1,14 @@
-import type React from "react"
-import { AuthProvider } from "@/lib/auth-context"
-import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import { Providers } from './providers'
+
+const inter = Inter({ subsets: ['latin'] })
+
+export const metadata: Metadata = {
+  title: 'Smart Home Dashboard',
+  description: 'A dashboard for managing smart home devices',
+}
 
 export default function RootLayout({
   children,
@@ -10,21 +17,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <title>Bobbi - Provider Dashboard</title>
-      </head>
-      <body className="bg-white">
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          <AuthProvider>{children}</AuthProvider>
-        </ThemeProvider>
+      <body className={inter.className}>
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   )
 }
-
-
-import './globals.css'
-
-export const metadata = {
-      generator: 'v0.dev'
-    };
