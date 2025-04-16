@@ -4,9 +4,8 @@ import { useState } from "react"
 import { PenLine } from "lucide-react"
 
 interface Signature {
-  name: string
-  title: string
-  date: string
+  provider: string
+  client: string
 }
 
 interface SignatureBlockProps {
@@ -16,26 +15,19 @@ interface SignatureBlockProps {
 }
 
 export default function SignatureBlock({ value, onChange, readOnly = false }: SignatureBlockProps) {
-  const [name, setName] = useState(value.name)
-  const [title, setTitle] = useState(value.title)
-  const [date, setDate] = useState(value.date)
+  const [provider, setProvider] = useState(value.provider)
+  const [client, setClient] = useState(value.client)
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newName = e.target.value
-    setName(newName)
-    onChange({ name: newName, title, date })
+  const handleProviderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newProvider = e.target.value
+    setProvider(newProvider)
+    onChange({ provider: newProvider, client })
   }
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTitle = e.target.value
-    setTitle(newTitle)
-    onChange({ name, title: newTitle, date })
-  }
-
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newDate = e.target.value
-    setDate(newDate)
-    onChange({ name, title, date: newDate })
+  const handleClientChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newClient = e.target.value
+    setClient(newClient)
+    onChange({ provider, client: newClient })
   }
 
   return (
@@ -46,35 +38,25 @@ export default function SignatureBlock({ value, onChange, readOnly = false }: Si
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Provider</label>
           <input
             type="text"
             className="bg-gray-50 text-gray-700 w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-            value={name}
-            onChange={handleNameChange}
+            value={provider}
+            onChange={handleProviderChange}
             readOnly={readOnly}
-            placeholder="Enter name"
+            placeholder="Enter provider name"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Client</label>
           <input
             type="text"
             className="bg-gray-50 text-gray-700 w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-            value={title}
-            onChange={handleTitleChange}
+            value={client}
+            onChange={handleClientChange}
             readOnly={readOnly}
-            placeholder="Enter title"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-          <input
-            type="date"
-            className="bg-gray-50 text-gray-700 w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-            value={date}
-            onChange={handleDateChange}
-            readOnly={readOnly}
+            placeholder="Enter client name"
           />
         </div>
       </div>

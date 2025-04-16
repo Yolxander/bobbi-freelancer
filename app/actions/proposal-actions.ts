@@ -142,6 +142,7 @@ const versions: Version[] = [
   }
 ];
 
+// Types
 export type Proposal = {
   id: string;
   provider_id: string;
@@ -207,237 +208,228 @@ export type Version = {
   created_at: string;
 };
 
+// API Base URL
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+
 // Basic CRUD Operations
 export async function getProposals(providerId: string): Promise<Proposal[]> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return proposals;
+  const response = await fetch(`${API_BASE_URL}/proposals?provider_id=${providerId}`);
+  if (!response.ok) throw new Error('Failed to fetch proposals');
+  return response.json();
 }
 
 export async function getProposal(id: string): Promise<Proposal | null> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return proposals.find(p => p.id === id) || null;
+  const response = await fetch(`${API_BASE_URL}/proposals/${id}`);
+  if (!response.ok) throw new Error('Failed to fetch proposal');
+  return response.json();
 }
 
 export const createProposal = async (
   proposal: Omit<Proposal, "id" | "created_at" | "updated_at">
 ): Promise<Proposal> => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  const newProposal: Proposal = {
-    ...proposal,
-    id: Math.random().toString(36).substr(2, 9),
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  };
-  proposals.push(newProposal);
-  return newProposal;
+  const response = await fetch(`${API_BASE_URL}/proposals`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      title: proposal.title,
+      client_id: proposal.client_id,
+      project_id: proposal.project_id,
+      status: proposal.status,
+      content: {
+        scope: proposal.content.scope,
+        deliverables: proposal.content.deliverables,
+        timeline: proposal.content.timeline,
+        budget: proposal.content.budget,
+        terms: proposal.content.terms,
+        signature: proposal.content.signature,
+      },
+    }),
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to create proposal');
+  }
+  return response.json();
 };
 
 export const updateProposal = async (
   id: string,
   proposal: Partial<Proposal>
 ): Promise<Proposal> => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  const index = proposals.findIndex((p) => p.id === id);
-  if (index === -1) {
-    throw new Error("Proposal not found");
-  }
-  const updatedProposal = {
-    ...proposals[index],
-    ...proposal,
-    updated_at: new Date().toISOString()
-  };
-  proposals[index] = updatedProposal;
-  return updatedProposal;
+  const response = await fetch(`${API_BASE_URL}/proposals/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(proposal),
+  });
+  if (!response.ok) throw new Error('Failed to update proposal');
+  return response.json();
 };
 
 export async function deleteProposal(id: string): Promise<void> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const index = proposals.findIndex(p => p.id === id);
-  if (index === -1) throw new Error("Proposal not found");
-  proposals.splice(index, 1);
+  const response = await fetch(`${API_BASE_URL}/proposals/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error('Failed to delete proposal');
 }
 
 // Status Management
-export async function sendProposal(id: string, email: string): Promise<void> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const proposal = proposals.find(p => p.id === id);
-  if (!proposal) throw new Error("Proposal not found");
-  
-  proposal.status = "sent";
-  proposal.sent_at = new Date().toISOString();
-  proposal.updated_at = new Date().toISOString();
+export async function sendProposal(id: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/proposals/${id}/send`, {
+    method: 'POST',
+  });
+  if (!response.ok) throw new Error('Failed to send proposal');
 }
 
 export async function acceptProposal(id: string): Promise<void> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const proposal = proposals.find(p => p.id === id);
-  if (!proposal) throw new Error("Proposal not found");
-  
-  proposal.status = "accepted";
-  proposal.accepted_at = new Date().toISOString();
-  proposal.updated_at = new Date().toISOString();
+  const response = await fetch(`${API_BASE_URL}/proposals/${id}/accept`, {
+    method: 'POST',
+  });
+  if (!response.ok) throw new Error('Failed to accept proposal');
 }
 
 export async function rejectProposal(id: string): Promise<void> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const proposal = proposals.find(p => p.id === id);
-  if (!proposal) throw new Error("Proposal not found");
-  
-  proposal.status = "rejected";
-  proposal.updated_at = new Date().toISOString();
+  const response = await fetch(`${API_BASE_URL}/proposals/${id}/reject`, {
+    method: 'POST',
+  });
+  if (!response.ok) throw new Error('Failed to reject proposal');
 }
 
 export async function duplicateProposal(id: string): Promise<Proposal> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const proposal = proposals.find(p => p.id === id);
-  if (!proposal) throw new Error("Proposal not found");
-
-  const newProposal: Omit<Proposal, "id" | "created_at" | "updated_at"> = {
-    ...proposal,
-    title: `${proposal.title} (Copy)`,
-    status: "draft",
-    pdf_url: null,
-    sent_at: null,
-    accepted_at: null
-  };
-
-  return createProposal(newProposal);
+  const response = await fetch(`${API_BASE_URL}/proposals/${id}/duplicate`, {
+    method: 'POST',
+  });
+  if (!response.ok) throw new Error('Failed to duplicate proposal');
+  return response.json();
 }
 
 // Attachments
 export async function getAttachments(proposalId: string): Promise<Attachment[]> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return dummyAttachments.filter(a => a.proposal_id === proposalId);
+  const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/attachments`);
+  if (!response.ok) throw new Error('Failed to fetch attachments');
+  return response.json();
 }
 
 export async function addAttachment(proposalId: string, file: File): Promise<Attachment> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const newAttachment: Attachment = {
-    id: (dummyAttachments.length + 1).toString(),
-    proposal_id: proposalId,
-    filename: file.name,
-    url: `https://example.com/attachments/${file.name}`,
-    size: file.size,
-    mime_type: file.type,
-    created_at: new Date().toISOString()
-  };
-  dummyAttachments.push(newAttachment);
-  return newAttachment;
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/attachments`, {
+    method: 'POST',
+    body: formData,
+  });
+  if (!response.ok) throw new Error('Failed to add attachment');
+  return response.json();
 }
 
 export async function deleteAttachment(proposalId: string, attachmentId: string): Promise<void> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const index = dummyAttachments.findIndex(a => a.id === attachmentId && a.proposal_id === proposalId);
-  if (index === -1) throw new Error("Attachment not found");
-  dummyAttachments.splice(index, 1);
+  const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/attachments/${attachmentId}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error('Failed to delete attachment');
 }
 
 // Comments
 export async function getComments(proposalId: string): Promise<Comment[]> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return dummyComments.filter(c => c.proposal_id === proposalId);
+  const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/comments`);
+  if (!response.ok) throw new Error('Failed to fetch comments');
+  return response.json();
 }
 
 export async function addComment(proposalId: string, userId: string, content: string): Promise<Comment> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const newComment: Comment = {
-    id: (dummyComments.length + 1).toString(),
-    proposal_id: proposalId,
-    user_id: userId,
-    content,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  };
-  dummyComments.push(newComment);
-  return newComment;
+  const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/comments`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ user_id: userId, content }),
+  });
+  if (!response.ok) throw new Error('Failed to add comment');
+  return response.json();
 }
 
 export async function updateComment(proposalId: string, commentId: string, content: string): Promise<Comment> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const index = dummyComments.findIndex(c => c.id === commentId && c.proposal_id === proposalId);
-  if (index === -1) throw new Error("Comment not found");
-  
-  const updatedComment = {
-    ...dummyComments[index],
-    content,
-    updated_at: new Date().toISOString()
-  };
-  dummyComments[index] = updatedComment;
-  return updatedComment;
+  const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/comments/${commentId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ content }),
+  });
+  if (!response.ok) throw new Error('Failed to update comment');
+  return response.json();
 }
 
 export async function deleteComment(proposalId: string, commentId: string): Promise<void> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const index = dummyComments.findIndex(c => c.id === commentId && c.proposal_id === proposalId);
-  if (index === -1) throw new Error("Comment not found");
-  dummyComments.splice(index, 1);
+  const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/comments/${commentId}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error('Failed to delete comment');
 }
 
 // Signatures
 export async function getSignatures(proposalId: string): Promise<Signature[]> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return signatures.filter(s => s.proposal_id === proposalId);
+  const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/signatures`);
+  if (!response.ok) throw new Error('Failed to fetch signatures');
+  return response.json();
 }
 
 export async function addSignature(proposalId: string, userId: string, type: "provider" | "client"): Promise<Signature> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const newSignature: Signature = {
-    id: (signatures.length + 1).toString(),
-    proposal_id: proposalId,
-    user_id: userId,
-    type,
-    signed_at: new Date().toISOString()
-  };
-  signatures.push(newSignature);
-  return newSignature;
+  const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/signatures`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ user_id: userId, type }),
+  });
+  if (!response.ok) throw new Error('Failed to add signature');
+  return response.json();
 }
 
 // Versions
 export async function getVersions(proposalId: string): Promise<Version[]> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return versions.filter(v => v.proposal_id === proposalId);
+  const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/versions`);
+  if (!response.ok) throw new Error('Failed to fetch versions');
+  return response.json();
 }
 
 export async function getVersion(proposalId: string, versionId: string): Promise<Version | null> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return versions.find(v => v.id === versionId && v.proposal_id === proposalId) || null;
+  const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/versions/${versionId}`);
+  if (!response.ok) throw new Error('Failed to fetch version');
+  return response.json();
 }
 
 export async function restoreVersion(proposalId: string, versionId: string): Promise<Proposal> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const version = versions.find(v => v.id === versionId && v.proposal_id === proposalId);
-  if (!version) throw new Error("Version not found");
-
-  const proposal = proposals.find(p => p.id === proposalId);
-  if (!proposal) throw new Error("Proposal not found");
-
-  const updatedProposal = {
-    ...proposal,
-    content: version.content,
-    updated_at: new Date().toISOString()
-  };
-
-  return updateProposal(proposalId, updatedProposal);
+  const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/versions/${versionId}/restore`, {
+    method: 'POST',
+  });
+  if (!response.ok) throw new Error('Failed to restore version');
+  return response.json();
 }
 
 // Export
 export async function generateProposalPDF(id: string): Promise<string> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return `https://example.com/proposal-${id}.pdf`;
+  const response = await fetch(`${API_BASE_URL}/proposals/${id}/export/pdf`);
+  if (!response.ok) throw new Error('Failed to generate PDF');
+  const blob = await response.blob();
+  return URL.createObjectURL(blob);
 }
 
 export async function generateProposalDOCX(id: string): Promise<string> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return `https://example.com/proposal-${id}.docx`;
+  const response = await fetch(`${API_BASE_URL}/proposals/${id}/export/docx`);
+  if (!response.ok) throw new Error('Failed to generate DOCX');
+  const blob = await response.blob();
+  return URL.createObjectURL(blob);
 }
 
 // Search and Filter
 export async function searchProposals(query: string): Promise<Proposal[]> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return proposals.filter(p => 
-    p.title.toLowerCase().includes(query.toLowerCase()) ||
-    p.content.scope.toLowerCase().includes(query.toLowerCase())
-  );
+  const response = await fetch(`${API_BASE_URL}/proposals/search?q=${encodeURIComponent(query)}`);
+  if (!response.ok) throw new Error('Failed to search proposals');
+  return response.json();
 }
 
 export async function filterProposals(filters: {
@@ -445,11 +437,12 @@ export async function filterProposals(filters: {
   client_id?: string;
   project_id?: string;
 }): Promise<Proposal[]> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return proposals.filter(p => {
-    if (filters.status && p.status !== filters.status) return false;
-    if (filters.client_id && p.client_id !== filters.client_id) return false;
-    if (filters.project_id && p.project_id !== filters.project_id) return false;
-    return true;
-  });
+  const queryParams = new URLSearchParams();
+  if (filters.status) queryParams.append('status', filters.status);
+  if (filters.client_id) queryParams.append('client_id', filters.client_id);
+  if (filters.project_id) queryParams.append('project_id', filters.project_id);
+
+  const response = await fetch(`${API_BASE_URL}/proposals/filter?${queryParams.toString()}`);
+  if (!response.ok) throw new Error('Failed to filter proposals');
+  return response.json();
 } 

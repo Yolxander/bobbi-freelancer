@@ -28,10 +28,11 @@ export default function NewProposalPage() {
   const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [proposal, setProposal] = useState<Partial<Proposal>>({
+  const [proposal, setProposal] = useState<Omit<Proposal, "id" | "created_at" | "updated_at">>({
     title: "",
     client_id: "",
     project_id: "",
+    provider_id: "",
     status: "draft",
     content: {
       scope: "",
@@ -47,6 +48,11 @@ export default function NewProposalPage() {
         client: "",
       },
     },
+    pdf_url: null,
+    sent_at: null,
+    accepted_at: null,
+    client_name: "",
+    project_name: "",
   })
 
   const handleSave = async () => {
@@ -83,8 +89,27 @@ export default function NewProposalPage() {
   }
 
   const handleSend = async () => {
-    // This would send the proposal to the client
-    console.log("Send proposal")
+    if (!user || !user.providerId) {
+      setError("You must be logged in to send a proposal")
+      return
+    }
+
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const newProposal = await createProposal({
+        ...proposal,
+        provider_id: user.providerId,
+        status: "sent",
+      })
+      router.push(`/proposals/${newProposal.id}`)
+    } catch (error) {
+      console.error("Error sending proposal:", error)
+      setError("Failed to send proposal. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
