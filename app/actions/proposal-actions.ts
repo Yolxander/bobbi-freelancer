@@ -1,75 +1,81 @@
-// Dummy data for proposals
-const proposals: Proposal[] = [
+// Dummy data for development
+const dummyProposals: Proposal[] = [
   {
-    id: "1",
-    provider_id: "1",
-    client_id: "1",
-    project_id: "1",
-    title: "Website Development Proposal",
-    status: "draft",
+    id: '1',
+    client_id: '1',
+    project_id: '1',
+    title: 'Website Redesign Proposal',
+    status: 'draft',
+    is_template: false,
+    current_version: 1,
     content: {
-      scope: "Develop a modern website with responsive design",
-      deliverables: [
-        "Homepage design and development",
-        "About page with team section",
-        "Services page with pricing tables",
-        "Contact form with email integration"
-      ],
-      timeline: {
-        start: "2024-03-01",
-        end: "2024-04-15"
-      },
-      budget: [
-        { item: "Design", amount: 2000 },
-        { item: "Development", amount: 3000 },
-        { item: "Content Creation", amount: 1000 }
-      ],
-      terms: "Payment: 50% upfront, 50% upon completion",
-      signature: {
-        provider: "",
-        client: ""
-      }
+      id: '1',
+      proposal_id: '1',
+      scope_of_work: 'Redesign and development of company website',
+      deliverables: JSON.stringify(['Homepage', 'About Page', 'Contact Form']),
+      timeline_start: '2024-03-01',
+      timeline_end: '2024-04-01',
+      pricing: JSON.stringify([
+        { item: 'Design', amount: 2000 },
+        { item: 'Development', amount: 3000 }
+      ]),
+      payment_schedule: JSON.stringify({
+        'Initial Deposit': 1000,
+        'Mid-Project': 2000,
+        'Final Payment': 2000
+      }),
+      signature: JSON.stringify({ provider: '', client: '' })
     },
-    pdf_url: null,
-    sent_at: null,
-    accepted_at: null,
-    created_at: "2024-02-20T10:00:00Z",
-    updated_at: "2024-02-20T10:00:00Z",
-    client_name: "Acme Corp",
-    project_name: "Website Redesign"
+    client: {
+      id: '1',
+      name: 'Acme Corp',
+      email: 'contact@acmecorp.com',
+      phone: '555-123-4567'
+    },
+    project: {
+      id: '1',
+      name: 'Website Redesign',
+      description: 'Complete redesign of company website'
+    }
   },
   {
-    id: "2",
-    provider_id: "1",
-    client_id: "2",
-    project_id: "2",
-    title: "Mobile App Development",
-    status: "sent",
+    id: '2',
+    client_id: '2',
+    project_id: '2',
+    title: 'Mobile App Development',
+    status: 'sent',
+    is_template: false,
+    current_version: 1,
     content: {
-      scope: "iOS and Android app development",
-      deliverables: ["Native iOS app", "Native Android app", "Backend API"],
-      timeline: {
-        start: "2024-03-01",
-        end: "2024-05-24"
-      },
-      budget: [
-        { item: "iOS Development", amount: 15000 },
-        { item: "Android Development", amount: 15000 },
-        { item: "Backend Development", amount: 10000 }
-      ],
-      terms: "30% upfront, 40% mid-project, 30% upon completion",
-      signature: {
-        provider: "",
-        client: ""
-      }
+      id: '2',
+      proposal_id: '2',
+      scope_of_work: 'Development of mobile application',
+      deliverables: JSON.stringify(['iOS App', 'Android App', 'Admin Dashboard']),
+      timeline_start: '2024-04-01',
+      timeline_end: '2024-06-01',
+      pricing: JSON.stringify([
+        { item: 'iOS Development', amount: 5000 },
+        { item: 'Android Development', amount: 5000 },
+        { item: 'Backend Development', amount: 4000 }
+      ]),
+      payment_schedule: JSON.stringify({
+        'Initial Deposit': 3000,
+        'Mid-Project': 5000,
+        'Final Payment': 6000
+      }),
+      signature: JSON.stringify({ provider: '', client: '' })
     },
-    pdf_url: "https://example.com/proposal2.pdf",
-    sent_at: "2024-03-20T14:30:00Z",
-    accepted_at: null,
-    created_at: "2024-03-18T09:00:00Z",
-    updated_at: "2024-03-20T14:30:00Z",
-    client_name: "TechStart Inc",
-    project_name: "Mobile App"
+    client: {
+      id: '2',
+      name: 'Tech Solutions Inc',
+      email: 'info@techsolutions.com',
+      phone: '555-987-6543'
+    },
+    project: {
+      id: '2',
+      name: 'Mobile App Project',
+      description: 'Cross-platform mobile application development'
+    }
   }
 ];
 
@@ -105,7 +111,9 @@ const signatures: Signature[] = [
     proposal_id: "1",
     user_id: "1",
     type: "provider",
-    signed_at: "2024-02-20T10:00:00Z"
+    signed_at: "2024-02-20T10:00:00Z",
+    created_at: "2024-02-20T10:00:00Z",
+    updated_at: "2024-02-20T10:00:00Z"
   }
 ];
 
@@ -116,93 +124,72 @@ const versions: Version[] = [
     proposal_id: "1",
     version: 1,
     content: {
-      scope: "Develop a modern website with responsive design",
-      deliverables: [
+      id: "1",
+      proposal_id: "1",
+      scope_of_work: "Develop a modern website with responsive design",
+      deliverables: JSON.stringify([
         "Homepage design and development",
         "About page with team section",
         "Services page with pricing tables",
         "Contact form with email integration"
-      ],
-      timeline: {
-        start: "2024-03-01",
-        end: "2024-04-15"
-      },
-      budget: [
+      ]),
+      timeline_start: "2024-03-01",
+      timeline_end: "2024-04-15",
+      pricing: JSON.stringify([
         { item: "Design", amount: 2000 },
         { item: "Development", amount: 3000 },
         { item: "Content Creation", amount: 1000 }
-      ],
-      terms: "Payment: 50% upfront, 50% upon completion",
-      signature: {
-        provider: "",
-        client: ""
-      }
+      ]),
+      payment_schedule: JSON.stringify({
+        upfront: 50,
+        completion: 50
+      }),
+      signature: JSON.stringify({ provider: "", client: "" }),
+      created_at: "2024-02-20T10:00:00Z",
+      updated_at: "2024-02-20T10:00:00Z"
     },
     created_at: "2024-02-20T10:00:00Z"
   }
 ];
 
 // Types
-export type Proposal = {
+export interface Proposal {
   id: string;
   client_id: string;
   project_id: string;
   title: string;
-  status: "draft" | "sent" | "accepted" | "rejected";
+  status: 'draft' | 'sent' | 'accepted' | 'rejected';
   is_template: boolean;
   current_version: number;
-  created_at: string;
-  updated_at: string;
-  // Content fields directly on the proposal
-  scope_of_work: string;
-  deliverables: string[];
-  timeline_start: string;
-  timeline_end: string;
-  pricing: Array<{ item: string; amount: number }>;
-  payment_schedule: Record<string, string>;
-  signature: string; // JSON string that needs to be parsed
+  content: {
+    id: string;
+    proposal_id: string;
+    scope_of_work: string;
+    deliverables: string; // JSON stringified array
+    timeline_start: string;
+    timeline_end: string;
+    pricing: string; // JSON stringified array
+    payment_schedule: string; // JSON stringified object
+    signature: string; // JSON stringified object
+    created_at?: string;
+    updated_at?: string;
+  };
   client: {
     id: string;
     name: string;
     email: string;
     phone: string;
-    address: string;
-    description: string;
-    provider_id: string;
-    user_id: string | null;
-    created_at: string;
-    updated_at: string;
-  } | null;
+  };
   project: {
     id: string;
     name: string;
     description: string;
-    start_date: string;
-    due_date: string | null;
-    status: string;
-    color: string;
-    client_id: string | null;
-    provider_id: string;
-    created_at: string;
-    updated_at: string;
-  } | null;
-  versions: Array<{
-    id: string;
-    proposal_id: string;
-    version: number;
-    scope_of_work: string;
-    deliverables: string[];
-    timeline_start: string;
-    timeline_end: string;
-    pricing: Array<{ item: string; amount: number }>;
-    payment_schedule: Record<string, string>;
-    signature: string;
-    created_at: string;
-    updated_at: string;
-  }>;
-};
+  };
+  created_at?: string;
+  updated_at?: string;
+}
 
-export type Attachment = {
+export interface Attachment {
   id: string;
   proposal_id: string;
   filename: string;
@@ -210,139 +197,390 @@ export type Attachment = {
   size: number;
   mime_type: string;
   created_at: string;
-};
+}
 
-export type Comment = {
+export interface Comment {
   id: string;
   proposal_id: string;
   user_id: string;
   content: string;
   created_at: string;
   updated_at: string;
-};
+}
 
-export type Signature = {
+export interface Signature {
   id: string;
   proposal_id: string;
   user_id: string;
   type: "provider" | "client";
   signed_at: string;
-};
+  created_at: string;
+  updated_at: string;
+}
 
-export type Version = {
+export interface Version {
   id: string;
   proposal_id: string;
   version: number;
   content: Proposal["content"];
   created_at: string;
+}
+
+// Helper types for parsed content
+export interface ParsedProposalContent {
+  scope_of_work: string;
+  deliverables: string[];
+  timeline_start: string;
+  timeline_end: string;
+  pricing: Array<{ item: string; amount: number }>;
+  payment_schedule: Record<string, number>;
+  signature: { provider: string; client: string };
+}
+
+// Helper functions to parse content
+export const parseDeliverables = (deliverables: string): string[] => {
+  try {
+    return JSON.parse(deliverables);
+  } catch {
+    return [];
+  }
 };
 
-// API Base URL
+export const parsePricing = (pricing: string): Array<{ item: string; amount: number }> => {
+  try {
+    return JSON.parse(pricing);
+  } catch {
+    return [];
+  }
+};
+
+export const parsePaymentSchedule = (schedule: string): Record<string, number> => {
+  try {
+    return JSON.parse(schedule);
+  } catch {
+    return {};
+  }
+};
+
+export const parseSignature = (signature: string): { provider: string; client: string } => {
+  try {
+    return JSON.parse(signature);
+  } catch {
+    return { provider: '', client: '' };
+  }
+};
+
+// Move API_BASE_URL to the top
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
-// Basic CRUD Operations
-export async function getProposals(providerId: string): Promise<Proposal[]> {
-  const response = await fetch(`${API_BASE_URL}/proposals?provider_id=${providerId}`);
-  if (!response.ok) throw new Error('Failed to fetch proposals');
-  return response.json();
-}
+// Update the getProposals function to use new property names
+export const getProposals = async (): Promise<Proposal[]> => {
+  const response = await fetch(`${API_BASE_URL}/proposals`);
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to fetch proposals');
+  }
+  const data = await response.json();
+  return data.map((proposal: any) => ({
+    id: proposal.id,
+    title: proposal.title,
+    client_id: proposal.client_id,
+    project_id: proposal.project_id,
+    status: proposal.status,
+    is_template: proposal.is_template,
+    current_version: proposal.current_version,
+    content: {
+      id: proposal.content?.id || '',
+      proposal_id: proposal.content?.proposal_id || '',
+      scope_of_work: proposal.content?.scope_of_work || '',
+      deliverables: proposal.content?.deliverables || JSON.stringify([]),
+      timeline_start: proposal.content?.timeline_start || '',
+      timeline_end: proposal.content?.timeline_end || '',
+      pricing: proposal.content?.pricing || JSON.stringify([]),
+      payment_schedule: proposal.content?.payment_schedule || JSON.stringify({}),
+      signature: proposal.content?.signature || JSON.stringify({ provider: '', client: '' })
+    },
+    client: proposal.client || {
+      id: '',
+      name: '',
+      email: '',
+      phone: ''
+    },
+    project: proposal.project || {
+      id: '',
+      name: '',
+      description: ''
+    }
+  }));
+};
 
-export async function getProposal(id: string): Promise<Proposal | null> {
+// Update the getProposal function to use new property names
+export const getProposal = async (id: string): Promise<Proposal | null> => {
   const response = await fetch(`${API_BASE_URL}/proposals/${id}`);
-  if (!response.ok) throw new Error('Failed to fetch proposal');
-  return response.json();
-}
+  if (!response.ok) {
+    if (response.status === 404) return null;
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to fetch proposal');
+  }
+  const data = await response.json();
+  return {
+    id: data.id,
+    title: data.title,
+    client_id: data.client_id,
+    project_id: data.project_id,
+    status: data.status,
+    is_template: data.is_template,
+    current_version: data.current_version,
+    content: {
+      id: data.content.id,
+      proposal_id: data.content.proposal_id,
+      scope_of_work: data.content.scope_of_work,
+      deliverables: data.content.deliverables,
+      timeline_start: data.content.timeline_start,
+      timeline_end: data.content.timeline_end,
+      pricing: data.content.pricing,
+      payment_schedule: data.content.payment_schedule,
+      signature: data.content.signature
+    },
+    client: data.client,
+    project: data.project
+  };
+};
 
-export const createProposal = async (
-  proposal: Omit<Proposal, "id" | "created_at" | "updated_at">
-): Promise<Proposal> => {
+export async function createProposal(data: {
+  title: string;
+  client_id: string;
+  project_id: string;
+  status?: 'draft' | 'sent' | 'accepted' | 'rejected';
+  is_template?: boolean;
+  current_version?: number;
+  content: {
+    scope_of_work: string;
+    deliverables: string; // JSON stringified array
+    timeline_start: string;
+    timeline_end: string;
+    pricing: string; // JSON stringified array
+    payment_schedule: string; // JSON stringified object
+    signature: string; // JSON stringified object
+  };
+}): Promise<Proposal> {
   const response = await fetch(`${API_BASE_URL}/proposals`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      title: proposal.title,
-      client_id: proposal.client_id,
-      project_id: proposal.project_id,
-      status: proposal.status,
-      content: {
-        scope: proposal.content.scope,
-        deliverables: proposal.content.deliverables,
-        timeline: proposal.content.timeline,
-        budget: proposal.content.budget,
-        terms: proposal.content.terms,
-        signature: proposal.content.signature,
-      },
+      ...data,
+      status: data.status || 'draft',
+      is_template: data.is_template || false,
+      current_version: data.current_version || 1
     }),
   });
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Failed to create proposal');
-  }
-  return response.json();
-};
 
-export const updateProposal = async (
-  id: string,
-  proposal: Partial<Proposal>
-): Promise<Proposal> => {
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to create proposal');
+  }
+
+  return response.json();
+}
+
+export async function updateProposal(id: string, data: {
+  title?: string;
+  client_id?: string;
+  project_id?: string;
+  content?: {
+    scope_of_work?: string;
+    deliverables?: string[];
+    timeline_start?: string;
+    timeline_end?: string;
+    pricing?: Array<{ item: string; amount: number }>;
+    payment_schedule?: Record<string, number>;
+    signature?: { provider: string; client: string };
+  };
+}): Promise<Proposal> {
   const response = await fetch(`${API_BASE_URL}/proposals/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(proposal),
+    body: JSON.stringify({
+      ...data,
+      content: data.content ? {
+        ...data.content,
+        deliverables: data.content.deliverables ? JSON.stringify(data.content.deliverables) : undefined,
+        pricing: data.content.pricing ? JSON.stringify(data.content.pricing) : undefined,
+        payment_schedule: data.content.payment_schedule ? JSON.stringify(data.content.payment_schedule) : undefined,
+        signature: data.content.signature ? JSON.stringify(data.content.signature) : undefined,
+      } : undefined,
+    }),
   });
-  if (!response.ok) throw new Error('Failed to update proposal');
-  return response.json();
-};
 
-export async function deleteProposal(id: string): Promise<void> {
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to update proposal');
+  }
+
+  return response.json();
+}
+
+export const deleteProposal = async (id: string): Promise<void> => {
   const response = await fetch(`${API_BASE_URL}/proposals/${id}`, {
     method: 'DELETE',
   });
-  if (!response.ok) throw new Error('Failed to delete proposal');
-}
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to delete proposal');
+  }
+};
 
-// Status Management
-export async function sendProposal(id: string): Promise<void> {
+// Update the sendProposal function to use new property names
+export const sendProposal = async (id: string): Promise<Proposal> => {
   const response = await fetch(`${API_BASE_URL}/proposals/${id}/send`, {
     method: 'POST',
   });
-  if (!response.ok) throw new Error('Failed to send proposal');
-}
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to send proposal');
+  }
+  const data = await response.json();
+  return {
+    id: data.id,
+    title: data.title,
+    client_id: data.client_id,
+    project_id: data.project_id,
+    status: data.status,
+    is_template: data.is_template,
+    current_version: data.current_version,
+    content: {
+      id: data.content.id,
+      proposal_id: data.content.proposal_id,
+      scope_of_work: data.content.scope_of_work,
+      deliverables: data.content.deliverables,
+      timeline_start: data.content.timeline_start,
+      timeline_end: data.content.timeline_end,
+      pricing: data.content.pricing,
+      payment_schedule: data.content.payment_schedule,
+      signature: data.content.signature
+    },
+    client: data.client,
+    project: data.project
+  };
+};
 
-export async function acceptProposal(id: string): Promise<void> {
+// Update the acceptProposal function to use new property names
+export const acceptProposal = async (id: string): Promise<Proposal> => {
   const response = await fetch(`${API_BASE_URL}/proposals/${id}/accept`, {
     method: 'POST',
   });
-  if (!response.ok) throw new Error('Failed to accept proposal');
-}
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to accept proposal');
+  }
+  const data = await response.json();
+  return {
+    id: data.id,
+    title: data.title,
+    client_id: data.client_id,
+    project_id: data.project_id,
+    status: data.status,
+    is_template: data.is_template,
+    current_version: data.current_version,
+    content: {
+      id: data.content.id,
+      proposal_id: data.content.proposal_id,
+      scope_of_work: data.content.scope_of_work,
+      deliverables: data.content.deliverables,
+      timeline_start: data.content.timeline_start,
+      timeline_end: data.content.timeline_end,
+      pricing: data.content.pricing,
+      payment_schedule: data.content.payment_schedule,
+      signature: data.content.signature
+    },
+    client: data.client,
+    project: data.project
+  };
+};
 
-export async function rejectProposal(id: string): Promise<void> {
+// Update the rejectProposal function to use new property names
+export const rejectProposal = async (id: string): Promise<Proposal> => {
   const response = await fetch(`${API_BASE_URL}/proposals/${id}/reject`, {
     method: 'POST',
   });
-  if (!response.ok) throw new Error('Failed to reject proposal');
-}
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to reject proposal');
+  }
+  const data = await response.json();
+  return {
+    id: data.id,
+    title: data.title,
+    client_id: data.client_id,
+    project_id: data.project_id,
+    status: data.status,
+    is_template: data.is_template,
+    current_version: data.current_version,
+    content: {
+      id: data.content.id,
+      proposal_id: data.content.proposal_id,
+      scope_of_work: data.content.scope_of_work,
+      deliverables: data.content.deliverables,
+      timeline_start: data.content.timeline_start,
+      timeline_end: data.content.timeline_end,
+      pricing: data.content.pricing,
+      payment_schedule: data.content.payment_schedule,
+      signature: data.content.signature
+    },
+    client: data.client,
+    project: data.project
+  };
+};
 
-export async function duplicateProposal(id: string): Promise<Proposal> {
+// Update the duplicateProposal function to use new property names
+export const duplicateProposal = async (id: string): Promise<Proposal> => {
   const response = await fetch(`${API_BASE_URL}/proposals/${id}/duplicate`, {
     method: 'POST',
   });
-  if (!response.ok) throw new Error('Failed to duplicate proposal');
-  return response.json();
-}
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to duplicate proposal');
+  }
+  const data = await response.json();
+  return {
+    id: data.id,
+    title: data.title,
+    client_id: data.client_id,
+    project_id: data.project_id,
+    status: data.status,
+    is_template: data.is_template,
+    current_version: data.current_version,
+    content: {
+      id: data.content.id,
+      proposal_id: data.content.proposal_id,
+      scope_of_work: data.content.scope_of_work,
+      deliverables: data.content.deliverables,
+      timeline_start: data.content.timeline_start,
+      timeline_end: data.content.timeline_end,
+      pricing: data.content.pricing,
+      payment_schedule: data.content.payment_schedule,
+      signature: data.content.signature
+    },
+    client: data.client,
+    project: data.project
+  };
+};
 
 // Attachments
-export async function getAttachments(proposalId: string): Promise<Attachment[]> {
+export const getAttachments = async (proposalId: string): Promise<Attachment[]> => {
   const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/attachments`);
-  if (!response.ok) throw new Error('Failed to fetch attachments');
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to fetch attachments');
+  }
   return response.json();
-}
+};
 
-export async function addAttachment(proposalId: string, file: File): Promise<Attachment> {
+export const addAttachment = async (proposalId: string, file: File): Promise<Attachment> => {
   const formData = new FormData();
   formData.append('file', file);
 
@@ -350,54 +588,77 @@ export async function addAttachment(proposalId: string, file: File): Promise<Att
     method: 'POST',
     body: formData,
   });
-  if (!response.ok) throw new Error('Failed to add attachment');
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to add attachment');
+  }
   return response.json();
-}
+};
 
-export async function deleteAttachment(proposalId: string, attachmentId: string): Promise<void> {
+export const deleteAttachment = async (proposalId: string, attachmentId: string): Promise<void> => {
   const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/attachments/${attachmentId}`, {
     method: 'DELETE',
   });
-  if (!response.ok) throw new Error('Failed to delete attachment');
-}
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to delete attachment');
+  }
+};
 
 // Comments
-export async function getComments(proposalId: string): Promise<Comment[]> {
+export const getComments = async (proposalId: string): Promise<Comment[]> => {
   const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/comments`);
-  if (!response.ok) throw new Error('Failed to fetch comments');
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to fetch comments');
+  }
   return response.json();
-}
+};
 
-export async function addComment(proposalId: string, userId: string, content: string): Promise<Comment> {
+export const addComment = async (proposalId: string, userId: string, content: string): Promise<Comment> => {
   const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/comments`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ user_id: userId, content }),
+    body: JSON.stringify({
+      user_id: userId,
+      content: content,
+    }),
   });
-  if (!response.ok) throw new Error('Failed to add comment');
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to add comment');
+  }
   return response.json();
-}
+};
 
-export async function updateComment(proposalId: string, commentId: string, content: string): Promise<Comment> {
+export const updateComment = async (proposalId: string, commentId: string, content: string): Promise<Comment> => {
   const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/comments/${commentId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ content }),
+    body: JSON.stringify({
+      content: content,
+    }),
   });
-  if (!response.ok) throw new Error('Failed to update comment');
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to update comment');
+  }
   return response.json();
-}
+};
 
-export async function deleteComment(proposalId: string, commentId: string): Promise<void> {
+export const deleteComment = async (proposalId: string, commentId: string): Promise<void> => {
   const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/comments/${commentId}`, {
     method: 'DELETE',
   });
-  if (!response.ok) throw new Error('Failed to delete comment');
-}
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to delete comment');
+  }
+};
 
 // Signatures
 export async function getSignatures(proposalId: string): Promise<Signature[]> {
@@ -461,6 +722,7 @@ export async function searchProposals(query: string): Promise<Proposal[]> {
   return response.json();
 }
 
+// Fix the filterProposals function to return a value
 export async function filterProposals(filters: {
   status?: Proposal["status"];
   client_id?: string;

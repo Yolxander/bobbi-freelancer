@@ -9,41 +9,48 @@ interface Signature {
 }
 
 interface SignatureBlockProps {
-  value: string | Signature
+  value?: string | Signature | null
   onChange: (value: Signature) => void
   readOnly?: boolean
 }
 
 export default function SignatureBlock({ value, onChange, readOnly = false }: SignatureBlockProps) {
-  const [provider, setProvider] = useState("")
-  const [client, setClient] = useState("")
+  const [signature, setSignature] = useState<Signature>({ provider: "", client: "" })
 
   useEffect(() => {
+    if (!value) {
+      setSignature({ provider: "", client: "" })
+      return
+    }
+
     if (typeof value === 'string') {
       try {
         const parsed = JSON.parse(value)
-        setProvider(parsed.provider || "")
-        setClient(parsed.client || "")
+        setSignature({
+          provider: parsed?.provider || "",
+          client: parsed?.client || ""
+        })
       } catch (e) {
-        setProvider("")
-        setClient("")
+        setSignature({ provider: "", client: "" })
       }
     } else {
-      setProvider(value.provider || "")
-      setClient(value.client || "")
+      setSignature({
+        provider: value?.provider || "",
+        client: value?.client || ""
+      })
     }
   }, [value])
 
   const handleProviderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newProvider = e.target.value
-    setProvider(newProvider)
-    onChange({ provider: newProvider, client })
+    const newSignature = { ...signature, provider: e.target.value }
+    setSignature(newSignature)
+    onChange(newSignature)
   }
 
   const handleClientChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newClient = e.target.value
-    setClient(newClient)
-    onChange({ provider, client: newClient })
+    const newSignature = { ...signature, client: e.target.value }
+    setSignature(newSignature)
+    onChange(newSignature)
   }
 
   return (
@@ -58,7 +65,7 @@ export default function SignatureBlock({ value, onChange, readOnly = false }: Si
           <input
             type="text"
             className="bg-gray-50 text-gray-700 w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-            value={provider}
+            value={signature.provider}
             onChange={handleProviderChange}
             readOnly={readOnly}
             placeholder="Enter provider name"
@@ -69,7 +76,7 @@ export default function SignatureBlock({ value, onChange, readOnly = false }: Si
           <input
             type="text"
             className="bg-gray-50 text-gray-700 w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-            value={client}
+            value={signature.client}
             onChange={handleClientChange}
             readOnly={readOnly}
             placeholder="Enter client name"

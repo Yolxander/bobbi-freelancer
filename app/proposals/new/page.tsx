@@ -22,6 +22,7 @@ import BudgetInputList from "@/components/proposals/BudgetInputList"
 import DeliverablesInputList from "@/components/proposals/DeliverablesInputList"
 import DateRangePicker from "@/components/proposals/DateRangePicker"
 import SignatureBlock from "@/components/proposals/SignatureBlock"
+import PaymentScheduleInput from "@/components/proposals/PaymentScheduleInput"
 
 export default function NewProposalPage() {
   const router = useRouter()
@@ -32,27 +33,31 @@ export default function NewProposalPage() {
     title: "",
     client_id: "",
     project_id: "",
-    provider_id: "",
     status: "draft",
+    is_template: false,
+    current_version: 1,
     content: {
-      scope: "",
-      deliverables: [],
-      timeline: {
-        start: "",
-        end: "",
-      },
-      budget: [],
-      terms: "",
-      signature: {
-        provider: "",
-        client: "",
-      },
+      id: "",
+      proposal_id: "",
+      scope_of_work: "",
+      deliverables: JSON.stringify([]),
+      timeline_start: "",
+      timeline_end: "",
+      pricing: JSON.stringify([]),
+      payment_schedule: JSON.stringify({}),
+      signature: JSON.stringify({ provider: "", client: "" })
     },
-    pdf_url: null,
-    sent_at: null,
-    accepted_at: null,
-    client_name: "",
-    project_name: "",
+    client: {
+      id: "",
+      name: "",
+      email: "",
+      phone: ""
+    },
+    project: {
+      id: "",
+      name: "",
+      description: ""
+    }
   })
 
   const handleSave = async () => {
@@ -61,13 +66,119 @@ export default function NewProposalPage() {
       return
     }
 
+    // Debug all fields
+    console.log('=== Proposal Data Debug ===')
+    console.log('Title:', proposal.title)
+    console.log('Client ID:', proposal.client_id)
+    console.log('Project ID:', proposal.project_id)
+    console.log('Scope of Work:', proposal.content.scope_of_work)
+    
+    let deliverables
+    try {
+      deliverables = JSON.parse(proposal.content.deliverables)
+      console.log('Deliverables:', deliverables)
+    } catch (e) {
+      console.error('Error parsing deliverables:', e)
+      setError("Invalid deliverables format")
+      return
+    }
+
+    console.log('Timeline Start:', proposal.content.timeline_start)
+    console.log('Timeline End:', proposal.content.timeline_end)
+
+    let pricing
+    try {
+      pricing = JSON.parse(proposal.content.pricing)
+      console.log('Pricing:', pricing)
+    } catch (e) {
+      console.error('Error parsing pricing:', e)
+      setError("Invalid pricing format")
+      return
+    }
+
+    let signature
+    try {
+      signature = JSON.parse(proposal.content.signature)
+      console.log('Signature:', signature)
+    } catch (e) {
+      console.error('Error parsing signature:', e)
+      setError("Invalid signature format")
+      return
+    }
+
+    // Validate required fields
+    if (!proposal.title) {
+      setError("Please enter a proposal title")
+      return
+    }
+
+    if (!proposal.client_id) {
+      setError("Please select a client")
+      return
+    }
+
+    if (!proposal.project_id) {
+      setError("Please select a project")
+      return
+    }
+
+    if (!proposal.content.scope_of_work) {
+      setError("Please enter the scope of work")
+      return
+    }
+
+    if (!Array.isArray(deliverables)) {
+      console.error('Deliverables is not an array:', deliverables)
+      setError("Invalid deliverables format")
+      return
+    }
+
+    if (deliverables.length === 0) {
+      setError("Please add at least one deliverable")
+      return
+    }
+
+    if (!proposal.content.timeline_start || !proposal.content.timeline_end) {
+      setError("Please select a valid timeline")
+      return
+    }
+
+    if (!Array.isArray(pricing)) {
+      console.error('Pricing is not an array:', pricing)
+      setError("Invalid pricing format")
+      return
+    }
+
+    if (pricing.length === 0) {
+      setError("Please add at least one pricing item")
+      return
+    }
+
+    if (!signature.provider || !signature.client) {
+      setError("Please fill in both provider and client signature fields")
+      return
+    }
+
     setIsLoading(true)
     setError(null)
 
     try {
       const newProposal = await createProposal({
-        ...proposal,
-        provider_id: user.providerId,
+        title: proposal.title,
+        client_id: proposal.client_id,
+        project_id: proposal.project_id,
+        status: "draft",
+        is_template: false,
+        current_version: 1,
+        content: {
+          scope_of_work: proposal.content.scope_of_work,
+          deliverables: proposal.content.deliverables,
+          timeline_start: proposal.content.timeline_start,
+          timeline_end: proposal.content.timeline_end,
+          pricing: proposal.content.pricing,
+          payment_schedule: "{}", // Empty payment schedule for now
+          signature: proposal.content.signature
+        }
       })
       router.push(`/proposals/${newProposal.id}`)
     } catch (error) {
@@ -99,9 +210,18 @@ export default function NewProposalPage() {
 
     try {
       const newProposal = await createProposal({
-        ...proposal,
-        provider_id: user.providerId,
-        status: "sent",
+        title: proposal.title,
+        client_id: proposal.client_id,
+        project_id: proposal.project_id,
+        content: {
+          scope_of_work: proposal.content.scope_of_work,
+          deliverables: JSON.parse(proposal.content.deliverables),
+          timeline_start: proposal.content.timeline_start,
+          timeline_end: proposal.content.timeline_end,
+          pricing: JSON.parse(proposal.content.pricing),
+          payment_schedule: JSON.parse(proposal.content.payment_schedule),
+          signature: JSON.parse(proposal.content.signature)
+        }
       })
       router.push(`/proposals/${newProposal.id}`)
     } catch (error) {
@@ -212,11 +332,11 @@ export default function NewProposalPage() {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Scope of Work</h2>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <TextEditor
-                  value={proposal.content?.scope || ""}
+                  value={proposal.content.scope_of_work}
                   onChange={(value) =>
                     setProposal({
                       ...proposal,
-                      content: { ...proposal.content, scope: value },
+                      content: { ...proposal.content, scope_of_work: value },
                     })
                   }
                 />
@@ -228,11 +348,11 @@ export default function NewProposalPage() {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Deliverables</h2>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <DeliverablesInputList
-                  value={proposal.content?.deliverables || []}
+                  value={JSON.parse(proposal.content.deliverables)}
                   onChange={(value) =>
                     setProposal({
                       ...proposal,
-                      content: { ...proposal.content, deliverables: value },
+                      content: { ...proposal.content, deliverables: JSON.stringify(value) },
                     })
                   }
                 />
@@ -244,11 +364,18 @@ export default function NewProposalPage() {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Timeline</h2>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <DateRangePicker
-                  value={proposal.content?.timeline || { start: "", end: "" }}
-                  onChange={(value) =>
+                  value={{
+                    start: proposal.content.timeline_start,
+                    end: proposal.content.timeline_end
+                  }}
+                  onChange={(value: { start: string; end: string }) =>
                     setProposal({
                       ...proposal,
-                      content: { ...proposal.content, timeline: value },
+                      content: {
+                        ...proposal.content,
+                        timeline_start: value.start,
+                        timeline_end: value.end
+                      },
                     })
                   }
                 />
@@ -260,27 +387,27 @@ export default function NewProposalPage() {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Budget & Pricing</h2>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <BudgetInputList
-                  value={proposal.content?.budget || []}
+                  value={JSON.parse(proposal.content.pricing)}
                   onChange={(value) =>
                     setProposal({
                       ...proposal,
-                      content: { ...proposal.content, budget: value },
+                      content: { ...proposal.content, pricing: JSON.stringify(value) },
                     })
                   }
                 />
               </div>
             </div>
 
-            {/* Terms & Notes */}
+            {/* Payment Schedule */}
             <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Terms & Notes</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment Schedule</h2>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <TextEditor
-                  value={proposal.content?.terms || ""}
+                <PaymentScheduleInput
+                  value={JSON.parse(proposal.content.payment_schedule)}
                   onChange={(value) =>
                     setProposal({
                       ...proposal,
-                      content: { ...proposal.content, terms: value },
+                      content: { ...proposal.content, payment_schedule: JSON.stringify(value) },
                     })
                   }
                 />
@@ -292,11 +419,11 @@ export default function NewProposalPage() {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Signature Section</h2>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <SignatureBlock
-                  value={proposal.content?.signature || { provider: "", client: "" }}
+                  value={JSON.parse(proposal.content.signature)}
                   onChange={(value) =>
                     setProposal({
                       ...proposal,
-                      content: { ...proposal.content, signature: value },
+                      content: { ...proposal.content, signature: JSON.stringify(value) },
                     })
                   }
                 />

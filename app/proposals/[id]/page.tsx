@@ -27,14 +27,49 @@ import DateRangePicker from "@/components/proposals/DateRangePicker"
 import BudgetInputList from "@/components/proposals/BudgetInputList"
 import SignatureBlock from "@/components/proposals/SignatureBlock"
 import DeliverablesInputList from "@/components/proposals/DeliverablesInputList"
+import { createProposal } from "@/app/actions/proposal-actions"
+
+interface BudgetItem {
+  item: string;
+  amount: number;
+}
 
 export default function ProposalPage() {
   const router = useRouter()
   const params = useParams()
   const { user } = useAuth()
-  const [proposal, setProposal] = useState<Proposal | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [proposal, setProposal] = useState<Omit<Proposal, "id" | "created_at" | "updated_at">>({
+    title: "",
+    client_id: "",
+    project_id: "",
+    status: "draft",
+    is_template: false,
+    current_version: 1,
+    content: {
+      id: "",
+      proposal_id: "",
+      scope_of_work: "",
+      deliverables: JSON.stringify([]),
+      timeline_start: "",
+      timeline_end: "",
+      pricing: JSON.stringify([]),
+      payment_schedule: JSON.stringify({}),
+      signature: JSON.stringify({ provider: "", client: "" })
+    },
+    client: {
+      id: "",
+      name: "",
+      email: "",
+      phone: ""
+    },
+    project: {
+      id: "",
+      name: "",
+      description: ""
+    }
+  })
   const [isEditing, setIsEditing] = useState(false)
 
   useEffect(() => {
@@ -50,35 +85,18 @@ export default function ProposalPage() {
           return
         }
 
-        // Transform the API response to match our component's expected structure
-        const transformedProposal = {
-          id: fetchedProposal.id,
-          client_id: fetchedProposal.client_id,
-          project_id: fetchedProposal.project_id,
-          title: fetchedProposal.title,
-          status: fetchedProposal.status,
-          is_template: fetchedProposal.is_template || false,
-          current_version: fetchedProposal.current_version || 1,
-          created_at: fetchedProposal.created_at,
-          updated_at: fetchedProposal.updated_at,
-          scope_of_work: fetchedProposal.scope_of_work || "",
-          deliverables: Array.isArray(fetchedProposal.deliverables) 
-            ? fetchedProposal.deliverables.filter(Boolean)
-            : [],
-          timeline_start: fetchedProposal.timeline_start || "",
-          timeline_end: fetchedProposal.timeline_end || "",
-          pricing: Array.isArray(fetchedProposal.pricing)
-            ? fetchedProposal.pricing
-            : [],
-          payment_schedule: fetchedProposal.payment_schedule || {},
-          signature: fetchedProposal.signature || JSON.stringify({ provider: "", client: "" }),
-          client: fetchedProposal.client || null,
-          project: fetchedProposal.project || null,
-          versions: Array.isArray(fetchedProposal.versions) ? fetchedProposal.versions : []
+        // Ensure deliverables is a JSON string
+        const proposalWithParsedDeliverables = {
+          ...fetchedProposal,
+          content: {
+            ...fetchedProposal.content,
+            deliverables: typeof fetchedProposal.content.deliverables === 'string' 
+              ? fetchedProposal.content.deliverables 
+              : JSON.stringify(fetchedProposal.content.deliverables || [])
+          }
         }
-        
-        console.log('Transformed proposal:', transformedProposal)
-        setProposal(transformedProposal)
+
+        setProposal(proposalWithParsedDeliverables)
       } catch (err) {
         console.error('Error fetching proposal:', err)
         setError("Failed to load proposal")
@@ -93,17 +111,36 @@ export default function ProposalPage() {
   }, [params.id])
 
   const handleSave = async () => {
-    if (!proposal) return
+    if (!proposal.title || !proposal.client_id || !proposal.project_id) {
+      setError("Please fill in all required fields")
+      return
+    }
+
+    setIsLoading(true)
+    setError(null)
 
     try {
-      setIsLoading(true)
-      const updatedProposal = await updateProposal(proposal.id, proposal)
-      console.log('Updated proposal:', updatedProposal)
-      setProposal(updatedProposal)
-      setIsEditing(false)
-    } catch (err) {
-      console.error('Error updating proposal:', err)
-      setError("Failed to update proposal")
+      const newProposal = await createProposal({
+        title: proposal.title,
+        client_id: proposal.client_id,
+        project_id: proposal.project_id,
+        status: proposal.status,
+        is_template: proposal.is_template,
+        current_version: proposal.current_version,
+        content: {
+          scope_of_work: proposal.content?.scope_of_work || '',
+          deliverables: proposal.content?.deliverables || '[]',
+          timeline_start: proposal.content?.timeline_start || '',
+          timeline_end: proposal.content?.timeline_end || '',
+          pricing: proposal.content?.pricing || '[]',
+          payment_schedule: proposal.content?.payment_schedule || '{}',
+          signature: proposal.content?.signature || '{"provider":"","client":""}'
+        }
+      })
+      router.push(`/proposals/${newProposal.id}`)
+    } catch (error) {
+      console.error("Error sending proposal:", error)
+      setError("Failed to send proposal. Please try again.")
     } finally {
       setIsLoading(false)
     }
@@ -128,8 +165,56 @@ export default function ProposalPage() {
     console.log("Exporting to PDF...")
   }
 
-  const handleSend = () => {
-    console.log("Sending proposal...")
+  const handleSend = async () => {
+    if (!user || !user.providerId) {
+      setError("You must be logged in to send a proposal")
+      return
+    }
+
+    // Validate required fields
+    if (!proposal?.client_id) {
+      setError("Please select a client")
+      return
+    }
+
+    if (!proposal?.project_id) {
+      setError("Please select a project")
+      return
+    }
+
+    if (!proposal?.title) {
+      setError("Please enter a proposal title")
+      return
+    }
+
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const newProposal = await createProposal({
+        title: proposal.title,
+        client_id: proposal.client_id,
+        project_id: proposal.project_id,
+        status: proposal.status,
+        is_template: proposal.is_template,
+        current_version: proposal.current_version,
+        content: {
+          scope_of_work: proposal.content.scope_of_work || '',
+          deliverables: proposal.content.deliverables || '[]',
+          timeline_start: proposal.content.timeline_start || '',
+          timeline_end: proposal.content.timeline_end || '',
+          pricing: proposal.content.pricing || '[]',
+          payment_schedule: proposal.content.payment_schedule || '{}',
+          signature: proposal.content.signature || '{"provider":"","client":""}'
+        }
+      })
+      router.push(`/proposals/${newProposal.id}`)
+    } catch (error) {
+      console.error("Error sending proposal:", error)
+      setError("Failed to send proposal. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const getStatusColor = (status: string) => {
@@ -144,6 +229,77 @@ export default function ProposalPage() {
         return "bg-red-50 text-red-700 border-red-200"
       default:
         return "bg-gray-50 text-gray-700 border-gray-200"
+    }
+  }
+
+  const handleDeliverablesChange = (value: string[]) => {
+    setProposal(prev => ({
+      ...prev,
+      content: {
+        ...prev.content,
+        deliverables: JSON.stringify(value)
+      }
+    }))
+  }
+
+  const handleTimelineChange = (value: { start: string; end: string }) => {
+    setProposal(prev => ({
+      ...prev,
+      content: {
+        ...prev.content,
+        timeline_start: value.start,
+        timeline_end: value.end
+      }
+    }))
+  }
+
+  const handlePricingChange = (value: BudgetItem[]) => {
+    setProposal(prev => ({
+      ...prev,
+      content: {
+        ...prev.content,
+        pricing: JSON.stringify(value)
+      }
+    }))
+  }
+
+  const handlePaymentScheduleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const lines = e.target.value.split('\n')
+    const schedule = lines.reduce((acc, line) => {
+      const [key, value] = line.split(':').map(s => s.trim())
+      if (key && value) {
+        acc[key] = value
+      }
+      return acc
+    }, {} as Record<string, string>)
+    setProposal(prev => ({
+      ...prev,
+      content: {
+        ...prev.content,
+        payment_schedule: JSON.stringify(schedule)
+      }
+    }))
+  }
+
+  const handleSignatureChange = (value: { provider: string; client: string }) => {
+    setProposal(prev => ({
+      ...prev,
+      content: {
+        ...prev.content,
+        signature: JSON.stringify(value)
+      }
+    }))
+  }
+
+  const parseDeliverables = (value: any): string[] => {
+    if (!value) return []
+    if (Array.isArray(value)) return value
+    try {
+      const parsed = JSON.parse(value)
+      return Array.isArray(parsed) ? parsed : []
+    } catch (e) {
+      console.error('Error parsing deliverables:', e)
+      return []
     }
   }
 
@@ -294,24 +450,29 @@ export default function ProposalPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Client</label>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-2">
-                  <ClientAutoFill
-                    value={proposal.client_id}
-                    onChange={(value) => setProposal({ ...proposal, client_id: value })}
-                    readOnly={!isEditing}
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Project</label>
+            {/* Project & Client Selection */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Project</h2>
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-2">
                   <ProjectSelector
                     value={proposal.project_id}
-                    onChange={(value) => setProposal({ ...proposal, project_id: value })}
-                    readOnly={!isEditing}
+                    onChange={(projectId) => {
+                      if (!projectId) return
+                      setProposal({ ...proposal, project_id: projectId })
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Client</h2>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-2">
+                  <ClientAutoFill
+                    value={proposal.client_id}
+                    onChange={(clientId) => {
+                      if (!clientId) return
+                      setProposal({ ...proposal, client_id: clientId })
+                    }}
                   />
                 </div>
               </div>
@@ -321,11 +482,14 @@ export default function ProposalPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Scope of Work</label>
               <textarea
                 className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 min-h-[200px] text-gray-900 transition-colors"
-                value={proposal.scope_of_work}
+                value={proposal.content?.scope_of_work || ""}
                 onChange={(e) =>
                   setProposal({
                     ...proposal,
-                    scope_of_work: e.target.value,
+                    content: {
+                      ...proposal.content,
+                      scope_of_work: e.target.value
+                    }
                   })
                 }
                 readOnly={!isEditing}
@@ -336,13 +500,8 @@ export default function ProposalPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Deliverables</label>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <DeliverablesInputList
-                  value={proposal.deliverables || []}
-                  onChange={(value) =>
-                    setProposal({
-                      ...proposal,
-                      deliverables: value,
-                    })
-                  }
+                  value={parseDeliverables(proposal.content?.deliverables)}
+                  onChange={handleDeliverablesChange}
                   readOnly={!isEditing}
                 />
               </div>
@@ -353,16 +512,10 @@ export default function ProposalPage() {
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <DateRangePicker
                   value={{
-                    start: proposal.timeline_start || "",
-                    end: proposal.timeline_end || ""
+                    start: proposal.content?.timeline_start || "",
+                    end: proposal.content?.timeline_end || ""
                   }}
-                  onChange={(value) =>
-                    setProposal({
-                      ...proposal,
-                      timeline_start: value.start,
-                      timeline_end: value.end,
-                    })
-                  }
+                  onChange={handleTimelineChange}
                   readOnly={!isEditing}
                 />
               </div>
@@ -372,13 +525,8 @@ export default function ProposalPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Budget</label>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <BudgetInputList
-                  value={proposal.pricing || []}
-                  onChange={(value) =>
-                    setProposal({
-                      ...proposal,
-                      pricing: value,
-                    })
-                  }
+                  value={proposal.content?.pricing ? JSON.parse(proposal.content.pricing) : []}
+                  onChange={handlePricingChange}
                   readOnly={!isEditing}
                 />
               </div>
@@ -388,25 +536,12 @@ export default function ProposalPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Payment Schedule</label>
               <textarea
                 className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 min-h-[200px] text-gray-900 transition-colors"
-                value={proposal.payment_schedule ? 
-                  Object.entries(proposal.payment_schedule)
-                    .map(([key, value]) => `${key}: ${value}`)
-                    .join('\n')
+                value={proposal.content?.payment_schedule 
+                  ? Object.entries(JSON.parse(proposal.content.payment_schedule))
+                      .map(([key, value]) => `${key}: ${value}`)
+                      .join('\n')
                   : ""}
-                onChange={(e) => {
-                  const lines = e.target.value.split('\n')
-                  const schedule = lines.reduce((acc, line) => {
-                    const [key, value] = line.split(':').map(s => s.trim())
-                    if (key && value) {
-                      acc[key] = value
-                    }
-                    return acc
-                  }, {} as Record<string, string>)
-                  setProposal({
-                    ...proposal,
-                    payment_schedule: schedule,
-                  })
-                }}
+                onChange={handlePaymentScheduleChange}
                 readOnly={!isEditing}
               />
             </div>
@@ -415,13 +550,8 @@ export default function ProposalPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Signature Section</label>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <SignatureBlock
-                  value={proposal.signature}
-                  onChange={(value) =>
-                    setProposal({
-                      ...proposal,
-                      signature: JSON.stringify(value),
-                    })
-                  }
+                  value={proposal.content?.signature ? JSON.parse(proposal.content.signature) : { provider: "", client: "" }}
+                  onChange={handleSignatureChange}
                   readOnly={!isEditing}
                 />
               </div>
