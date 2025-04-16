@@ -144,7 +144,7 @@ export default function AuthPage() {
                   />
                 </div>
               </div>
-              <button className="px-6 py-2 bg-[#DBFF8E] rounded-full text-[15px] font-medium hover:bg-[#D1FF75] transition-colors">
+              <button className="px-6 py-2 bg-[#D91ACC] rounded-full text-[15px] font-medium hover:bg-[#D1FF75] transition-colors">
                 Login
               </button>
             </div>
@@ -157,38 +157,61 @@ export default function AuthPage() {
         <div className="min-h-[calc(100vh-5rem)] flex">
           {/* Left side */}
           <div className="w-1/2 flex flex-col items-center justify-center">
-            <div className="max-w-[600px]">
-              <div className="text-sm text-gray-500 mb-4">LARGEST IMAGE SOURCE</div>
-              <h1 className="text-[56px] font-medium leading-[1.1] tracking-[-0.02em] mb-20">
-                POWERED BY
-                <br />
-                <span className="relative">
-                  CREATORS AROUND
-                  <div className="absolute left-0 right-0 bottom-1 bg-[#DBFF8E] h-[10px] -z-10"></div>
-                </span>
-                <br />
-                THE WORLD
-                <span className="inline-flex gap-1 ml-2">
-                  <span className="w-4 h-4 rounded-full bg-[#1B1B1B]"></span>
-                  <span className="w-4 h-4 rounded-full bg-[#1B1B1B] opacity-60"></span>
-                  <span className="w-4 h-4 rounded-full bg-[#1B1B1B] opacity-30"></span>
-                  <span className="w-4 h-4 rounded-full bg-[#DBFF8E]"></span>
-                </span>
-              </h1>
-              <div className="flex flex-col items-center gap-2">
-                <div className="text-gray-500">
-                  {isLogin ? "Don't have account?" : "Already have an account?"}
-                </div>
-                <button 
-                  onClick={() => setIsLogin(!isLogin)}
-                  className="inline-flex items-center text-[#1B1B1B] border-b border-[#1B1B1B] pb-0.5 hover:opacity-80 transition-opacity"
-                >
-                  {isLogin ? "Create account" : "Sign in"}
-                  <svg className="w-4 h-4 ml-1" viewBox="0 0 16 16" fill="none">
-                    <path d="M1 8h14M8 1l7 7-7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </button>
+            <div className="max-w-[600px] space-y-20">
+              {/* Main content */}
+              <div>
+              <div>
+                <div className="text-sm text-gray-500 mb-4">FREELANCER & CLIENT PLATFORM</div>
+                <h1 className="text-[56px] font-medium leading-[1.1] tracking-[-0.02em] mb-20">
+                  DESIGNED TO
+                  <br />
+                  <span className="relative z-2">
+                    STREAMLINE WORKFLOWS
+                  </span>
+                  <br />
+                  AND KEEP EVERYONE IN SYNC
+                  <span className="inline-flex gap-1 ml-2">
+                    <span className="w-4 h-4 rounded-full bg-[#1B1B1B]"></span>
+                    <span className="w-4 h-4 rounded-full bg-[#1B1B1B] opacity-60"></span>
+                    <span className="w-4 h-4 rounded-full bg-[#1B1B1B] opacity-30"></span>
+                    <span className="w-4 h-4 rounded-full bg-[#2BD7D7]"></span>
+                  </span>
+                </h1>
               </div>
+
+                <div className="flex flex-col items-center gap-2">
+                  <div className="text-gray-500">
+                    {isLogin ? "Don't have account?" : "Already have an account?"}
+                  </div>
+                  <button 
+                    onClick={() => setIsLogin(!isLogin)}
+                    className="inline-flex items-center text-[#1B1B1B] border-b border-[#1B1B1B] pb-0.5 hover:opacity-80 transition-opacity"
+                  >
+                    {isLogin ? "Create account" : "Sign in"}
+                    <svg className="w-4 h-4 ml-1" viewBox="0 0 16 16" fill="none">
+                      <path d="M1 8h14M8 1l7 7-7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* About section */}
+              {/* <div className="w-full rounded-2xl overflow-hidden bg-black text-white">
+                <div className="relative aspect-[16/9]">
+                  <img 
+                    src="/placeholder.jpg" 
+                    alt="Classic car" 
+                    className="w-full h-full object-cover opacity-60"
+                  />
+                  <div className="absolute inset-0 p-8 flex flex-col justify-between">
+                    <div className="text-xl font-medium">About us</div>
+                    <div className="text-base opacity-80">
+                      Over <span className="text-[#2BD7D7]">3 million</span> free high-resolution
+                      images brought to you by the world's most generous community of photographers.
+                    </div>
+                  </div>
+                </div>
+              </div> */}
             </div>
           </div>
 
