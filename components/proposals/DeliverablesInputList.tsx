@@ -9,61 +9,84 @@ interface DeliverablesInputListProps {
   readOnly?: boolean
 }
 
-export default function DeliverablesInputList({ value, onChange, readOnly = false }: DeliverablesInputListProps) {
-  const [items, setItems] = useState<string[]>(value || [])
+export default function DeliverablesInputList({
+  value,
+  onChange,
+  readOnly = false,
+}: DeliverablesInputListProps) {
+  const [newItem, setNewItem] = useState("")
 
   const handleAddItem = () => {
-    const newItems = [...items, ""]
-    setItems(newItems)
-    onChange(newItems)
+    if (newItem.trim() && !readOnly) {
+      onChange([...value, newItem.trim()])
+      setNewItem("")
+    }
   }
 
   const handleRemoveItem = (index: number) => {
-    const newItems = items.filter((_, i) => i !== index)
-    setItems(newItems)
-    onChange(newItems)
+    if (!readOnly) {
+      const newItems = [...value]
+      newItems.splice(index, 1)
+      onChange(newItems)
+    }
   }
 
-  const handleItemChange = (index: number, value: string) => {
-    const newItems = [...items]
-    newItems[index] = value
-    setItems(newItems)
-    onChange(newItems)
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault()
+      handleAddItem()
+    }
   }
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        {items.map((item, index) => (
-          <div key={index} className="flex gap-2">
-            <input
-              type="text"
-              placeholder="Enter deliverable"
-              className="bg-gray-50 text-gray-700 flex-1 p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-              value={item}
-              onChange={(e) => handleItemChange(index, e.target.value)}
-              readOnly={readOnly}
-            />
-            {!readOnly && (
-              <button
-                onClick={() => handleRemoveItem(index)}
-                className="p-2 text-red-500 hover:text-red-700 rounded-lg hover:bg-red-50"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+    <div className="space-y-3">
+      {value.map((item, index) => (
+        <div key={index} className="flex items-center gap-2">
+          <div className="flex-1 bg-white border border-gray-200 rounded-lg p-2">
+            {readOnly ? (
+              <span className="text-gray-900">{item}</span>
+            ) : (
+              <input
+                type="text"
+                value={item}
+                onChange={(e) => {
+                  const newItems = [...value]
+                  newItems[index] = e.target.value
+                  onChange(newItems)
+                }}
+                className="w-full bg-transparent focus:outline-none text-gray-900"
+                placeholder="Enter deliverable"
+              />
             )}
           </div>
-        ))}
-      </div>
+          {!readOnly && (
+            <button
+              onClick={() => handleRemoveItem(index)}
+              className="p-2 text-red-600 hover:text-red-700 transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      ))}
 
       {!readOnly && (
-        <button
-          onClick={handleAddItem}
-          className="flex items-center gap-2 text-gray-500 hover:text-gray-700"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add Deliverable</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={newItem}
+            onChange={(e) => setNewItem(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="flex-1 bg-white border border-gray-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-gray-200 text-gray-900 transition-colors"
+            placeholder="Add new deliverable"
+          />
+          <button
+            onClick={handleAddItem}
+            className="p-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+          </button>
+        </div>
       )}
     </div>
   )

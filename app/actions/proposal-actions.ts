@@ -145,32 +145,61 @@ const versions: Version[] = [
 // Types
 export type Proposal = {
   id: string;
-  provider_id: string;
   client_id: string;
   project_id: string;
   title: string;
   status: "draft" | "sent" | "accepted" | "rejected";
-  content: {
-    scope: string;
-    deliverables: string[];
-    timeline: {
-      start: string;
-      end: string;
-    };
-    budget: { item: string; amount: number }[];
-    terms: string;
-    signature: {
-      provider: string;
-      client: string;
-    };
-  };
-  pdf_url: string | null;
-  sent_at: string | null;
-  accepted_at: string | null;
+  is_template: boolean;
+  current_version: number;
   created_at: string;
   updated_at: string;
-  client_name: string;
-  project_name: string;
+  // Content fields directly on the proposal
+  scope_of_work: string;
+  deliverables: string[];
+  timeline_start: string;
+  timeline_end: string;
+  pricing: Array<{ item: string; amount: number }>;
+  payment_schedule: Record<string, string>;
+  signature: string; // JSON string that needs to be parsed
+  client: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    description: string;
+    provider_id: string;
+    user_id: string | null;
+    created_at: string;
+    updated_at: string;
+  } | null;
+  project: {
+    id: string;
+    name: string;
+    description: string;
+    start_date: string;
+    due_date: string | null;
+    status: string;
+    color: string;
+    client_id: string | null;
+    provider_id: string;
+    created_at: string;
+    updated_at: string;
+  } | null;
+  versions: Array<{
+    id: string;
+    proposal_id: string;
+    version: number;
+    scope_of_work: string;
+    deliverables: string[];
+    timeline_start: string;
+    timeline_end: string;
+    pricing: Array<{ item: string; amount: number }>;
+    payment_schedule: Record<string, string>;
+    signature: string;
+    created_at: string;
+    updated_at: string;
+  }>;
 };
 
 export type Attachment = {

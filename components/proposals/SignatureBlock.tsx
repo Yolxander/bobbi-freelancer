@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { PenLine } from "lucide-react"
 
 interface Signature {
@@ -9,14 +9,30 @@ interface Signature {
 }
 
 interface SignatureBlockProps {
-  value: Signature
+  value: string | Signature
   onChange: (value: Signature) => void
   readOnly?: boolean
 }
 
 export default function SignatureBlock({ value, onChange, readOnly = false }: SignatureBlockProps) {
-  const [provider, setProvider] = useState(value.provider)
-  const [client, setClient] = useState(value.client)
+  const [provider, setProvider] = useState("")
+  const [client, setClient] = useState("")
+
+  useEffect(() => {
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value)
+        setProvider(parsed.provider || "")
+        setClient(parsed.client || "")
+      } catch (e) {
+        setProvider("")
+        setClient("")
+      }
+    } else {
+      setProvider(value.provider || "")
+      setClient(value.client || "")
+    }
+  }, [value])
 
   const handleProviderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newProvider = e.target.value

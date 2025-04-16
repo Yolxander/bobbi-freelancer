@@ -20,6 +20,7 @@ import {
 } from "lucide-react"
 import Sidebar from "@/components/sidebar"
 import { useAuth } from "@/lib/auth-context"
+import { getProposal, updateProposal, type Proposal } from "@/app/actions/proposal-actions"
 import ProjectSelector from "@/components/proposals/ProjectSelector"
 import ClientAutoFill from "@/components/proposals/ClientAutoFill"
 import DateRangePicker from "@/components/proposals/DateRangePicker"
@@ -27,96 +28,97 @@ import BudgetInputList from "@/components/proposals/BudgetInputList"
 import SignatureBlock from "@/components/proposals/SignatureBlock"
 import DeliverablesInputList from "@/components/proposals/DeliverablesInputList"
 
-// Dummy data
-const DUMMY_PROPOSAL = {
-  id: "1",
-  provider_id: "1",
-  client_id: "1",
-  project_id: "1",
-  title: "Website Redesign Proposal",
-  status: "draft",
-  created_at: "2024-03-20T10:00:00Z",
-  updated_at: "2024-03-20T10:00:00Z",
-  content: {
-    scope: "Complete website redesign including new UI/UX, content strategy, and implementation",
-    deliverables: [
-      "New website design",
-      "Content strategy",
-      "Development implementation",
-      "Testing and deployment"
-    ],
-    timeline: {
-      start: "2024-04-01",
-      end: "2024-06-30"
-    },
-    budget: [
-      { item: "Design", amount: 5000 },
-      { item: "Development", amount: 8000 },
-      { item: "Content", amount: 3000 }
-    ],
-    terms: "Payment terms: 50% upfront, 50% upon completion",
-    signature: {
-      name: "John Doe",
-      title: "Project Manager",
-      date: "2024-03-20"
-    }
-  }
-}
-
 export default function ProposalPage() {
   const router = useRouter()
   const params = useParams()
   const { user } = useAuth()
-  const [proposal, setProposal] = useState<any>(null)
+  const [proposal, setProposal] = useState<Proposal | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
 
   useEffect(() => {
-    // Simulate API call with timeout
     const fetchProposal = async () => {
       try {
         setIsLoading(true)
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        setProposal(DUMMY_PROPOSAL)
+        const proposalId = params.id as string
+        const fetchedProposal = await getProposal(proposalId)
+        console.log('Fetched proposal:', fetchedProposal)
+        
+        if (!fetchedProposal) {
+          setError("Proposal not found")
+          return
+        }
+
+        // Transform the API response to match our component's expected structure
+        const transformedProposal = {
+          id: fetchedProposal.id,
+          client_id: fetchedProposal.client_id,
+          project_id: fetchedProposal.project_id,
+          title: fetchedProposal.title,
+          status: fetchedProposal.status,
+          is_template: fetchedProposal.is_template || false,
+          current_version: fetchedProposal.current_version || 1,
+          created_at: fetchedProposal.created_at,
+          updated_at: fetchedProposal.updated_at,
+          scope_of_work: fetchedProposal.scope_of_work || "",
+          deliverables: Array.isArray(fetchedProposal.deliverables) 
+            ? fetchedProposal.deliverables.filter(Boolean)
+            : [],
+          timeline_start: fetchedProposal.timeline_start || "",
+          timeline_end: fetchedProposal.timeline_end || "",
+          pricing: Array.isArray(fetchedProposal.pricing)
+            ? fetchedProposal.pricing
+            : [],
+          payment_schedule: fetchedProposal.payment_schedule || {},
+          signature: fetchedProposal.signature || JSON.stringify({ provider: "", client: "" }),
+          client: fetchedProposal.client || null,
+          project: fetchedProposal.project || null,
+          versions: Array.isArray(fetchedProposal.versions) ? fetchedProposal.versions : []
+        }
+        
+        console.log('Transformed proposal:', transformedProposal)
+        setProposal(transformedProposal)
       } catch (err) {
+        console.error('Error fetching proposal:', err)
         setError("Failed to load proposal")
-        console.error(err)
       } finally {
         setIsLoading(false)
       }
     }
 
-    fetchProposal()
+    if (params.id) {
+      fetchProposal()
+    }
   }, [params.id])
 
   const handleSave = async () => {
+    if (!proposal) return
+
     try {
       setIsLoading(true)
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const updatedProposal = await updateProposal(proposal.id, proposal)
+      console.log('Updated proposal:', updatedProposal)
+      setProposal(updatedProposal)
       setIsEditing(false)
-      setProposal(proposal)
     } catch (err) {
+      console.error('Error updating proposal:', err)
       setError("Failed to update proposal")
-      console.error(err)
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this proposal?")) return
+    if (!proposal) return
 
     try {
       setIsLoading(true)
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // TODO: Implement delete functionality
       router.push("/proposals")
     } catch (err) {
+      console.error('Error deleting proposal:', err)
       setError("Failed to delete proposal")
-      console.error(err)
     } finally {
       setIsLoading(false)
     }
@@ -165,6 +167,26 @@ export default function ProposalPage() {
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Proposal</h2>
             <p className="text-gray-700 mb-4">{error}</p>
+            <button
+              onClick={() => router.push("/proposals")}
+              className="inline-flex items-center gap-2 bg-gray-900 text-white rounded-full px-4 py-2 hover:bg-gray-800 transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Back to Proposals
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!proposal) {
+    return (
+      <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <Sidebar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="bg-white rounded-xl p-6 shadow-sm max-w-md w-full text-center">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Proposal Not Found</h2>
             <button
               onClick={() => router.push("/proposals")}
               className="inline-flex items-center gap-2 bg-gray-900 text-white rounded-full px-4 py-2 hover:bg-gray-800 transition-colors"
@@ -259,15 +281,15 @@ export default function ProposalPage() {
                 <input
                   type="text"
                   className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 text-gray-900 transition-colors"
-                  value={proposal?.title || ""}
+                  value={proposal.title}
                   onChange={(e) => setProposal({ ...proposal, title: e.target.value })}
                   readOnly={!isEditing}
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <div className={`p-2 rounded-lg border ${getStatusColor(proposal?.status || "draft")} transition-colors`}>
-                  {proposal?.status?.charAt(0).toUpperCase() + proposal?.status?.slice(1) || "Draft"}
+                <div className={`p-2 rounded-lg border ${getStatusColor(proposal.status)} transition-colors`}>
+                  {proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}
                 </div>
               </div>
             </div>
@@ -277,7 +299,7 @@ export default function ProposalPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Client</label>
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-2">
                   <ClientAutoFill
-                    value={proposal?.client_id || ""}
+                    value={proposal.client_id}
                     onChange={(value) => setProposal({ ...proposal, client_id: value })}
                     readOnly={!isEditing}
                   />
@@ -287,7 +309,7 @@ export default function ProposalPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Project</label>
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-2">
                   <ProjectSelector
-                    value={proposal?.project_id || ""}
+                    value={proposal.project_id}
                     onChange={(value) => setProposal({ ...proposal, project_id: value })}
                     readOnly={!isEditing}
                   />
@@ -299,11 +321,11 @@ export default function ProposalPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Scope of Work</label>
               <textarea
                 className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 min-h-[200px] text-gray-900 transition-colors"
-                value={proposal?.content?.scope || ""}
+                value={proposal.scope_of_work}
                 onChange={(e) =>
                   setProposal({
                     ...proposal,
-                    content: { ...proposal.content, scope: e.target.value },
+                    scope_of_work: e.target.value,
                   })
                 }
                 readOnly={!isEditing}
@@ -314,11 +336,11 @@ export default function ProposalPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Deliverables</label>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <DeliverablesInputList
-                  value={proposal?.content?.deliverables || []}
+                  value={proposal.deliverables || []}
                   onChange={(value) =>
                     setProposal({
                       ...proposal,
-                      content: { ...proposal.content, deliverables: value },
+                      deliverables: value,
                     })
                   }
                   readOnly={!isEditing}
@@ -330,11 +352,15 @@ export default function ProposalPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Timeline</label>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <DateRangePicker
-                  value={proposal?.content?.timeline || { start: "", end: "" }}
+                  value={{
+                    start: proposal.timeline_start || "",
+                    end: proposal.timeline_end || ""
+                  }}
                   onChange={(value) =>
                     setProposal({
                       ...proposal,
-                      content: { ...proposal.content, timeline: value },
+                      timeline_start: value.start,
+                      timeline_end: value.end,
                     })
                   }
                   readOnly={!isEditing}
@@ -346,11 +372,11 @@ export default function ProposalPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Budget</label>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <BudgetInputList
-                  value={proposal?.content?.budget || []}
+                  value={proposal.pricing || []}
                   onChange={(value) =>
                     setProposal({
                       ...proposal,
-                      content: { ...proposal.content, budget: value },
+                      pricing: value,
                     })
                   }
                   readOnly={!isEditing}
@@ -359,16 +385,28 @@ export default function ProposalPage() {
             </div>
 
             <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Terms</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Payment Schedule</label>
               <textarea
                 className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 min-h-[200px] text-gray-900 transition-colors"
-                value={proposal?.content?.terms || ""}
-                onChange={(e) =>
+                value={proposal.payment_schedule ? 
+                  Object.entries(proposal.payment_schedule)
+                    .map(([key, value]) => `${key}: ${value}`)
+                    .join('\n')
+                  : ""}
+                onChange={(e) => {
+                  const lines = e.target.value.split('\n')
+                  const schedule = lines.reduce((acc, line) => {
+                    const [key, value] = line.split(':').map(s => s.trim())
+                    if (key && value) {
+                      acc[key] = value
+                    }
+                    return acc
+                  }, {} as Record<string, string>)
                   setProposal({
                     ...proposal,
-                    content: { ...proposal.content, terms: e.target.value },
+                    payment_schedule: schedule,
                   })
-                }
+                }}
                 readOnly={!isEditing}
               />
             </div>
@@ -377,11 +415,11 @@ export default function ProposalPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Signature Section</label>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <SignatureBlock
-                  value={proposal?.content?.signature || { name: "", title: "", date: "" }}
+                  value={proposal.signature}
                   onChange={(value) =>
                     setProposal({
                       ...proposal,
-                      content: { ...proposal.content, signature: value },
+                      signature: JSON.stringify(value),
                     })
                   }
                   readOnly={!isEditing}
