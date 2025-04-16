@@ -7,6 +7,9 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight, Github, Twitter, AlertCircle } fro
 import { useAuth } from "@/lib/auth-context"
 import { CheckIcon, UserIcon } from "./icons"
 import { Logo } from "@/components/ui/logo"
+import { Orbitron } from 'next/font/google'
+
+const orbitron = Orbitron({ subsets: ['latin'] })
 
 export default function AuthPage() {
   const router = useRouter()
@@ -115,7 +118,7 @@ export default function AuthPage() {
         <div className="max-w-[1200px] mx-auto bg-white/80 backdrop-blur-md rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] px-6 py-3">
           <nav className="flex items-center justify-between">
             <div className="flex items-center gap-12">
-              <div className="font-bold text-xl tracking-tight">BOBBI</div>
+              <div className={`${orbitron.className} text-xl tracking-tight`}>Bobbi</div>
               <div className="flex items-center gap-8">
                 <Link href="/" className="text-[15px] text-gray-600 hover:text-gray-900">Home</Link>
                 <div className="relative group">
