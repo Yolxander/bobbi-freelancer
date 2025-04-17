@@ -70,7 +70,7 @@ export function ToolsSection() {
 
   return (
     <section className="py-24">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 w-full">
         {/* Main Categories Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           {mainCategories.map((category, index) => (

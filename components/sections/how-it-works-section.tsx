@@ -1,30 +1,31 @@
 'use client'
 
 import { useState } from 'react'
+import { FileText, LayoutDashboard, Users, FolderGit2, ChevronRight } from 'lucide-react'
 
 const features = [
   {
     id: '01',
     title: 'Proposals That Set the Stage',
-    emoji: '📝',
+    Icon: FileText,
     description: 'Create beautiful, structured proposals in minutes. Pull in client details, set timelines, deliverables, pricing, and even collect digital signatures—no PDFs or back-and-forth needed.'
   },
   {
     id: '02',
     title: 'Smart Project Management',
-    emoji: '📋',
+    Icon: LayoutDashboard,
     description: 'Plan, assign, and track tasks across projects with dynamic boards. Freelancers stay focused. Clients see real progress. Automated updates keep everyone aligned—without chasing emails.'
   },
   {
     id: '03',
     title: 'Client Dashboard Built In',
-    emoji: '👤',
+    Icon: Users,
     description: 'Clients get a clean, real-time view of their project: timelines, tasks, approvals, payments—all in one place. No sign-up hassles. Just one link to stay in the loop.'
   },
   {
     id: '04',
     title: 'File & Version Control',
-    emoji: '📁',
+    Icon: FolderGit2,
     description: 'Upload, preview, and organize files by project or task. Share drafts, lock final versions, and keep everything searchable. Goodbye cluttered Drive folders.'
   }
 ]
@@ -60,6 +61,13 @@ export function HowItWorksSection() {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
+                    <feature.Icon 
+                      className={`w-6 h-6 ${
+                        selectedFeature.id === feature.id
+                          ? 'text-[#ACFF3D]'
+                          : 'text-white group-hover:text-[#ACFF3D]'
+                      } transition-colors`}
+                    />
                     <span className={`text-xl font-light ${
                       selectedFeature.id === feature.id
                         ? 'text-[#ACFF3D]'
@@ -69,9 +77,7 @@ export function HowItWorksSection() {
                     </span>
                   </div>
                   {selectedFeature.id === feature.id && (
-                    <svg className="w-5 h-5 text-[#ACFF3D]" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                    </svg>
+                    <ChevronRight className="w-5 h-5 text-[#ACFF3D]" />
                   )}
                 </div>
               </button>
@@ -83,7 +89,9 @@ export function HowItWorksSection() {
         <div className="bg-[#151515] rounded-3xl p-12">
           <div className="flex flex-col h-full">
             <div className="flex items-center gap-4 mb-8">
-              <span className="text-4xl">{selectedFeature.emoji}</span>
+              <div className="w-16 h-16 rounded-2xl bg-[#202020] flex items-center justify-center">
+                <selectedFeature.Icon className="w-8 h-8 text-[#ACFF3D]" />
+              </div>
             </div>
             <p className="text-white text-xl font-light leading-relaxed">
               {selectedFeature.description}
