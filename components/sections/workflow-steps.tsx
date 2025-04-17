@@ -6,7 +6,7 @@ const workflowSteps = [
   
   export function WorkflowSteps() {
     return (
-      <div className="flex gap-4 mb-32">
+      <div className="flex gap-4 mb-16">
         {workflowSteps.map((step, index) => (
           <div 
             key={step.id}

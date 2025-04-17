@@ -1,8 +1,10 @@
 import { Navigation } from "@/components/ui/navigation"
 import { HeroSection } from "@/components/sections/hero-section"
-import { ServicesSection } from "@/components/sections/services-section"
+
 import { WorkflowSteps } from "@/components/sections/workflow-steps"
 import { HowItWorksSection } from "@/components/sections/how-it-works-section"
+import { BenefitsSection} from "@/components/sections/contact-section"
+import { ToolsSection } from "@/components/sections/tools-section"
 
 export default function LandingPage() {
   return (
@@ -15,6 +17,9 @@ export default function LandingPage() {
           <HeroSection />
           <WorkflowSteps />
           <HowItWorksSection />
+          <ToolsSection />
+          <BenefitsSection />
+      
         </div>
       </div>
     </div>

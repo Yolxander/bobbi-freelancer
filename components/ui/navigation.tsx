@@ -38,7 +38,7 @@ export function Navigation() {
                 />
               </div>
             </div>
-            <Link href="/auth" className="px-6 py-2 bg-[#9E14D9] rounded-full text-[15px] text-white font-medium hover:bg-[#D1FF75] transition-colors">
+            <Link href="/auth" className="px-6 py-2 bg-[#D1FF75] rounded-full text-[15px] text-black font-medium hover:bg-[#D1FF75] transition-colors">
               Login
             </Link>
           </div>

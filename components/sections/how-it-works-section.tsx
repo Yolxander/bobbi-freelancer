@@ -33,7 +33,7 @@ export function HowItWorksSection() {
   const [selectedFeature, setSelectedFeature] = useState(features[0])
 
   return (
-    <div className="bg-[#0A0A0A] rounded-3xl p-16 mb-32">
+    <div className="bg-[#0A0A0A] rounded-3xl p-16">
       <div className="mb-16">
         <h2 className="text-6xl font-light mb-6">
           <span className="text-[#ACFF3D]">How</span>{" "}
@@ -60,7 +60,6 @@ export function HowItWorksSection() {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <span className="text-2xl opacity-60 group-hover:opacity-100 transition-opacity">{feature.emoji}</span>
                     <span className={`text-xl font-light ${
                       selectedFeature.id === feature.id
                         ? 'text-[#ACFF3D]'
@@ -85,7 +84,6 @@ export function HowItWorksSection() {
           <div className="flex flex-col h-full">
             <div className="flex items-center gap-4 mb-8">
               <span className="text-4xl">{selectedFeature.emoji}</span>
-              <h3 className="text-[#ACFF3D] text-2xl font-light">{selectedFeature.title}</h3>
             </div>
             <p className="text-white text-xl font-light leading-relaxed">
               {selectedFeature.description}
