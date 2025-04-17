@@ -96,7 +96,7 @@ export function BenefitsSection() {
         </div>
 
         {/* Right Column - Client Benefits */}
-        <div className="bg-[#D1FF75] p-8 md:p-12 lg:p-16">
+        <div className="bg-[#965EF5] p-8 md:p-12 lg:p-16">
           <div>
             <h2 className="text-3xl md:text-4xl font-medium mb-4">For your clients</h2>
 

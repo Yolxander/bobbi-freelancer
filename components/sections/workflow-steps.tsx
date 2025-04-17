@@ -1,6 +1,6 @@
 const workflowSteps = [
     { id: 'start', name: 'Kickoff & Setup', color: 'bg-[#D1FF75]' },
-    { id: 'collaborate', name: 'Collaborate & Track', color: 'bg-[#2BD7D7]' },
+    { id: 'collaborate', name: 'Collaborate & Track', color: 'bg-[#965EF5]' },
     { id: 'complete', name: 'Delivery & Feedback', color: 'bg-black' },
   ]
   
@@ -10,7 +10,7 @@ const workflowSteps = [
         {workflowSteps.map((step, index) => (
           <div 
             key={step.id}
-            className={`flex-1 ${step.color} rounded-full p-6 text-lg font-medium ${
+            className={`flex-1 ${step.color} rounded-2xl p-6 text-lg font-medium ${
               step.color === 'bg-black' ? 'text-white' : 'text-black'
             } flex items-center justify-between group hover:opacity-90 transition-opacity cursor-pointer`}
           >
