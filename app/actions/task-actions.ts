@@ -83,48 +83,6 @@ const DUMMY_TASKS = [
       },
     },
   },
-  {
-    id: "task-4",
-    title: "Database Schema Design",
-    description: "Design efficient database structure for CRM",
-    status: "todo",
-    priority: "high",
-    category: "planning",
-    due_date: "2023-03-20",
-    project_id: "project-4",
-    provider_id: "provider-1",
-    completed: false,
-    project: "CRM Implementation",
-    client: "Global Solutions",
-    projects: {
-      name: "CRM Implementation",
-      client_id: "client-3",
-      clients: {
-        name: "Global Solutions",
-      },
-    },
-  },
-  {
-    id: "task-5",
-    title: "Payment Gateway Integration",
-    description: "Implement Stripe and PayPal payment options",
-    status: "completed",
-    priority: "high",
-    category: "development",
-    due_date: "2023-01-05",
-    project_id: "project-3",
-    provider_id: "provider-1",
-    completed: true,
-    project: "E-commerce Integration",
-    client: "Acme Inc",
-    projects: {
-      name: "E-commerce Integration",
-      client_id: "client-1",
-      clients: {
-        name: "Acme Inc",
-      },
-    },
-  },
 ]
 
 export async function getTasks(providerId: string, projectId?: string) {

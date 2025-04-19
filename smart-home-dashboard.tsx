@@ -16,6 +16,11 @@ import {
   Briefcase,
   X,
   User,
+  CheckCircle2,
+  AlertCircle,
+  ArrowUpRight,
+  FileCheck,
+  FileText,
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -25,6 +30,63 @@ import { createProject } from "./app/actions/project-actions"
 import { createTask } from "./app/actions/task-actions"
 import { useAuth } from "@/lib/auth-context"
 import { Logo } from "./components/ui/logo"
+
+const incomingTasks = [
+  {
+    id: 1,
+    title: "Website Redesign Review",
+    dueDate: "Today, 2:00 PM",
+    priority: "high",
+    project: "Acme Corp",
+    status: "pending"
+  },
+  {
+    id: 2,
+    title: "Brand Guidelines Approval",
+    dueDate: "Tomorrow, 11:00 AM",
+    priority: "medium",
+    project: "TechStart",
+    status: "in-progress"
+  },
+  {
+    id: 3,
+    title: "Marketing Assets Delivery",
+    dueDate: "Feb 28, 4:00 PM",
+    priority: "low",
+    project: "GreenEnergy",
+    status: "completed"
+  }
+]
+
+const recentFiles = [
+  {
+    id: 1,
+    name: "Project_Proposal.pdf",
+    type: "PDF",
+    size: "2.4 MB",
+    lastModified: "2 hours ago",
+    shared: true,
+    status: "Final"
+  },
+  {
+    id: 2,
+    name: "Design_Assets.zip",
+    type: "ZIP",
+    size: "156 MB",
+    lastModified: "Yesterday",
+    shared: true,
+    status: "Archive"
+  },
+  {
+    id: 3,
+    name: "Meeting_Notes.docx",
+    type: "DOC",
+    size: "845 KB",
+    lastModified: "3 days ago",
+    shared: false,
+    status: "Draft"
+  }
+]
 
 export default function ProviderDashboard({ initialProjects = [], initialClients = [], initialTasks = [], userId }) {
   const router = useRouter()
@@ -363,7 +425,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
 
             {/* Projects Overview */}
             {activePills.projects && (
-              <div className="flex-1 rounded-xl overflow-hidden relative bg-white p-6 shadow-sm">
+              <div className="flex-1 rounded-xl overflow-hidden relative bg-white p-6 shadow-sm border border-black">
                 <h2 className="text-xl font-bold mb-4 text-gray-900">Projects Overview</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                   <div className="bg-gray-50 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200">
@@ -371,7 +433,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
                     <p className="text-3xl font-bold text-gray-900">{projects.filter((p) => p.status !== "Completed").length}</p>
                     <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mt-2">
                       <div
-                        className="h-full bg-green-500 rounded-full transition-all duration-700 ease-in-out"
+                        className="h-full bg-[#D1FF75] rounded-full transition-all duration-700 ease-in-out"
                         style={{
                           width: `${projects.length ? (projects.filter((p) => p.status !== "Completed").length / projects.length) * 100 : 0}%`,
                         }}
@@ -477,89 +539,68 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
 
             {/* Task and Appointment Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-              {/* Tasks Card */}
+              {/* Proposals Card */}
               {activePills.tasks && (
-                <div className="bg-white rounded-xl p-6 relative shadow-sm hover:shadow-md transition-all duration-200">
+                <div className="bg-white rounded-xl p-6 relative shadow-sm hover:shadow-md transition-all duration-200 border border-black">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-lg text-gray-900">Tasks</h3>
+                        <h3 className="font-semibold text-lg text-gray-900">Proposals</h3>
                         <ChevronDown className="w-4 h-4 text-gray-400" />
                       </div>
-                      <p className="text-gray-500 text-sm">Today's priorities</p>
                     </div>
-                    <div
-                      className="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center cursor-pointer hover:bg-gray-800 transition-colors shadow-sm hover:shadow-md"
-                      onClick={() => setIsAddTaskModalOpen(true)}
-                    >
-                      <Plus className="w-4 h-4 text-white" />
+                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shadow-sm">
+                      <Info className="w-4 h-4 text-gray-400" />
                     </div>
                   </div>
 
-                  <div className="space-y-3 my-4 max-h-[300px] overflow-y-auto">
-                    {tasks.slice(0, 5).map((task) => (
+                  <div className="space-y-4">
+                    {tasks.slice(0, 2).map((task) => (
                       <div
                         key={task.id}
-                        className="bg-gray-50 rounded-lg p-3 flex items-start hover:bg-gray-100 transition-colors cursor-pointer shadow-sm hover:shadow-md"
-                        onClick={(e) => handleTaskClick(task.id, e)}
+                        className="bg-gray-50 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200"
                       >
-                        <div className="p-1 mr-2 task-checkbox">
-                          <CheckSquare className={`w-5 h-5 ${task.completed ? "text-green-500" : "text-gray-300"}`} />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className={`font-medium text-sm ${task.completed ? "line-through text-gray-500" : "text-gray-900"}`}>
-                            {task.title}
-                          </h4>
-                          <p className="text-xs text-gray-500">
-                            {task.project} - Due {new Date(task.due_date).toLocaleDateString()}
-                          </p>
-                          {/* Add mini progress bar for task */}
-                          <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden mt-2">
-                            <div
-                              className="h-full bg-blue-500 rounded-full transition-all duration-700 ease-in-out"
-                              style={{
-                                width: `${task.completed ? 100 : calculateTaskProgress(task.id)}%`,
-                              }}
-                            ></div>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center">
+                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3 shadow-sm">
+                              <FileText className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-gray-900">{task.title}</h4>
+                              <p className="text-xs text-gray-500">{task.project}</p>
+                            </div>
+                          </div>
+                          <div className="text-sm font-medium text-gray-700">
+                            {new Date(task.due_date).toLocaleDateString()}
                           </div>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-gray-400 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            task.completed ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
+                          }`}>
+                            {task.completed ? "Approved" : "Pending Review"}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {task.completed ? "Client accepted" : "Waiting for client"}
+                          </span>
+                        </div>
                       </div>
                     ))}
-
-                    {tasks.length === 0 && (
-                      <div className="text-center py-6">
-                        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
-                          <CheckSquare className="w-6 h-6 text-gray-400" />
-                        </div>
-                        <p className="text-gray-500">No tasks yet</p>
-                      </div>
-                    )}
                   </div>
 
-                  <div className="flex justify-between mt-6 px-4">
-                    <StatusCard
-                      icon={<CheckCircle className="w-4 h-4 text-blue-500" />}
-                      title={`${tasks.length} Total`}
-                      subtitle="Tasks"
-                    />
-                    <StatusCard
-                      icon={<CheckSquare className="w-4 h-4 text-green-500" />}
-                      title={`${tasks.filter((t) => t.completed).length} Done`}
-                      subtitle="Today"
-                    />
-                    <StatusCard
-                      icon={<Clock className="w-4 h-4 text-amber-500" />}
-                      title={`${tasks.filter((t) => !t.completed && new Date(t.due_date) < new Date()).length} Pending`}
-                      subtitle="Reviews"
-                    />
-                  </div>
+                  <button
+                    className="w-full mt-4 bg-gray-900 text-white rounded-lg py-2 flex items-center justify-center gap-2 text-sm font-medium hover:bg-gray-800 transition-colors shadow-sm hover:shadow-md"
+                    onClick={() => setIsAddTaskModalOpen(true)}
+                  >
+                    <FileText className="w-4 h-4 text-white" />
+                    <span className="text-white">Create New Proposal</span>
+                  </button>
                 </div>
               )}
 
               {/* Appointments Card */}
               {activePills.pending && (
-                <div className="bg-white rounded-xl p-6 relative shadow-sm hover:shadow-md transition-all duration-200">
+                <div className="bg-white rounded-xl p-6 relative shadow-sm hover:shadow-md transition-all duration-200 border border-black">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <div className="flex items-center gap-2">
@@ -572,50 +613,34 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
                     </div>
                   </div>
 
-                  <div className="bg-gray-50 rounded-lg p-4 mb-4 shadow-sm hover:shadow-md transition-all duration-200">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3 shadow-sm">
-                          <Calendar className="w-5 h-5 text-blue-600" />
+                  <div className="space-y-4">
+                    {incomingTasks.slice(0, 2).map((task) => (
+                      <div
+                        key={task.id}
+                        className="bg-gray-50 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center">
+                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3 shadow-sm">
+                              <Calendar className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-gray-900">{task.title}</h4>
+                              <p className="text-xs text-gray-500">{task.project}</p>
+                            </div>
+                          </div>
+                          <div className="text-sm font-medium text-gray-700">{task.dueDate}</div>
                         </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900">Client Meeting</h4>
-                          <p className="text-xs text-gray-500">TechStart - Mobile App</p>
-                        </div>
-                      </div>
-                      <div className="text-sm font-medium text-gray-700">2:00 PM</div>
-                    </div>
-                    <div className="flex items-center gap-2 mt-2">
-                      <button className="bg-blue-100 text-blue-700 text-xs font-medium px-3 py-1 rounded-full hover:bg-blue-200 transition-colors shadow-sm hover:shadow-md">
-                        Join Call
-                      </button>
-                      <button className="bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1 rounded-full hover:bg-gray-200 transition-colors shadow-sm hover:shadow-md">
-                        Reschedule
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="bg-gray-50 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3 shadow-sm">
-                          <Calendar className="w-5 h-5 text-green-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900">Project Review</h4>
-                          <p className="text-xs text-gray-500">Acme Inc. - Website</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <button className="bg-blue-100 text-blue-700 text-xs font-medium px-3 py-1 rounded-full hover:bg-blue-200 transition-colors shadow-sm hover:shadow-md">
+                            Join Call
+                          </button>
+                          <button className="bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1 rounded-full hover:bg-gray-200 transition-colors shadow-sm hover:shadow-md">
+                            Reschedule
+                          </button>
                         </div>
                       </div>
-                      <div className="text-sm font-medium text-gray-700">Tomorrow</div>
-                    </div>
-                    <div className="flex items-center gap-2 mt-2">
-                      <button className="bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1 rounded-full hover:bg-gray-200 transition-colors shadow-sm hover:shadow-md">
-                        View Details
-                      </button>
-                      <button className="bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1 rounded-full hover:bg-gray-200 transition-colors shadow-sm hover:shadow-md">
-                        Prepare Notes
-                      </button>
-                    </div>
+                    ))}
                   </div>
 
                   <button
@@ -630,30 +655,48 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
           </div>
 
           {/* Right Sidebar */}
-          <div className="col-span-12 md:col-span-4 bg-white rounded-xl p-4 md:p-6 shadow-sm">
+          <div className="col-span-12 md:col-span-4 bg-white rounded-xl p-4 md:p-6 shadow-sm border border-black">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Clients</h2>
-              <Info className="w-5 h-5 text-gray-400" />
+              <h2 className="text-xl font-bold text-gray-900">Incoming Tasks</h2>
+              <Clock className="w-5 h-5 text-gray-400" />
             </div>
 
             <div className="space-y-4 max-h-[400px] overflow-y-auto">
-              {clients.map((client) => (
-                <RoomCard
-                  key={client.id}
-                  icon={<Users className="w-5 h-5" />}
-                  name={client.name}
-                  devices={client.projects || 0}
-                  isActive={client.isActive}
-                />
+              {incomingTasks.map((task) => (
+                <div
+                  key={task.id}
+                  className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-medium text-gray-900">{task.title}</h3>
+                    <span className={`px-2 py-1 rounded-full text-xs ${
+                      task.priority === 'high' ? 'bg-red-100 text-red-700' :
+                      task.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-green-100 text-green-700'
+                    }`}>
+                      {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      {task.dueDate}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Briefcase className="w-4 h-4" />
+                      {task.project}
+                    </span>
+                  </div>
+                </div>
               ))}
 
-              {clients.length === 0 && (
+              {incomingTasks.length === 0 && (
                 <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
-                    <Users className="w-8 h-8 text-gray-400" />
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle2 className="w-8 h-8 text-gray-400" />
                   </div>
-                  <h3 className="text-lg font-medium text-gray-700 mb-2">No clients yet</h3>
-                  <p className="text-gray-500 mb-4">Add your first client to get started</p>
+                  <h3 className="text-lg font-medium text-gray-700 mb-2">All caught up!</h3>
+                  <p className="text-gray-500">No pending tasks at the moment</p>
                 </div>
               )}
             </div>
@@ -672,55 +715,97 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
             >
               {isAddingClient ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-gray-900 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border border-gray-900 border-t-transparent rounded-full animate-spin"></div>
                   <span className="font-medium text-white">PROCESSING...</span>
                 </>
               ) : (
                 <>
                   <Plus className="w-5 h-5 text-white" />
-                  <span className="font-medium text-white">ADD CLIENT</span>
+                  <span className="font-medium text-white">UPLOAD FILE</span>
                 </>
               )}
             </button>
 
-            {/* Messages Card */}
+            {/* Files Management */}
             <div className="mt-8 bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200">
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h3 className="font-bold text-lg text-gray-900">Messages</h3>
-                  <p className="text-sm text-gray-500">{clients.length > 0 ? clients[0].name : "No clients"}</p>
+                  <h3 className="font-bold text-lg text-gray-900">Files Management</h3>
+                  <p className="text-sm text-gray-500">Recent Documents</p>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center shadow-sm">
-                  <Circle className="w-3 h-3 fill-white text-white" />
-                </div>
-              </div>
-
-              <div className="space-y-3 max-h-48 overflow-y-auto mb-4">
-                <div className="bg-white rounded-lg p-3 ml-6 shadow-sm">
-                  <p className="text-sm text-gray-900">Can we get an update on the website redesign progress?</p>
-                  <p className="text-xs text-gray-500 mt-1">John (Client) - 10:34 AM</p>
-                </div>
-
-                <div className="bg-blue-100 rounded-lg p-3 mr-6 shadow-sm">
-                  <p className="text-sm text-gray-900">Yes, we're finalizing the mockups today. I'll send them over for review.</p>
-                  <p className="text-xs text-gray-500 mt-1">You - 11:15 AM</p>
-                </div>
-
-                <div className="bg-white rounded-lg p-3 ml-6 shadow-sm">
-                  <p className="text-sm text-gray-900">Great! Looking forward to seeing them.</p>
-                  <p className="text-xs text-gray-500 mt-1">John (Client) - 11:20 AM</p>
+                <div className="flex items-center gap-2">
+                  <button className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                    <FileCheck className="w-4 h-4 text-gray-700" />
+                  </button>
+                  <button className="flex items-center gap-1 text-sm text-gray-700 hover:text-gray-900 bg-gray-100 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors">
+                    <Plus className="w-4 h-4" />
+                    Upload
+                  </button>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 mt-4">
-                <input
-                  type="text"
-                  placeholder="Type your message..."
-                  className="flex-1 bg-white rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 shadow-sm"
-                />
-                <button className="p-2 bg-blue-500 text-gray-900 rounded-full shadow-sm hover:shadow-md hover:bg-blue-600 transition-all duration-200">
-                  <Send className="w-4 h-4" />
-                </button>
+              <div className="space-y-3">
+                {recentFiles.map((file) => (
+                  <div key={file.id} className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                          file.type === 'PDF' ? 'bg-red-100 text-red-700' :
+                          file.type === 'ZIP' ? 'bg-purple-100 text-purple-700' :
+                          'bg-blue-100 text-blue-700'
+                        }`}>
+                          {file.type === 'PDF' ? <FileCheck className="w-5 h-5" /> :
+                           file.type === 'ZIP' ? <FileCheck className="w-5 h-5" /> :
+                           <FileCheck className="w-5 h-5" />}
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900">{file.name}</h4>
+                          <div className="flex items-center gap-2 text-sm text-gray-500">
+                            <span>{file.size}</span>
+                            <span>•</span>
+                            <span>{file.lastModified}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {file.shared && (
+                          <div className="flex -space-x-2">
+                            <div className="w-6 h-6 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center">
+                              <Users className="w-3 h-3 text-gray-600" />
+                            </div>
+                          </div>
+                        )}
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          file.status === 'Final' ? 'bg-green-100 text-green-700' :
+                          file.status === 'Archive' ? 'bg-purple-100 text-purple-700' :
+                          'bg-yellow-100 text-yellow-700'
+                        }`}>
+                          {file.status}
+                        </span>
+                        <button className="p-1 hover:bg-gray-100 rounded-full transition-colors">
+                          <ChevronRight className="w-4 h-4 text-gray-400" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-white rounded-lg p-3 text-center">
+                    <p className="text-2xl font-bold text-gray-900">24</p>
+                    <p className="text-xs text-gray-500">Total Files</p>
+                  </div>
+                  <div className="bg-white rounded-lg p-3 text-center">
+                    <p className="text-2xl font-bold text-gray-900">8</p>
+                    <p className="text-xs text-gray-500">Shared</p>
+                  </div>
+                  <div className="bg-white rounded-lg p-3 text-center">
+                    <p className="text-2xl font-bold text-gray-900">1.2</p>
+                    <p className="text-xs text-gray-500">GB Used</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -996,20 +1081,6 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
         </div>
       )}
     </div>
-  )
-}
-
-function Logo() {
-  return (
-    <Link href="/">
-      <div className="flex flex-col cursor-pointer">
-        <div className="flex items-center gap-1">
-          <div className="w-5 h-5 bg-black rounded-sm"></div>
-          <div className="w-5 h-5 bg-black rounded-sm"></div>
-          <div className="w-5 h-5 bg-black rounded-sm"></div>
-        </div>
-      </div>
-    </Link>
   )
 }
 

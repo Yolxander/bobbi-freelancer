@@ -64,30 +64,6 @@ const DUMMY_PROJECTS = [
     due_date: "2023-05-15",
     client: "TechStart",
   },
-  {
-    id: "project-3",
-    name: "E-commerce Integration",
-    description: "Integrate payment gateway and inventory management",
-    status: "Completed",
-    client_id: "client-1",
-    provider_id: "provider-1",
-    color: "bg-purple-100",
-    start_date: "2022-11-10",
-    due_date: "2023-01-20",
-    client: "Acme Inc",
-  },
-  {
-    id: "project-4",
-    name: "CRM Implementation",
-    description: "Custom CRM solution for sales team",
-    status: "In Progress",
-    client_id: "client-3",
-    provider_id: "provider-1",
-    color: "bg-amber-100",
-    start_date: "2023-03-01",
-    due_date: "2023-06-30",
-    client: "Global Solutions",
-  },
 ]
 
 const DUMMY_TASKS = [
