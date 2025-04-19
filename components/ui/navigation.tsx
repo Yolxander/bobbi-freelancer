@@ -21,7 +21,6 @@ export function Navigation() {
                 </button>
               </div>
               <Link href="/about" className="text-[15px] text-gray-600 hover:text-gray-900">About</Link>
-              <Link href="/forum" className="text-[15px] text-gray-600 hover:text-gray-900">Forum</Link>
             </div>
           </div>
 

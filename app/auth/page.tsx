@@ -181,9 +181,9 @@ export default function AuthPage() {
           </div>
 
           {/* Right side */}
-          <div className="w-1/2 bg-[url('/placeholder.jpg')] bg-cover bg-center relative">
-            <div className="absolute inset-0 bg-black/20 mx-20 my-5 rounded-lg"></div>
-            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[400px] bg-white rounded-2xl p-8">
+          <div className="w-1/2 relative">
+            <div className="absolute inset-0 bg-[url('/images/right-side-bg.png')] bg-cover bg-center mx-20 my-5 rounded-lg"></div>
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[420px] bg-white rounded-2xl p-8 shadow-xl/20 ">
               <h2 className="text-2xl font-semibold mb-6">
                 {isLogin ? "Login to your account" : "Create your account"}
               </h2>
