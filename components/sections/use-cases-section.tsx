@@ -6,7 +6,7 @@ const useCases = [
   {
     title: 'Simplify Design Feedback\nand Approvals',
     description: 'Share concepts, manage revisions, and track approvals without endless emails. Bobbi ties every piece of client feedback directly to the right task or design file.',
-    bgColor: 'bg-[#2BD7D7]',
+    bgColor: 'bg-[#D1FF75]',
     textColor: 'text-black',
     tags: [
       { text: 'Clear Revision Tracking', Icon: Target },

@@ -5,6 +5,7 @@ import { WorkflowSteps } from "@/components/sections/workflow-steps"
 import { HowItWorksSection } from "@/components/sections/how-it-works-section"
 import { BenefitsSection} from "@/components/sections/contact-section"
 import { ToolsSection } from "@/components/sections/tools-section"
+import { FooterSection } from "@/components/sections/footer-section"
 
 export default function LandingPage() {
   return (
@@ -23,6 +24,8 @@ export default function LandingPage() {
           <UseCasesSection />
         </div>
       </div>
+
+      <FooterSection />
     </div>
   )
 }
