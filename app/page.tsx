@@ -1,5 +1,5 @@
 import { Navigation } from "@/components/ui/navigation"
-import { HeroSection } from "@/components/sections/hero-section"
+import { HomeHeroSection } from "@/components/sections/hero-section"
 import { UseCasesSection } from "@/components/sections/use-cases-section"
 import { WorkflowSteps } from "@/components/sections/workflow-steps"
 import { HowItWorksSection } from "@/components/sections/how-it-works-section"
@@ -15,7 +15,7 @@ export default function LandingPage() {
       {/* Main Content */}
       <div className="pt-32 px-6">
         <div className="max-w-[1400px] mx-auto">
-          <HeroSection />
+          <HomeHeroSection />
       
           <WorkflowSteps />
           <HowItWorksSection />

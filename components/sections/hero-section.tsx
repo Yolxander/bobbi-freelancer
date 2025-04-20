@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-export function HeroSection() {
+export function HomeHeroSection() {
   return (
     <div className="grid grid-cols-8 gap-4 mb-16 bg-white rounded-3xl p-16 border-2 border-gray-900">
       <div className="col-span-4 pt-12">
@@ -54,7 +54,6 @@ export function HeroSection() {
           </div>
         </div>
       </div>
-  </div>
-  
+    </div>
   )
 }

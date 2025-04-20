@@ -84,9 +84,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (currentPath !== "/onboarding" && currentPath !== "/auth" && currentPath !== "/") {
             // Don't redirect if we're on a valid page like /clients, /projects, etc.
             const validPaths = ["/clients", "/projects", "/tasks", "/messaging", "/calendar", "/files", "/profile", "/proposals"]
+            const publicPaths = ["/", "/auth", "/about"] // Add about to public paths
             const isValidPath = validPaths.some((path) => currentPath.startsWith(path))
+            const isPublicPath = publicPaths.some((path) => currentPath === path)
 
-            if (!isValidPath) {
+            if (!isValidPath && !isPublicPath) {
               await checkProviderProfile(parsedUser.id, storedToken)
             }
           }
@@ -96,8 +98,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.removeItem("authToken")
           router.push("/auth")
         }
-      } else if (window.location.pathname !== "/auth" && window.location.pathname !== "/") {
-        // If no user is stored and we're not on the auth page or landing page, redirect to auth
+      } else if (window.location.pathname !== "/auth" && window.location.pathname !== "/" && window.location.pathname !== "/about") {
+        // If no user is stored and we're not on a public page, redirect to auth
         router.push("/auth")
       }
       setLoading(false)
