@@ -12,14 +12,7 @@ export function Navigation() {
             <div className={`${orbitron.className} text-xl tracking-tight`}>Bobbi</div>
             <div className="flex items-center gap-8">
               <Link href="/" className="text-[15px] text-gray-600 hover:text-gray-900">Home</Link>
-              <div className="relative group">
-                <button className="text-[15px] text-gray-600 hover:text-gray-900 flex items-center gap-1.5">
-                  Get started
-                  <svg className="w-4 h-4 mt-0.5" viewBox="0 0 16 16" fill="none">
-                    <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" />
-                  </svg>
-                </button>
-              </div>
+             
               <Link href="/about" className="text-[15px] text-gray-600 hover:text-gray-900">About</Link>
             </div>
           </div>
