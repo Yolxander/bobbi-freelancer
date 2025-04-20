@@ -55,15 +55,15 @@ const pillars = [
 
 export function PillarsSection() {
   return (
-    <section className="py-24">
+    <section className="pt-24 pb-12">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between mb-12">
+        <div className="flex items-center justify-between">
           <div className="max-w-4xl">
             <div className="inline-flex items-center bg-[#D1FF75] rounded-full px-4 py-1 text-sm text-black mb-6">
               <span className="mr-2">✦</span>
               Our Features
             </div>
-            <h2 className="text-4xl md:text-5xl font-light text-black">What Makes Bobbi Different?</h2>
+            <h2 className="text-4xl md:text-5xl font-light text-black mb-12">What Makes Bobbi Different?</h2>
           </div>
         </div>
         

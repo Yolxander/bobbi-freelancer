@@ -4,6 +4,7 @@ import { Navigation } from "@/components/ui/navigation"
 import { AboutHeroSection } from "@/components/sections/about-hero-section"
 import { PillarsSection } from "@/components/sections/pillars-section"
 import { FooterSection } from "@/components/sections/footer-section"
+import { VisionSection } from "@/components/sections/vision-section"
 
 export default function AboutPage() {
   return (
@@ -13,6 +14,7 @@ export default function AboutPage() {
         <div className="max-w-[1400px] mx-auto">
           <AboutHeroSection />
           <PillarsSection />
+        <VisionSection/>
         </div>
       </div>
       <FooterSection />
