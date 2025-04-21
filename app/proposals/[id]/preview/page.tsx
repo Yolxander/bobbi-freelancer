@@ -6,6 +6,8 @@ import { getProposal } from "@/app/actions/proposal-actions"
 import { useAuth } from "@/lib/auth-context"
 import { MagazineTemplate } from "@/app/components/proposal-templates/MagazineTemplate"
 import { ModernTemplate } from "@/app/components/proposal-templates/ModernTemplate"
+import { MinimalTemplate } from "@/app/components/proposal-templates/MinimalTemplate"
+import { StudioTemplate } from "@/app/components/proposal-templates/StudioTemplate"
 import { ParsedContent, Proposal, PaymentScheduleItem } from "@/types/proposals"
 
 export default function ProposalPreviewPage() {
@@ -18,7 +20,7 @@ export default function ProposalPreviewPage() {
   const [isSigning, setIsSigning] = useState(false)
   const [clientSignature, setClientSignature] = useState("")
   const [parsedContent, setParsedContent] = useState<ParsedContent | null>(null)
-  const [template, setTemplate] = useState<"magazine" | "modern">("modern")
+  const [template, setTemplate] = useState<"magazine" | "modern" | "minimal" | "studio">("modern")
 
   useEffect(() => {
     const fetchProposal = async () => {
@@ -251,11 +253,35 @@ export default function ProposalPreviewPage() {
         >
           Modern
         </button>
+        <button
+          onClick={() => setTemplate("minimal")}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            template === "minimal"
+              ? "bg-white text-black"
+              : "bg-black/20 text-white hover:bg-black/30"
+          }`}
+        >
+          Minimal
+        </button>
+        <button
+          onClick={() => setTemplate("studio")}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            template === "studio"
+              ? "bg-white text-black"
+              : "bg-black/20 text-white hover:bg-black/30"
+          }`}
+        >
+          Studio
+        </button>
       </div>
       {template === "magazine" ? (
         <MagazineTemplate {...templateProps} />
-      ) : (
+      ) : template === "modern" ? (
         <ModernTemplate {...templateProps} />
+      ) : template === "minimal" ? (
+        <MinimalTemplate {...templateProps} />
+      ) : (
+        <StudioTemplate {...templateProps} />
       )}
     </>
   )
