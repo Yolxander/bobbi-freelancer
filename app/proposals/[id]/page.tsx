@@ -143,18 +143,18 @@ export default function ProposalPage() {
           ...fetchedProposal,
           content: {
             ...fetchedProposal.content,
-            deliverables: Array.isArray(fetchedProposal.content.deliverables) 
+            deliverables: typeof fetchedProposal.content.deliverables === 'string' 
               ? fetchedProposal.content.deliverables 
-              : JSON.parse(fetchedProposal.content.deliverables || '[]'),
-            pricing: Array.isArray(fetchedProposal.content.pricing)
+              : JSON.stringify(fetchedProposal.content.deliverables || []),
+            pricing: typeof fetchedProposal.content.pricing === 'string'
               ? fetchedProposal.content.pricing
-              : JSON.parse(fetchedProposal.content.pricing || '[]'),
-            payment_schedule: typeof fetchedProposal.content.payment_schedule === 'object'
+              : JSON.stringify(fetchedProposal.content.pricing || []),
+            payment_schedule: typeof fetchedProposal.content.payment_schedule === 'string'
               ? fetchedProposal.content.payment_schedule
-              : JSON.parse(fetchedProposal.content.payment_schedule || '{}'),
-            signature: typeof fetchedProposal.content.signature === 'object'
+              : JSON.stringify(fetchedProposal.content.payment_schedule || {}),
+            signature: typeof fetchedProposal.content.signature === 'string'
               ? fetchedProposal.content.signature
-              : JSON.parse(fetchedProposal.content.signature || '{"provider":"","client":""}')
+              : JSON.stringify(fetchedProposal.content.signature || { provider: '', client: '' })
           }
         }
 
@@ -186,9 +186,6 @@ export default function ProposalPage() {
         title: proposal.title,
         client_id: proposal.client_id,
         project_id: proposal.project_id,
-        status: proposal.status,
-        is_template: proposal.is_template,
-        current_version: proposal.current_version,
         content: {
           scope_of_work: proposal.content.scope_of_work,
           deliverables: proposal.content.deliverables,
@@ -300,7 +297,7 @@ export default function ProposalPage() {
       ...prev,
       content: {
         ...prev.content,
-        deliverables: JSON.stringify(value)
+        deliverables: typeof value === 'string' ? value : JSON.stringify(value)
       }
     }))
   }
@@ -321,7 +318,7 @@ export default function ProposalPage() {
       ...prev,
       content: {
         ...prev.content,
-        pricing: JSON.stringify(value)
+        pricing: typeof value === 'string' ? value : JSON.stringify(value)
       }
     }))
   }
@@ -331,7 +328,7 @@ export default function ProposalPage() {
       ...prev,
       content: {
         ...prev.content,
-        payment_schedule: JSON.stringify(value)
+        payment_schedule: typeof value === 'string' ? value : JSON.stringify(value)
       }
     }))
   }
@@ -341,7 +338,7 @@ export default function ProposalPage() {
       ...prev,
       content: {
         ...prev.content,
-        signature: JSON.stringify(value)
+        signature: typeof value === 'string' ? value : JSON.stringify(value)
       }
     }))
   }
@@ -474,7 +471,13 @@ export default function ProposalPage() {
                 </>
               ) : null}
               <button
-                onClick={() => setIsEditing(!isEditing)}
+                onClick={() => {
+                  if (isEditing) {
+                    handleSave();
+                  } else {
+                    setIsEditing(true);
+                  }
+                }}
                 className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors"
               >
                 {isEditing ? (

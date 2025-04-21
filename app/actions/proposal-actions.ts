@@ -399,12 +399,12 @@ export async function updateProposal(id: string, data: {
   project_id?: string;
   content?: {
     scope_of_work?: string;
-    deliverables?: string[];
+    deliverables?: string;
     timeline_start?: string;
     timeline_end?: string;
-    pricing?: Array<{ item: string; amount: number }>;
-    payment_schedule?: Record<string, number>;
-    signature?: { provider: string; client: string };
+    pricing?: string;
+    payment_schedule?: string;
+    signature?: string;
   };
 }): Promise<Proposal> {
   const response = await fetch(`${API_BASE_URL}/proposals/${id}`, {
@@ -412,16 +412,7 @@ export async function updateProposal(id: string, data: {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      ...data,
-      content: data.content ? {
-        ...data.content,
-        deliverables: data.content.deliverables ? JSON.stringify(data.content.deliverables) : undefined,
-        pricing: data.content.pricing ? JSON.stringify(data.content.pricing) : undefined,
-        payment_schedule: data.content.payment_schedule ? JSON.stringify(data.content.payment_schedule) : undefined,
-        signature: data.content.signature ? JSON.stringify(data.content.signature) : undefined,
-      } : undefined,
-    }),
+    body: JSON.stringify(data),
   });
 
   if (!response.ok) {
