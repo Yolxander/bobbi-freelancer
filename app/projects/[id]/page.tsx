@@ -246,6 +246,7 @@ export default function ProjectDetailsPage() {
 
           if (projectResult && projectResult.data) {
             console.log('Fetched Project Details:', projectResult.data)
+            console.log('Project Client ID:', projectResult.data.client_id)
             setProject(projectResult.data)
             setEditedProject(projectResult.data)
 
@@ -259,6 +260,7 @@ export default function ProjectDetailsPage() {
             if (projectResult.data?.client_id) {
               const clientResult = await getClient(projectResult.data.client_id)
               if (clientResult && clientResult.data) {
+                console.log('Fetched Client Details:', clientResult.data)
                 setClient(clientResult.data)
               }
             }
@@ -663,105 +665,113 @@ export default function ProjectDetailsPage() {
 
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-             
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`w-16 h-16 rounded-xl ${project?.color || "bg-blue-100"} flex items-center justify-center`}
-                    >
-                      {project?.client_id ? (
-                        <Briefcase className="w-8 h-8 text-blue-600" />
-                      ) : (
-                        <User className="w-8 h-8 text-purple-600" />
-                      )}
-                    </div>
-                    <div>
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`w-16 h-16 rounded-xl ${project?.color || "bg-blue-100"} flex items-center justify-center`}
+                  >
+                    {project?.client_id ? (
+                      <Briefcase className="w-8 h-8 text-blue-600" />
+                    ) : (
+                      <User className="w-8 h-8 text-purple-600" />
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-4">
                       <h1 className="text-2xl font-bold text-gray-900">{project?.name}</h1>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-gray-600">
-                          {project?.client_id ? (
-                            <>Client: {project.client?.name || "Unknown"}</>
-                          ) : (
-                            <span className="inline-flex items-center bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-sm">
-                              <User className="w-3 h-3 mr-1" />
-                              Personal Project
-                            </span>
-                          )}
-                        </span>
-                        <span className="text-gray-300">•</span>
-                        <div
-                          className={`
-                            text-xs font-medium px-2 py-0.5 rounded-full
-                            ${
-                              project?.status === "In Progress"
-                                ? "bg-green-100 text-green-700"
-                                : project?.status === "Review"
-                                  ? "bg-yellow-100 text-yellow-700"
-                                  : "bg-blue-100 text-blue-700"
-                            }
-                          `}
-                        >
-                          {project?.status}
-                        </div>
+                      <button
+                        onClick={() => {
+                          if (window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) {
+                            handleDeleteProject();
+                          }
+                        }}
+                        className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg flex items-center gap-2"
+                      >
+                        <Trash className="w-4 h-4" />
+                        Delete
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-gray-600">
+                        {project?.client_id ? (
+                          <>Client: {project.client?.name || "Unknown"}</>
+                        ) : (
+                          <span className="inline-flex items-center bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-sm">
+                            <User className="w-3 h-3 mr-1" />
+                            Personal Project
+                          </span>
+                        )}
+                      </span>
+                      <span className="text-gray-300">•</span>
+                      <div
+                        className={`
+                          text-xs font-medium px-2 py-0.5 rounded-full
+                          ${
+                            project?.status === "In Progress"
+                              ? "bg-green-100 text-green-700"
+                              : project?.status === "Review"
+                                ? "bg-yellow-100 text-yellow-700"
+                                : "bg-blue-100 text-blue-700"
+                          }
+                        `}
+                      >
+                        {project?.status}
                       </div>
                     </div>
                   </div>
-                
+                </div>
 
                 <div className="flex items-center gap-2">
-                
-                      {(projectAccess.isOwner || (projectAccess.isCollaborator && projectAccess.permissions?.edit)) && (
-                        <button
-                          onClick={() => setIsEditing(true)}
-                          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2"
-                        >
-                          <Edit className="w-4 h-4" />
-                          <span>Edit</span>
-                        </button>
-                      )}
+                  {(projectAccess.isOwner || (projectAccess.isCollaborator && projectAccess.permissions?.edit)) && (
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2"
+                    >
+                      <Edit className="w-4 h-4" />
+                      <span>Edit</span>
+                    </button>
+                  )}
+                  <button
+                    onClick={() => {
+                      setIsEditing(true)
+                      setEditedProject(project)
+                    }}
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2"
+                  >
+                    <Edit className="w-4 h-4" />
+                    <span>Edit Project</span>
+                  </button>
+                  <button
+                    onClick={() => setShowAddTaskModal(true)}
+                    className="px-4 py-2 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Task</span>
+                  </button>
+                  {projectAccess.isOwner && (
+                    <div className="relative">
                       <button
+                        className="p-2 rounded-full hover:bg-gray-100"
                         onClick={() => {
-                          setIsEditing(true)
-                          setEditedProject(project)
+                          const dropdown = document.getElementById("project-actions-dropdown")
+                          dropdown?.classList.toggle("hidden")
                         }}
-                        className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2"
                       >
-                        <Edit className="w-4 h-4" />
-                        <span>Edit Project</span>
+                        <MoreHorizontal className="w-5 h-5 text-gray-500" />
                       </button>
-                      <button
-                        onClick={() => setShowAddTaskModal(true)}
-                        className="px-4 py-2 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
+                      <div
+                        id="project-actions-dropdown"
+                        className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-10 hidden"
                       >
-                        <Plus className="w-4 h-4" />
-                        <span>Add Task</span>
-                      </button>
-                      {projectAccess.isOwner && (
-                        <div className="relative">
-                          <button
-                            className="p-2 rounded-full hover:bg-gray-100"
-                            onClick={() => {
-                              const dropdown = document.getElementById("project-actions-dropdown")
-                              dropdown?.classList.toggle("hidden")
-                            }}
-                          >
-                            <MoreHorizontal className="w-5 h-5 text-gray-500" />
-                          </button>
-                          <div
-                            id="project-actions-dropdown"
-                            className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-10 hidden"
-                          >
-                            <button
-                              onClick={handleDeleteProject}
-                              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex items-center gap-2"
-                            >
-                              <Trash className="w-4 h-4" />
-                              <span>Delete Project</span>
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                  
-                
+                        <button
+                          onClick={handleDeleteProject}
+                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <Trash className="w-4 h-4" />
+                          <span>Delete Project</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 

@@ -92,10 +92,11 @@ export default function Sidebar() {
 `}
       >
         <div className="mb-12 mt-8 md:mt-0">
-          <Link href="/dashboard">
-            <button className="p-3 bg-gray-100 rounded-xl">
-              <Logo />
-            </button>
+          <Link 
+            href="/dashboard" 
+            className="p-3 bg-gray-100 rounded-xl inline-block"
+          >
+            <Logo />
           </Link>
         </div>
 
@@ -106,29 +107,26 @@ export default function Sidebar() {
               <span className="text-xs font-medium text-gray-500">Work Management</span>
             </div>
             <div className="space-y-2 w-full">
-              <Link href="/projects">
-                <button
-                  className={`p-3 ${isActive("/projects") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
-                >
-                  <Folder className="w-5 h-5 text-blue-500" />
-                  <span className="text-sm font-medium text-gray-900">Projects</span>
-                </button>
+              <Link 
+                href="/projects"
+                className={`p-3 ${isActive("/projects") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
+              >
+                <Folder className="w-5 h-5 text-blue-500" />
+                <span className="text-sm font-medium text-gray-900">Projects</span>
               </Link>
-              <Link href="/tasks">
-                <button
-                  className={`p-3 ${isActive("/tasks") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
-                >
-                  <CheckSquare className="w-5 h-5 text-red-500" />
-                  <span className="text-sm font-medium text-gray-900">Tasks</span>
-                </button>
+              <Link 
+                href="/tasks"
+                className={`p-3 ${isActive("/tasks") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
+              >
+                <CheckSquare className="w-5 h-5 text-red-500" />
+                <span className="text-sm font-medium text-gray-900">Tasks</span>
               </Link>
-              <Link href="/proposals">
-                <button
-                  className={`p-3 ${isActive("/proposals") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
-                >
-                  <FileText className="w-5 h-5 text-orange-500" />
-                  <span className="text-sm font-medium text-gray-900">Proposals</span>
-                </button>
+              <Link 
+                href="/proposals"
+                className={`p-3 ${isActive("/proposals") ? "bg-gray-100" : "hover:bg-gray-100"} rounded-xl transition-colors w-full flex items-center gap-3`}
+              >
+                <FileText className="w-5 h-5 text-orange-500" />
+                <span className="text-sm font-medium text-gray-900">Proposals</span>
               </Link>
             </div>
           </div>

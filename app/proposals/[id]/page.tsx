@@ -34,40 +34,84 @@ interface BudgetItem {
   amount: number;
 }
 
+interface Client {
+  id: string
+  name: string
+  email: string
+  phone: string
+  address?: string
+}
+
+interface Project {
+  id: string
+  name: string
+  description: string
+  status?: string
+  start_date?: string
+}
+
+interface DeliverablesList {
+  value: string;  // JSON string
+  onChange: (value: string[]) => void;
+}
+
+interface PricingList {
+  value: string;  // JSON string
+  onChange: (value: Array<{ item: string; amount: number }>) => void;
+}
+
+interface PaymentSchedule {
+  value: string;  // JSON string
+  onChange: (value: Record<string, number>) => void;
+}
+
+interface SignatureData {
+  value: string;  // JSON string
+  onChange: (value: { provider: string; client: string }) => void;
+}
+
+interface ProposalContent {
+  id?: string;
+  scope_of_work?: string;
+  deliverables: string;  // JSON string
+  timeline_start: string;
+  timeline_end: string;
+  pricing: string;  // JSON string
+  payment_schedule: string;  // JSON string
+  signature: string;  // JSON string
+}
+
+interface Proposal {
+  id: string;
+  title: string;
+  client_id: string;
+  project_id: string;
+  status: 'draft' | 'sent' | 'accepted' | 'rejected';
+  content: ProposalContent;
+  created_at: string;
+  updated_at: string;
+  is_template?: boolean;
+  current_version?: number;
+}
+
 export default function ProposalPage() {
   const router = useRouter()
   const params = useParams()
   const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [proposal, setProposal] = useState<Omit<Proposal, "id" | "created_at" | "updated_at">>({
-    title: "",
-    client_id: "",
-    project_id: "",
-    status: "draft",
-    is_template: false,
-    current_version: 1,
+  const [proposal, setProposal] = useState<Omit<Proposal, 'id' | 'created_at' | 'updated_at'>>({
+    title: '',
+    client_id: '',
+    project_id: '',
+    status: 'draft',
     content: {
-      id: "",
-      proposal_id: "",
-      scope_of_work: "",
-      deliverables: JSON.stringify([]),
-      timeline_start: "",
-      timeline_end: "",
-      pricing: JSON.stringify([]),
-      payment_schedule: JSON.stringify({}),
-      signature: JSON.stringify({ provider: "", client: "" })
-    },
-    client: {
-      id: "",
-      name: "",
-      email: "",
-      phone: ""
-    },
-    project: {
-      id: "",
-      name: "",
-      description: ""
+      deliverables: '[]',
+      pricing: '[]',
+      payment_schedule: '{}',
+      timeline_start: '',
+      timeline_end: '',
+      signature: '{}'
     }
   })
   const [isEditing, setIsEditing] = useState(false)
@@ -85,18 +129,26 @@ export default function ProposalPage() {
           return
         }
 
-        // Ensure deliverables is a JSON string
-        const proposalWithParsedDeliverables = {
+        const parsedData = {
           ...fetchedProposal,
           content: {
             ...fetchedProposal.content,
-            deliverables: typeof fetchedProposal.content.deliverables === 'string' 
+            deliverables: Array.isArray(fetchedProposal.content.deliverables) 
               ? fetchedProposal.content.deliverables 
-              : JSON.stringify(fetchedProposal.content.deliverables || [])
+              : JSON.parse(fetchedProposal.content.deliverables || '[]'),
+            pricing: Array.isArray(fetchedProposal.content.pricing)
+              ? fetchedProposal.content.pricing
+              : JSON.parse(fetchedProposal.content.pricing || '[]'),
+            payment_schedule: typeof fetchedProposal.content.payment_schedule === 'object'
+              ? fetchedProposal.content.payment_schedule
+              : JSON.parse(fetchedProposal.content.payment_schedule || '{}'),
+            signature: typeof fetchedProposal.content.signature === 'object'
+              ? fetchedProposal.content.signature
+              : JSON.parse(fetchedProposal.content.signature || '{"provider":"","client":""}')
           }
         }
 
-        setProposal(proposalWithParsedDeliverables)
+        setProposal(parsedData)
       } catch (err) {
         console.error('Error fetching proposal:', err)
         setError("Failed to load proposal")
@@ -120,7 +172,7 @@ export default function ProposalPage() {
     setError(null)
 
     try {
-      const newProposal = await createProposal({
+      const updatedProposal = await updateProposal(params.id as string, {
         title: proposal.title,
         client_id: proposal.client_id,
         project_id: proposal.project_id,
@@ -128,19 +180,20 @@ export default function ProposalPage() {
         is_template: proposal.is_template,
         current_version: proposal.current_version,
         content: {
-          scope_of_work: proposal.content?.scope_of_work || '',
-          deliverables: proposal.content?.deliverables || '[]',
-          timeline_start: proposal.content?.timeline_start || '',
-          timeline_end: proposal.content?.timeline_end || '',
-          pricing: proposal.content?.pricing || '[]',
-          payment_schedule: proposal.content?.payment_schedule || '{}',
-          signature: proposal.content?.signature || '{"provider":"","client":""}'
+          scope_of_work: proposal.content.scope_of_work,
+          deliverables: proposal.content.deliverables,
+          timeline_start: proposal.content.timeline_start,
+          timeline_end: proposal.content.timeline_end,
+          pricing: proposal.content.pricing,
+          payment_schedule: proposal.content.payment_schedule,
+          signature: proposal.content.signature
         }
       })
-      router.push(`/proposals/${newProposal.id}`)
+      setProposal(updatedProposal)
+      setIsEditing(false)
     } catch (error) {
-      console.error("Error sending proposal:", error)
-      setError("Failed to send proposal. Please try again.")
+      console.error("Error updating proposal:", error)
+      setError("Failed to update proposal. Please try again.")
     } finally {
       setIsLoading(false)
     }
@@ -232,7 +285,7 @@ export default function ProposalPage() {
     }
   }
 
-  const handleDeliverablesChange = (value: string[]) => {
+  const handleDeliverablesChange: DeliverablesList['onChange'] = (value) => {
     setProposal(prev => ({
       ...prev,
       content: {
@@ -253,7 +306,7 @@ export default function ProposalPage() {
     }))
   }
 
-  const handlePricingChange = (value: BudgetItem[]) => {
+  const handlePricingChange: PricingList['onChange'] = (value) => {
     setProposal(prev => ({
       ...prev,
       content: {
@@ -263,25 +316,17 @@ export default function ProposalPage() {
     }))
   }
 
-  const handlePaymentScheduleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const lines = e.target.value.split('\n')
-    const schedule = lines.reduce((acc, line) => {
-      const [key, value] = line.split(':').map(s => s.trim())
-      if (key && value) {
-        acc[key] = value
-      }
-      return acc
-    }, {} as Record<string, string>)
+  const handlePaymentScheduleChange: PaymentSchedule['onChange'] = (value) => {
     setProposal(prev => ({
       ...prev,
       content: {
         ...prev.content,
-        payment_schedule: JSON.stringify(schedule)
+        payment_schedule: JSON.stringify(value)
       }
     }))
   }
 
-  const handleSignatureChange = (value: { provider: string; client: string }) => {
+  const handleSignatureChange: SignatureData['onChange'] = (value) => {
     setProposal(prev => ({
       ...prev,
       content: {
@@ -299,6 +344,15 @@ export default function ProposalPage() {
       return Array.isArray(parsed) ? parsed : []
     } catch (e) {
       console.error('Error parsing deliverables:', e)
+      return []
+    }
+  }
+
+  const parsePaymentSchedule = (value: string) => {
+    try {
+      const parsed = JSON.parse(value)
+      return Array.isArray(parsed) ? parsed : []
+    } catch (e) {
       return []
     }
   }
@@ -512,8 +566,8 @@ export default function ProposalPage() {
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <DateRangePicker
                   value={{
-                    start: proposal.content?.timeline_start || "",
-                    end: proposal.content?.timeline_end || ""
+                    start: proposal.content.timeline_start ? new Date(proposal.content.timeline_start).toISOString().split('T')[0] : '',
+                    end: proposal.content.timeline_end ? new Date(proposal.content.timeline_end).toISOString().split('T')[0] : ''
                   }}
                   onChange={handleTimelineChange}
                   readOnly={!isEditing}
@@ -522,28 +576,206 @@ export default function ProposalPage() {
             </div>
 
             <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Budget</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Pricing</label>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <BudgetInputList
-                  value={proposal.content?.pricing ? JSON.parse(proposal.content.pricing) : []}
-                  onChange={handlePricingChange}
-                  readOnly={!isEditing}
-                />
+                {proposal.content?.pricing ? (
+                  <div className="flex flex-col gap-2">
+                    {(() => {
+                      try {
+                        const pricing = JSON.parse(proposal.content.pricing);
+                        return (
+                          <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-gray-900">
+                                {pricing.type === 'fixed' ? 'Fixed Rate' : 'Hourly Rate'}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-700">
+                                {pricing.currency} {pricing.amount}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      } catch (error) {
+                        console.error('Error parsing pricing:', error);
+                        return <div className="text-gray-500">Invalid pricing format</div>;
+                      }
+                    })()}
+                  </div>
+                ) : (
+                  <div className="text-gray-500">No pricing defined</div>
+                )}
+                {isEditing && (
+                  <div className="mt-4">
+                    <select
+                      className="w-full p-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 mb-2"
+                      value={(() => {
+                        try {
+                          const pricing = JSON.parse(proposal.content?.pricing || '{"type":"fixed"}');
+                          return pricing.type;
+                        } catch {
+                          return 'fixed';
+                        }
+                      })()}
+                      onChange={(e) => {
+                        const currentPricing = JSON.parse(proposal.content?.pricing || '{"amount":"0","currency":"USD","type":"fixed"}');
+                        const newPricing = {
+                          ...currentPricing,
+                          type: e.target.value
+                        };
+                        setProposal({
+                          ...proposal,
+                          content: {
+                            ...proposal.content,
+                            pricing: JSON.stringify(newPricing)
+                          }
+                        });
+                      }}
+                    >
+                      <option value="fixed">Fixed Rate</option>
+                      <option value="hourly">Hourly Rate</option>
+                    </select>
+                    <input
+                      type="number"
+                      className="w-full p-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                      value={(() => {
+                        try {
+                          const pricing = JSON.parse(proposal.content?.pricing || '{"amount":"0"}');
+                          return pricing.amount;
+                        } catch {
+                          return '0';
+                        }
+                      })()}
+                      onChange={(e) => {
+                        const currentPricing = JSON.parse(proposal.content?.pricing || '{"amount":"0","currency":"USD","type":"fixed"}');
+                        const newPricing = {
+                          ...currentPricing,
+                          amount: e.target.value
+                        };
+                        setProposal({
+                          ...proposal,
+                          content: {
+                            ...proposal.content,
+                            pricing: JSON.stringify(newPricing)
+                          }
+                        });
+                      }}
+                      placeholder="Enter amount"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="mt-6">
               <label className="block text-sm font-medium text-gray-700 mb-1">Payment Schedule</label>
-              <textarea
-                className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 min-h-[200px] text-gray-900 transition-colors"
-                value={proposal.content?.payment_schedule 
-                  ? Object.entries(JSON.parse(proposal.content.payment_schedule))
-                      .map(([key, value]) => `${key}: ${value}`)
-                      .join('\n')
-                  : ""}
-                onChange={handlePaymentScheduleChange}
-                readOnly={!isEditing}
-              />
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                {proposal.content?.payment_schedule ? (
+                  <div className="flex flex-col gap-2">
+                    {(() => {
+                      try {
+                        // Handle both string and object formats
+                        const schedule = typeof proposal.content.payment_schedule === 'string' 
+                          ? JSON.parse(proposal.content.payment_schedule)
+                          : proposal.content.payment_schedule;
+                        
+                        return Array.isArray(schedule) ? (
+                          schedule.map((item, index) => (
+                            <div key={index} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+                              <div className="flex flex-col">
+                                <span className="font-medium text-gray-900">{item.milestone}</span>
+                                <span className="text-sm text-gray-500">
+                                  Due: {new Date(item.due_date).toLocaleDateString()}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-gray-700">
+                                  ${item.amount}
+                                </span>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-gray-500">Invalid payment schedule format</div>
+                        );
+                      } catch (error) {
+                        console.error('Error parsing payment schedule:', error);
+                        return <div className="text-gray-500">Invalid payment schedule format</div>;
+                      }
+                    })()}
+                  </div>
+                ) : (
+                  <div className="text-gray-500">No payment schedule defined</div>
+                )}
+                {isEditing && (
+                  <div className="mt-4">
+                    <div className="flex flex-col gap-2">
+                      <input
+                        type="text"
+                        className="w-full p-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                        placeholder="Milestone description"
+                        onChange={(e) => {
+                          const currentSchedule = typeof proposal.content?.payment_schedule === 'string'
+                            ? JSON.parse(proposal.content.payment_schedule || '[]')
+                            : proposal.content?.payment_schedule || [];
+                          const newSchedule = [...currentSchedule, {
+                            milestone: e.target.value,
+                            amount: 0,
+                            due_date: new Date().toISOString()
+                          }];
+                          setProposal({
+                            ...proposal,
+                            content: {
+                              ...proposal.content,
+                              payment_schedule: JSON.stringify(newSchedule)
+                            }
+                          });
+                        }}
+                      />
+                      <input
+                        type="number"
+                        className="w-full p-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                        placeholder="Amount"
+                        onChange={(e) => {
+                          const currentSchedule = typeof proposal.content?.payment_schedule === 'string'
+                            ? JSON.parse(proposal.content.payment_schedule || '[]')
+                            : proposal.content?.payment_schedule || [];
+                          if (currentSchedule.length > 0) {
+                            currentSchedule[currentSchedule.length - 1].amount = parseFloat(e.target.value);
+                            setProposal({
+                              ...proposal,
+                              content: {
+                                ...proposal.content,
+                                payment_schedule: JSON.stringify(currentSchedule)
+                              }
+                            });
+                          }
+                        }}
+                      />
+                      <input
+                        type="date"
+                        className="w-full p-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                        onChange={(e) => {
+                          const currentSchedule = typeof proposal.content?.payment_schedule === 'string'
+                            ? JSON.parse(proposal.content.payment_schedule || '[]')
+                            : proposal.content?.payment_schedule || [];
+                          if (currentSchedule.length > 0) {
+                            currentSchedule[currentSchedule.length - 1].due_date = new Date(e.target.value).toISOString();
+                            setProposal({
+                              ...proposal,
+                              content: {
+                                ...proposal.content,
+                                payment_schedule: JSON.stringify(currentSchedule)
+                              }
+                            });
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="mt-6">

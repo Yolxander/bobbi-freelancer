@@ -147,7 +147,7 @@ export async function getCollaborationInvites(providerId: string) {
       `)
       .eq("recipient_id", providerId)
       .eq("status", "pending")
-      .lt("expires_at", "now()")
+      .gt("expires_at", "now()")
       .order("created_at", { ascending: false })
 
     if (error) throw error

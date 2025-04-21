@@ -1,5 +1,9 @@
 'use client'
 
+import { Orbitron } from 'next/font/google'
+
+const orbitron = Orbitron({ subsets: ['latin'] })
+
 export function VisionSection() {
   return (
     <section className="py-24">
@@ -40,7 +44,7 @@ export function VisionSection() {
             <div>
               <p className="text-lg mb-4 text-white">We're just getting started.</p>
               <h3 className="text-3xl font-light mb-6 text-white">
-                Our vision is to make Bobbi the trusted workspace for every freelancer-client collaboration — whether it's managing one project or building a business.
+                Our vision is to make <span className={orbitron.className}>Bobbi</span> the trusted workspace for every freelancer-client collaboration — whether it's managing one project or building a business.
               </h3>
               <p className="text-lg mb-4 text-white">
                 Join our community of freelancers connecting and collaborating together.

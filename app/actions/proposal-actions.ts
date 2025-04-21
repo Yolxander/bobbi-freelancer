@@ -356,33 +356,41 @@ export async function createProposal(data: {
   current_version?: number;
   content: {
     scope_of_work: string;
-    deliverables: string; // JSON stringified array
+    deliverables: string;
     timeline_start: string;
     timeline_end: string;
-    pricing: string; // JSON stringified array
-    payment_schedule: string; // JSON stringified object
-    signature: string; // JSON stringified object
+    pricing: string;
+    payment_schedule: string;
+    signature: string;
   };
 }): Promise<Proposal> {
-  const response = await fetch(`${API_BASE_URL}/proposals`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      ...data,
-      status: data.status || 'draft',
-      is_template: data.is_template || false,
-      current_version: data.current_version || 1
-    }),
-  });
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to create proposal');
+  try {
+    console.log('Sending raw data to API:', data);
+
+    const response = await fetch(`${API_BASE_URL}/proposals`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('API Error:', error);
+      throw new Error(error.message || 'Failed to create proposal');
+    }
+
+    const result = await response.json();
+    console.log('API Response:', result);
+    return result;
+  } catch (error) {
+    console.error('Error creating proposal:', error);
+    throw error;
   }
-
-  return response.json();
 }
 
 export async function updateProposal(id: string, data: {

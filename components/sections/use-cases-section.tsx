@@ -1,11 +1,14 @@
 'use client'
 
 import { ArrowUpRight, Target, Files, CheckCircle, Layout, Bell, ListTodo, Rocket, Film, Calendar } from 'lucide-react'
+import { Orbitron } from 'next/font/google'
+
+const orbitron = Orbitron({ subsets: ['latin'] })
 
 const useCases = [
   {
     title: 'Simplify Design Feedback\nand Approvals',
-    description: 'Share concepts, manage revisions, and track approvals without endless emails. Bobbi ties every piece of client feedback directly to the right task or design file.',
+    description: `Share concepts, manage revisions, and track approvals without endless emails. <span class="${orbitron.className}">Bobbi</span> ties every piece of client feedback directly to the right task or design file.`,
     bgColor: 'bg-[#D1FF75]',
     textColor: 'text-black',
     tags: [
@@ -17,7 +20,7 @@ const useCases = [
   },
   {
     title: 'Manage Campaigns,\nAssets, and Feedback Smoothly',
-    description: "Upload deliverables, track revisions, and launch campaigns without chasing client approvals. Bobbi's dashboard keeps marketing workflows clean and client-ready.",
+    description: `Upload deliverables, track revisions, and launch campaigns without chasing client approvals. <span class="${orbitron.className}">Bobbi</span>'s dashboard keeps marketing workflows clean and client-ready.`,
     bgColor: 'bg-[#965EF5]',
     textColor: 'text-black',
     tags: [
@@ -29,7 +32,7 @@ const useCases = [
   },
   {
     title: 'Stay on Top of\nEvery Project Timeline',
-    description: 'Build websites, apps, or systems across multiple clients without missing a beat. Bobbi gives developers a structured way to manage tasks, share previews, and stay ahead.',
+    description: `Build websites, apps, or systems across multiple clients without missing a beat. <span class="${orbitron.className}">Bobbi</span> gives developers a structured way to manage tasks, share previews, and stay ahead.`,
     bgColor: 'bg-white',
     textColor: 'text-black',
     tags: [
@@ -58,7 +61,7 @@ export function UseCasesSection() {
                   <ArrowUpRight className="w-6 h-6 text-white" />
                 </div>
                 <p className="text-lg text-white mt-4">
-                  No two projects are alike — and neither are the teams behind them. Bobbi gives freelancers and teams the flexibility to manage work the way they need it: clear timelines, smart file sharing, and effortless client collaboration, all in one place.
+                  No two projects are alike — and neither are the teams behind them. <span className={orbitron.className}>Bobbi</span> gives freelancers and teams the flexibility to manage work the way they need it: clear timelines, smart file sharing, and effortless client collaboration, all in one place.
                 </p>
               </div>
             </div>

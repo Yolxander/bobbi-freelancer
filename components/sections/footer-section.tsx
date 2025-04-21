@@ -1,6 +1,9 @@
 'use client'
 
 import { ArrowUpRight, Mail, Twitter, Linkedin, Github } from 'lucide-react'
+import { Orbitron } from 'next/font/google'
+
+const orbitron = Orbitron({ subsets: ['latin'] })
 
 const footerLinks = {
   product: [
@@ -37,7 +40,7 @@ export function FooterSection() {
         <div className="flex flex-col md:flex-row gap-12 md:gap-24 mb-16">
           {/* Brand Section */}
           <div className="md:w-1/3">
-            <h3 className="text-2xl font-medium mb-4">Bobbi</h3>
+            <h3 className={`text-2xl font-medium mb-4 ${orbitron.className}`}>Bobbi</h3>
             <p className="text-gray-400 mb-6">
               Streamline your workflow with smart file sharing and effortless client collaboration, all in one place.
             </p>
@@ -96,7 +99,7 @@ export function FooterSection() {
         {/* Bottom Section */}
         <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-gray-800">
           <p className="text-gray-400 text-sm mb-4 md:mb-0">
-            © 2024 Bobbi. All rights reserved.
+            © 2024 <span className={orbitron.className}>Bobbi</span>. All rights reserved.
           </p>
           
           {/* Social Links */}

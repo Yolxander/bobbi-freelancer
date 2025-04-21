@@ -51,7 +51,7 @@ export default function ProjectModal({ isOpen, onClose, clientId }: ProjectModal
     }
   }, [isOpen, user])
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user || !user.providerId) return
 
@@ -59,11 +59,13 @@ export default function ProjectModal({ isOpen, onClose, clientId }: ProjectModal
     setError(null)
 
     try {
+      console.log("Selected Client ID:", selectedClientId)
       const data = {
         ...newProject,
-        client_id: selectedClientId === "personal" ? null : selectedClientId,
+        client_id: selectedClientId === "personal" ? null : Number(selectedClientId),
         provider_id: user.providerId,
       }
+      console.log("Data being sent to API:", data)
 
       const result = await createProject(data)
 

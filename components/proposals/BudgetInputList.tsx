@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Plus, Trash2 } from "lucide-react"
 
 interface BudgetItem {
@@ -9,31 +9,40 @@ interface BudgetItem {
 }
 
 interface BudgetInputListProps {
-  value: BudgetItem[]
-  onChange: (value: BudgetItem[]) => void
+  value: string
+  onChange: (value: string) => void
   readOnly?: boolean
 }
 
 export default function BudgetInputList({ value, onChange, readOnly = false }: BudgetInputListProps) {
-  const [items, setItems] = useState<BudgetItem[]>(value || [])
+  const [items, setItems] = useState<BudgetItem[]>([])
+
+  useEffect(() => {
+    try {
+      const parsedValue = JSON.parse(value)
+      setItems(Array.isArray(parsedValue) ? parsedValue : [])
+    } catch (e) {
+      setItems([])
+    }
+  }, [value])
 
   const handleAddItem = () => {
     const newItems = [...items, { item: "", amount: 0 }]
     setItems(newItems)
-    onChange(newItems)
+    onChange(JSON.stringify(newItems))
   }
 
   const handleRemoveItem = (index: number) => {
     const newItems = items.filter((_, i) => i !== index)
     setItems(newItems)
-    onChange(newItems)
+    onChange(JSON.stringify(newItems))
   }
 
   const handleItemChange = (index: number, field: keyof BudgetItem, value: string | number) => {
     const newItems = [...items]
     newItems[index] = { ...newItems[index], [field]: value }
     setItems(newItems)
-    onChange(newItems)
+    onChange(JSON.stringify(newItems))
   }
 
   const total = items.reduce((sum, item) => sum + (item.amount || 0), 0)

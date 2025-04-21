@@ -161,97 +161,48 @@ export default function NewProposalPage() {
   }
 
   const handleSave = async () => {
+    console.log('handleSave function called');
+    setIsLoading(true);
+    setError(null);
+
     try {
       if (!user) {
-        showToast('error', 'Please log in to save proposals')
-        return
+        showToast('error', 'Please log in to save proposals');
+        return;
       }
 
       // Validate required fields
       if (!proposal.title) {
-        showToast('error', 'Please enter a title')
-        return
+        showToast('error', 'Please enter a title');
+        return;
       }
 
       if (!proposal.client_id) {
-        showToast('error', 'Please select a client')
-        return
+        showToast('error', 'Please select a client');
+        return;
       }
 
       if (!proposal.project_id) {
-        showToast('error', 'Please select a project')
-        return
+        showToast('error', 'Please select a project');
+        return;
       }
 
-      // Log all field values for debugging
-      console.log('Title:', proposal.title)
-      console.log('Client ID:', proposal.client_id)
-      console.log('Project ID:', proposal.project_id)
-      console.log('Scope of Work:', proposal.content.scope_of_work)
-      console.log('Deliverables:', proposal.content.deliverables)
-      console.log('Timeline Start:', proposal.content.timeline_start)
-      console.log('Timeline End:', proposal.content.timeline_end)
-      console.log('Pricing:', proposal.content.pricing)
-      console.log('Payment Schedule:', proposal.content.payment_schedule)
-      console.log('Signature:', proposal.content.signature)
+      // Send raw proposal data to API
+      console.log('Sending proposal data to API:', proposal);
+      const newProposal = await createProposal(proposal);
+      console.log('Proposal saved successfully:', newProposal);
 
-      // Parse deliverables to ensure it's valid JSON
-      let parsedDeliverables: string[] = []
-      try {
-        parsedDeliverables = JSON.parse(proposal.content.deliverables)
-        if (!Array.isArray(parsedDeliverables)) {
-          showToast('error', 'Deliverables must be an array')
-          return
-        }
-      } catch (error) {
-        showToast('error', 'Invalid deliverables format')
-        return
-      }
-
-      // Parse pricing to ensure it's valid JSON
-      let parsedPricing: Record<string, any> = {}
-      try {
-        parsedPricing = JSON.parse(proposal.content.pricing)
-        if (typeof parsedPricing !== 'object') {
-          showToast('error', 'Invalid pricing format')
-          return
-        }
-      } catch (error) {
-        showToast('error', 'Invalid pricing format')
-        return
-      }
-
-      // Parse signature to ensure it's valid JSON
-      let parsedSignature: Record<string, any> = {}
-      try {
-        parsedSignature = JSON.parse(proposal.content.signature)
-        if (typeof parsedSignature !== 'object') {
-          showToast('error', 'Invalid signature format')
-          return
-        }
-      } catch (error) {
-        showToast('error', 'Invalid signature format')
-        return
-      }
-
-      const newProposal = await createProposal({
-        ...proposal,
-        content: {
-          ...proposal.content,
-          deliverables: JSON.stringify(parsedDeliverables),
-          pricing: JSON.stringify(parsedPricing),
-          signature: JSON.stringify(parsedSignature)
-        }
-      })
-
-      addProposal(newProposal)
-      showToast('success', 'Proposal saved successfully')
-      router.push('/proposals')
+      addProposal(newProposal);
+      showToast('success', 'Proposal saved successfully');
+      router.push('/proposals');
     } catch (error) {
-      console.error('Error saving proposal:', error)
-      showToast('error', 'Failed to save proposal')
+      console.error('Error saving proposal:', error);
+      setError('Failed to save proposal. Please try again.');
+      showToast('error', 'Failed to save proposal');
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
   const handlePreview = () => {
     // This would open a preview modal or navigate to a preview page
@@ -346,12 +297,26 @@ export default function NewProposalPage() {
                 </button>
               </div>
               <button
+                type="button"
                 className="flex items-center gap-2 bg-gray-50 text-gray-700 rounded-xl px-4 py-2 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 border border-gray-200 transition-all"
-                onClick={handleSave}
+                onClick={(e) => {
+                  e.preventDefault();
+                  console.log('Save Draft button clicked');
+                  handleSave();
+                }}
                 disabled={isLoading}
               >
-                <Save className="w-4 h-4" />
-                <span className="text-sm font-medium">Save Draft</span>
+                {isLoading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-gray-700 rounded-full animate-spin" />
+                    <span className="text-sm font-medium">Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    <span className="text-sm font-medium">Save Draft</span>
+                  </>
+                )}
               </button>
               <button
                 className="flex items-center gap-2 bg-gray-50 text-gray-700 rounded-xl px-4 py-2 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 border border-gray-200 transition-all"

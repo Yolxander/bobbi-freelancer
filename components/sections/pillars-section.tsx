@@ -1,11 +1,14 @@
 'use client'
 
 import { ArrowRight } from "lucide-react"
+import { Orbitron } from 'next/font/google'
+
+const orbitron = Orbitron({ subsets: ['latin'] })
 
 const pillars = [
   {
     name: "Simplicity First",
-    description: "No complicated setups or bloated features. Bobbi makes collaboration easy, right out of the box.",
+    description: `No complicated setups or bloated features. <span class="${orbitron.className}">Bobbi</span> makes collaboration easy, right out of the box.`,
     color: "bg-[#2BD7D7]",
     textColor: "text-black"
   },
@@ -23,7 +26,7 @@ const pillars = [
   },
   {
     name: "Designed for Growth",
-    description: "Whether you're managing 1 project or scaling a freelance team, Bobbi grows with you at every step.",
+    description: `Whether you're managing 1 project or scaling a freelance team, <span class="${orbitron.className}">Bobbi</span> grows with you at every step.`,
     color: "bg-[#965EF5]",
     textColor: "text-white"
   },
@@ -41,13 +44,13 @@ const pillars = [
   },
   {
     name: "Effortless File Management",
-    description: "Organize, preview, version, and share project files without leaving Bobbi's workspace.",
+    description: `Organize, preview, version, and share project files without leaving <span class="${orbitron.className}">Bobbi</span>'s workspace.`,
     color: "bg-[#965EF5]",
     textColor: "text-white"
   },
   {
     name: "Ready for Every Stage",
-    description: "From first proposal to final delivery, Bobbi supports every part of the freelancer-client relationship.",
+    description: `From first proposal to final delivery, <span class="${orbitron.className}">Bobbi</span> supports every part of the freelancer-client relationship.`,
     color: "bg-[#2BD7D7]",
     textColor: "text-black"
   }
@@ -63,7 +66,7 @@ export function PillarsSection() {
               <span className="mr-2">✦</span>
               Our Features
             </div>
-            <h2 className="text-4xl md:text-5xl font-light text-black mb-12">What Makes Bobbi Different?</h2>
+            <h2 className="text-4xl md:text-5xl font-light text-black mb-12">What Makes <span className={orbitron.className}>Bobbi</span> Different?</h2>
           </div>
         </div>
         
@@ -76,7 +79,7 @@ export function PillarsSection() {
             >
               <div className="relative">
                 <h3 className={`text-xl font-medium mb-4 ${pillar.textColor}`}>{pillar.name}</h3>
-                <p className={`${pillar.textColor} line-clamp-3 opacity-80`}>{pillar.description}</p>
+                <p className={`${pillar.textColor} line-clamp-3 opacity-80`} dangerouslySetInnerHTML={{ __html: pillar.description }}></p>
               </div>
             </div>
           ))}
@@ -89,14 +92,14 @@ export function PillarsSection() {
             >
               <div className="relative">
                 <h3 className={`text-xl font-medium mb-4 ${pillar.textColor}`}>{pillar.name}</h3>
-                <p className={`${pillar.textColor} line-clamp-3 opacity-80`}>{pillar.description}</p>
+                <p className={`${pillar.textColor} line-clamp-3 opacity-80`} dangerouslySetInnerHTML={{ __html: pillar.description }}></p>
               </div>
             </div>
           ))}
 
           {/* Center Button */}
           <div className="flex flex-col justify-center items-center text-black border border-black rounded-2xl p-12">
-            <h3 className="text-2xl font-semibold text-center mb-6">Discover Everything Bobbi Offers</h3>
+            <h3 className="text-2xl font-semibold text-center mb-6">Discover Everything <span className={orbitron.className}>Bobbi</span> Offers</h3>
             <button className="inline-flex items-center px-8 py-3 bg-[#D1FF75] text-black rounded-full text-[15px] font-medium hover:bg-[#D1FF75]/90 transition-colors">
               Explore Features
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -110,7 +113,7 @@ export function PillarsSection() {
             >
               <div className="relative">
                 <h3 className={`text-xl font-medium mb-4 ${pillar.textColor}`}>{pillar.name}</h3>
-                <p className={`${pillar.textColor} line-clamp-3 opacity-80`}>{pillar.description}</p>
+                <p className={`${pillar.textColor} line-clamp-3 opacity-80`} dangerouslySetInnerHTML={{ __html: pillar.description }}></p>
               </div>
             </div>
           ))}
@@ -123,7 +126,7 @@ export function PillarsSection() {
             >
               <div className="relative">
                 <h3 className={`text-xl font-medium mb-4 ${pillar.textColor}`}>{pillar.name}</h3>
-                <p className={`${pillar.textColor} line-clamp-3 opacity-80`}>{pillar.description}</p>
+                <p className={`${pillar.textColor} line-clamp-3 opacity-80`} dangerouslySetInnerHTML={{ __html: pillar.description }}></p>
               </div>
             </div>
           ))}

@@ -24,11 +24,21 @@ export async function checkProjectAccess(projectId: string, userId: string) {
       }
     }
 
+    if (!projectData) {
+      return {
+        success: false,
+        error: "Project not found",
+        isOwner: false,
+        isCollaborator: false,
+        permissions: null,
+      }
+    }
+
     // Check all possible owner column names
     const isOwner =
-      (projectData.user_id && projectData.user_id === userId) ||
-      (projectData.owner_id && projectData.owner_id === userId) ||
-      (projectData.provider_id && projectData.provider_id === userId)
+      (projectData?.user_id && projectData.user_id === userId) ||
+      (projectData?.owner_id && projectData.owner_id === userId) ||
+      (projectData?.provider_id && projectData.provider_id === userId)
 
     // If the user is the project owner, they have full access
     if (isOwner) {
@@ -49,7 +59,6 @@ export async function checkProjectAccess(projectId: string, userId: string) {
       .eq("status", "active")
       .maybeSingle()
 
-    // If there's an error but it's not a "not found" error
     if (collaborationError && collaborationError.code !== "PGRST116") {
       console.error("Error checking collaboration:", collaborationError)
       return {

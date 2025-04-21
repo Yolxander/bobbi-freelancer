@@ -1,4 +1,7 @@
 import Link from 'next/link'
+import { Orbitron } from 'next/font/google'
+
+const orbitron = Orbitron({ subsets: ['latin'] })
 
 export function HomeHeroSection() {
   return (
@@ -20,7 +23,7 @@ export function HomeHeroSection() {
             </span>
           </h2>
           <p className="text-gray-600 text-lg mb-8">
-            Bobbi is your shared workspace to create projects, track progress, and communicate effortlessly—so freelancers stay focused and clients stay informed.
+            <span className={orbitron.className}>Bobbi</span> is your shared workspace to create projects, track progress, and communicate effortlessly—so freelancers stay focused and clients stay informed.
           </p>
           <div className="flex gap-4">
             <Link 

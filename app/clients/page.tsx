@@ -85,7 +85,7 @@ export default function ClientsPage() {
         // Refresh clients from the server
         setLoading(true) // Start loading before fetching
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clients?provider_id=${user.providerId}`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/clients?provider_id=${user.providerId}`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
@@ -134,7 +134,7 @@ export default function ClientsPage() {
         // Refresh clients from the server
         setLoading(true) // Start loading before fetching
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clients?provider_id=${user.id}`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/clients?provider_id=${user.id}`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json",

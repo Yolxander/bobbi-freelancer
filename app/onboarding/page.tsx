@@ -12,6 +12,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Loader2, User, Mail, Phone, Globe, FileText, BriefcaseBusiness, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Orbitron } from 'next/font/google'
+
+const orbitron = Orbitron({ subsets: ['latin'] })
 
 export default function OnboardingPage() {
   const { user, isLoading } = useAuth()
@@ -434,7 +437,7 @@ export default function OnboardingPage() {
               </form>
             </CardContent>
             <CardFooter className="bg-gray-50 py-4 px-8 text-center border-t">
-              <p className="text-sm text-gray-500">Need help? Contact our support team at support@bobbi.com</p>
+              <p className="text-sm text-gray-500">Need help? Contact our support team at support@<span className={orbitron.className}>bobbi</span>.com</p>
             </CardFooter>
           </Card>
         </div>
