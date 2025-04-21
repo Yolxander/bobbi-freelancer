@@ -2,65 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { use } from "react"
-import {
-  FileText,
-  Download,
-  Check,
-  X,
-  PenLine,
-  Building,
-  User,
-  Calendar,
-  DollarSign,
-  Clock,
-} from "lucide-react"
 import { getProposal } from "@/app/actions/proposal-actions"
 import { useAuth } from "@/lib/auth-context"
-import { format } from "date-fns"
-
-interface ProposalContent {
-  deliverables: string
-  pricing: string
-  payment_schedule: string
-  signature: string
-  timeline_start: string
-  timeline_end: string
-  scope_of_work: string
-}
-
-interface Proposal {
-  id: string
-  title: string
-  status: "draft" | "sent" | "accepted" | "rejected"
-  content: ProposalContent
-  client_id: string
-  project_id: string
-  created_at: string
-  updated_at: string
-  client: {
-    id: string
-    name: string
-    email: string
-  }
-  project: {
-    id: string
-    name: string
-  }
-}
-
-interface PaymentScheduleItem {
-  milestone: string
-  amount: number
-  due_date: string
-}
-
-interface ParsedContent {
-  deliverables: string[]
-  pricing: Array<{ item: string; amount: number }>
-  payment_schedule: PaymentScheduleItem[]
-  signature: { provider: string; client: string }
-}
+import { MagazineTemplate } from "@/app/components/proposal-templates/MagazineTemplate"
+import { ModernTemplate } from "@/app/components/proposal-templates/ModernTemplate"
+import { ParsedContent, Proposal, PaymentScheduleItem } from "@/types/proposals"
 
 export default function ProposalPreviewPage() {
   const router = useRouter()
@@ -72,6 +18,7 @@ export default function ProposalPreviewPage() {
   const [isSigning, setIsSigning] = useState(false)
   const [clientSignature, setClientSignature] = useState("")
   const [parsedContent, setParsedContent] = useState<ParsedContent | null>(null)
+  const [template, setTemplate] = useState<"magazine" | "modern">("modern")
 
   useEffect(() => {
     const fetchProposal = async () => {
@@ -86,73 +33,71 @@ export default function ProposalPreviewPage() {
           
           try {
             console.log("Raw proposal data:", data)
-            console.log("Raw pricing data:", data.content.pricing)
-
-            // Parse the pricing data
-            let pricingData: Array<{ item: string; amount: number }> = []
-            if (data.content.pricing) {
-              try {
-                const parsed = JSON.parse(data.content.pricing)
-                // Ensure we have an array of objects with item and amount
-                if (Array.isArray(parsed)) {
-                  pricingData = parsed.map(item => ({
-                    item: item.item || "",
-                    amount: typeof item.amount === 'number' ? item.amount : 0
-                  }))
-                } else if (typeof parsed === 'object' && parsed !== null) {
-                  // If it's an object, convert it to an array
-                  pricingData = Object.entries(parsed).map(([item, amount]) => ({
-                    item,
-                    amount: typeof amount === 'number' ? amount : 0
-                  }))
+            
+            // Helper function to parse JSON string or return existing object
+            const parseJSONSafely = (value: any, defaultValue: any) => {
+              if (typeof value === 'string') {
+                try {
+                  return JSON.parse(value)
+                } catch (e) {
+                  console.error("Error parsing JSON:", e)
+                  return defaultValue
                 }
-              } catch (e) {
-                console.error("Error parsing pricing:", e)
-                // If parsing fails, use an empty array
-                pricingData = []
               }
+              return value || defaultValue
             }
 
-            // Parse other content with fallbacks
-            const deliverables = data.content.deliverables 
-              ? JSON.parse(data.content.deliverables) 
-              : []
+            // Parse all content fields
+            const deliverables = parseJSONSafely(data.content.deliverables, [])
+            
+            // Special handling for double-escaped pricing data
+            let pricing: Array<{ item: string; amount: number }> = []
+            try {
+              // First parse to get the string
+              const firstParse = parseJSONSafely(data.content.pricing, '{}')
+              // Second parse to get the object
+              const rawPricing = parseJSONSafely(firstParse, null)
+              console.log("Double parsed pricing:", rawPricing)
 
-            // Parse payment schedule with new format
+              if (rawPricing) {
+                const amount = Number(rawPricing.amount) || 0
+                pricing = [{
+                  item: `Project Fee`,
+                  amount: amount
+                }]
+              }
+            } catch (e) {
+              console.error("Error parsing pricing:", e)
+            }
+            
+            console.log("Processed pricing:", pricing)
+            
+            // Parse payment schedule
             let paymentSchedule: PaymentScheduleItem[] = []
-            if (data.content.payment_schedule) {
-              try {
-                const parsed = JSON.parse(data.content.payment_schedule)
-                if (Array.isArray(parsed)) {
-                  paymentSchedule = parsed.map(item => ({
-                    milestone: item.milestone || '',
-                    amount: typeof item.amount === 'number' ? item.amount : Number(item.amount) || 0,
-                    due_date: item.due_date || ''
-                  }))
-                }
-              } catch (e) {
-                console.error("Error parsing payment schedule:", e)
-                paymentSchedule = []
+            try {
+              const parsedSchedule = parseJSONSafely(data.content.payment_schedule, [])
+              if (Array.isArray(parsedSchedule)) {
+                paymentSchedule = parsedSchedule.map(item => ({
+                  milestone: item.milestone || '',
+                  amount: Number(item.amount) || 0,
+                  due_date: item.due_date || ''
+                }))
               }
+            } catch (e) {
+              console.error("Error parsing payment schedule:", e)
             }
 
-            const signature = data.content.signature 
-              ? JSON.parse(data.content.signature) 
-              : { provider: "", client: "" }
+            const signature = parseJSONSafely(data.content.signature, { provider: "", client: "" })
 
-            // Validate the parsed data
-            if (!Array.isArray(deliverables)) {
-              throw new Error("Deliverables must be an array")
-            }
-            if (typeof signature !== 'object' || signature === null) {
-              throw new Error("Signature must be an object")
-            }
-
+            // Create the parsed content object
             const parsed: ParsedContent = {
               deliverables,
-              pricing: pricingData,
+              pricing,
               payment_schedule: paymentSchedule,
-              signature
+              signature,
+              timeline_start: data.content.timeline_start || "",
+              timeline_end: data.content.timeline_end || "",
+              scope_of_work: data.content.scope_of_work || ""
             }
 
             console.log("Parsed content:", parsed)
@@ -172,34 +117,6 @@ export default function ProposalPreviewPage() {
 
     fetchProposal()
   }, [params.id])
-
-  const handleAccept = async () => {
-    if (!proposal) return
-
-    try {
-      // TODO: Implement accept proposal API call
-      console.log("Accepting proposal:", proposal.id)
-      // After successful acceptance, redirect to success page
-      router.push(`/proposals/${proposal.id}/accepted`)
-    } catch (err) {
-      console.error("Failed to accept proposal:", err)
-      setError("Failed to accept proposal")
-    }
-  }
-
-  const handleReject = async () => {
-    if (!proposal) return
-
-    try {
-      // TODO: Implement reject proposal API call
-      console.log("Rejecting proposal:", proposal.id)
-      // After successful rejection, redirect to rejection page
-      router.push(`/proposals/${proposal.id}/rejected`)
-    } catch (err) {
-      console.error("Failed to reject proposal:", err)
-      setError("Failed to reject proposal")
-    }
-  }
 
   const handleSign = async () => {
     if (!proposal || !parsedContent || !clientSignature) return
@@ -243,15 +160,31 @@ export default function ProposalPreviewPage() {
     }
   }
 
-  const handleDownloadPDF = async () => {
+  const handleAccept = async () => {
     if (!proposal) return
 
     try {
-      // TODO: Implement PDF download
-      console.log("Downloading PDF for proposal:", proposal.id)
+      // TODO: Implement accept proposal API call
+      console.log("Accepting proposal:", proposal.id)
+      // After successful acceptance, redirect to success page
+      router.push(`/proposals/${proposal.id}/accepted`)
     } catch (err) {
-      console.error("Failed to download PDF:", err)
-      setError("Failed to download PDF")
+      console.error("Failed to accept proposal:", err)
+      setError("Failed to accept proposal")
+    }
+  }
+
+  const handleReject = async () => {
+    if (!proposal) return
+
+    try {
+      // TODO: Implement reject proposal API call
+      console.log("Rejecting proposal:", proposal.id)
+      // After successful rejection, redirect to rejection page
+      router.push(`/proposals/${proposal.id}/rejected`)
+    } catch (err) {
+      console.error("Failed to reject proposal:", err)
+      setError("Failed to reject proposal")
     }
   }
 
@@ -279,207 +212,51 @@ export default function ProposalPreviewPage() {
     )
   }
 
+  const templateProps = {
+    proposal,
+    parsedContent,
+    onSign: () => setIsSigning(true),
+    onAccept: handleAccept,
+    onReject: handleReject,
+    isSigning,
+    clientSignature,
+    onSignatureChange: (value: string) => setClientSignature(value),
+    onCancelSign: () => {
+      setIsSigning(false)
+      setClientSignature("")
+    },
+    handleSign
+  }
+
   return (
-    <div className="min-h-screen bg-[#1a237e] text-white">
-      <div className="max-w-6xl mx-auto py-16 px-8">
-        {/* Header Section - Magazine Style */}
-        <div className="mb-24">
-          <div className="text-6xl font-light text-[#9fa8da] mb-4">
-            {proposal.title}
-          </div>
-          <div className="grid grid-cols-2 gap-16 mt-16">
-            <div className="space-y-2">
-              <div className="text-sm text-[#9fa8da] uppercase tracking-wider">Client</div>
-              <div className="text-2xl font-light">{proposal.client.name}</div>
-              <div className="text-[#9fa8da]">{proposal.client.email}</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-sm text-[#9fa8da] uppercase tracking-wider">Project</div>
-              <div className="text-2xl font-light">{proposal.project.name}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Timeline Section */}
-        <div className="mb-24">
-          <div className="text-sm text-[#9fa8da] uppercase tracking-wider mb-8">Timeline</div>
-          <div className="grid grid-cols-2 gap-16">
-            <div>
-              <div className="text-4xl font-light">
-                {format(new Date(proposal.content.timeline_start), "MMMM d, yyyy")}
-              </div>
-              <div className="text-[#9fa8da] mt-2">Start Date</div>
-            </div>
-            <div>
-              <div className="text-4xl font-light">
-                {format(new Date(proposal.content.timeline_end), "MMMM d, yyyy")}
-              </div>
-              <div className="text-[#9fa8da] mt-2">End Date</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Scope of Work Section */}
-        <div className="mb-24">
-          <div className="text-sm text-[#9fa8da] uppercase tracking-wider mb-8">Scope of Work</div>
-          <div className="prose prose-lg prose-invert max-w-none">
-            <div className="text-xl font-light leading-relaxed">
-              {proposal.content.scope_of_work || "No scope of work defined"}
-            </div>
-          </div>
-        </div>
-
-        {/* Deliverables Section */}
-        <div className="mb-24">
-          <div className="text-sm text-[#9fa8da] uppercase tracking-wider mb-8">Deliverables</div>
-          <div className="grid grid-cols-2 gap-x-16 gap-y-6">
-            {parsedContent.deliverables.map((item, index) => (
-              <div key={index} className="flex items-start gap-4">
-                <div className="text-[#9fa8da] text-xl">0{index + 1}</div>
-                <div className="text-xl font-light">{item}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Pricing Section */}
-        <div className="mb-24">
-          <div className="text-sm text-[#9fa8da] uppercase tracking-wider mb-8">Pricing</div>
-          <div className="space-y-6">
-            {parsedContent.pricing.map((item, index) => (
-              <div key={index} className="flex justify-between items-baseline border-b border-[#9fa8da]/20 pb-4">
-                <div className="text-xl font-light">{item.item}</div>
-                <div className="text-2xl">${item.amount.toLocaleString()}</div>
-              </div>
-            ))}
-            {parsedContent.pricing.length > 0 && (
-              <div className="flex justify-between items-baseline pt-4 border-t border-[#9fa8da]/20">
-                <div className="text-xl font-semibold">Total</div>
-                <div className="text-2xl font-semibold">
-                  ${parsedContent.pricing.reduce((sum, item) => sum + item.amount, 0).toLocaleString()}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Payment Schedule */}
-        <div className="mb-24">
-          <div className="text-sm text-[#9fa8da] uppercase tracking-wider mb-8">Payment Schedule</div>
-          <div className="space-y-6">
-            {parsedContent.payment_schedule.map((item, index) => (
-              <div key={index} className="border-b border-[#9fa8da]/20 pb-6">
-                <div className="flex justify-between items-baseline mb-2">
-                  <div className="text-xl font-light">{format(new Date(item.due_date), "MMMM d, yyyy")}</div>
-                  <div className="text-2xl">${item.amount.toLocaleString()}</div>
-                </div>
-                <div className="text-[#9fa8da] font-light">{item.milestone}</div>
-              </div>
-            ))}
-            {parsedContent.payment_schedule.length === 0 && (
-              <div className="text-[#9fa8da] text-center py-4">
-                No payment schedule defined
-              </div>
-            )}
-            {parsedContent.payment_schedule.length > 0 && (
-              <div className="flex justify-between items-baseline pt-4 border-t border-[#9fa8da]/20">
-                <div className="text-xl font-semibold">Total</div>
-                <div className="text-2xl font-semibold">
-                  ${parsedContent.payment_schedule.reduce((sum, item) => sum + item.amount, 0).toLocaleString()}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Signature Section */}
-        <div className="mb-24">
-          <div className="text-sm text-[#9fa8da] uppercase tracking-wider mb-8">Signatures</div>
-          <div className="grid grid-cols-2 gap-16">
-            <div className="space-y-4">
-              <div className="text-[#9fa8da]">Provider Signature</div>
-              <div className="p-6 border border-[#9fa8da]/20 rounded">
-                <div className="font-light text-xl">{parsedContent.signature.provider || "Not signed"}</div>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="text-[#9fa8da]">Client Signature</div>
-              {isSigning ? (
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <input
-                      type="text"
-                      value={clientSignature}
-                      onChange={(e) => setClientSignature(e.target.value)}
-                      placeholder="Enter your full name"
-                      className="w-full px-6 py-4 bg-transparent border border-[#9fa8da]/20 rounded text-xl font-light focus:outline-none focus:border-[#9fa8da]"
-                    />
-                    <p className="text-sm text-[#9fa8da]">
-                      By entering your name above, you agree that this represents your electronic signature.
-                    </p>
-                  </div>
-                  <div className="flex gap-4">
-                    <button
-                      onClick={handleSign}
-                      disabled={!clientSignature.trim()}
-                      className="px-6 py-3 bg-white text-[#1a237e] rounded hover:bg-[#9fa8da] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Sign Proposal
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsSigning(false)
-                        setClientSignature("")
-                      }}
-                      className="px-6 py-3 border border-[#9fa8da]/20 rounded hover:bg-[#9fa8da]/10 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="p-6 border border-[#9fa8da]/20 rounded">
-                    <div className="font-light text-xl">
-                      {parsedContent.signature.client || "Not signed"}
-                    </div>
-                    {parsedContent.signature.client && (
-                      <div className="text-sm text-[#9fa8da] mt-2">
-                        Signed electronically
-                      </div>
-                    )}
-                  </div>
-                  {!parsedContent.signature.client && (
-                    <button
-                      onClick={() => setIsSigning(true)}
-                      className="px-6 py-3 bg-white text-[#1a237e] rounded hover:bg-[#9fa8da] transition-colors"
-                    >
-                      Add Signature
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-6">
-          <button
-            onClick={handleAccept}
-            disabled={!parsedContent.signature.client}
-            className="flex-1 px-6 py-4 bg-white text-[#1a237e] rounded text-xl font-light hover:bg-[#9fa8da] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Accept Proposal
-          </button>
-          <button
-            onClick={handleReject}
-            className="flex-1 px-6 py-4 border border-[#9fa8da]/20 rounded text-xl font-light hover:bg-[#9fa8da]/10 transition-colors"
-          >
-            Reject Proposal
-          </button>
-        </div>
+    <>
+      <div className="fixed top-4 right-4 z-50 flex gap-2">
+        <button
+          onClick={() => setTemplate("magazine")}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            template === "magazine"
+              ? "bg-white text-black"
+              : "bg-black/20 text-white hover:bg-black/30"
+          }`}
+        >
+          Magazine
+        </button>
+        <button
+          onClick={() => setTemplate("modern")}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            template === "modern"
+              ? "bg-white text-black"
+              : "bg-black/20 text-white hover:bg-black/30"
+          }`}
+        >
+          Modern
+        </button>
       </div>
-    </div>
+      {template === "magazine" ? (
+        <MagazineTemplate {...templateProps} />
+      ) : (
+        <ModernTemplate {...templateProps} />
+      )}
+    </>
   )
 } 
