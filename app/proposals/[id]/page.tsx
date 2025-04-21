@@ -18,6 +18,7 @@ import {
   Clock,
   Pencil,
   Eye,
+  MoreVertical,
 } from "lucide-react"
 import Sidebar from "@/components/sidebar"
 import { useAuth } from "@/lib/auth-context"
@@ -29,6 +30,14 @@ import BudgetInputList from "@/components/proposals/BudgetInputList"
 import SignatureBlock from "@/components/proposals/SignatureBlock"
 import DeliverablesInputList from "@/components/proposals/DeliverablesInputList"
 import { createProposal } from "@/app/actions/proposal-actions"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface BudgetItem {
   item: string;
@@ -430,31 +439,40 @@ export default function ProposalPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              {!isEditing && (
+              {!isEditing ? (
                 <>
                   <button
-                    onClick={() => router.push(`/proposals/${proposal.id}/preview`)}
+                    onClick={() => router.push(`/proposals/${params.id}/preview`)}
                     className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 transition-all"
                   >
                     <Eye className="w-4 h-4" />
                     <span>Preview</span>
                   </button>
-                  <button
-                    onClick={handleExportPDF}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 transition-all"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>Export PDF</span>
-                  </button>
-                  <button
-                    onClick={handleSend}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
-                  >
-                    <Send className="w-4 h-4" />
-                    <span>Send to Client</span>
-                  </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 transition-all">
+                        <MoreVertical className="w-4 h-4" />
+                        <span>More Actions</span>
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuItem onClick={handleExportPDF}>
+                        <Download className="w-4 h-4 mr-2" />
+                        <span>Export PDF</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleSend} className="text-blue-600">
+                        <Send className="w-4 h-4 mr-2" />
+                        <span>Send to Client</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleDelete} className="text-red-600">
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        <span>Delete</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </>
-              )}
+              ) : null}
               <button
                 onClick={() => setIsEditing(!isEditing)}
                 className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors"
@@ -471,15 +489,6 @@ export default function ProposalPage() {
                   </>
                 )}
               </button>
-              {!isEditing && (
-                <button
-                  onClick={handleDelete}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 hover:text-red-700 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  <span>Delete</span>
-                </button>
-              )}
             </div>
           </div>
 

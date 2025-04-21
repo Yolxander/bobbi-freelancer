@@ -9,6 +9,13 @@ import { ModernTemplate } from "@/app/components/proposal-templates/ModernTempla
 import { MinimalTemplate } from "@/app/components/proposal-templates/MinimalTemplate"
 import { StudioTemplate } from "@/app/components/proposal-templates/StudioTemplate"
 import { ParsedContent, Proposal, PaymentScheduleItem } from "@/types/proposals"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { ChevronLeft, Send, MoreVertical, Palette } from "lucide-react"
 
 export default function ProposalPreviewPage() {
   const router = useRouter()
@@ -233,46 +240,81 @@ export default function ProposalPreviewPage() {
   return (
     <>
       <div className="fixed top-4 right-4 z-50 flex gap-2">
-        <button
-          onClick={() => setTemplate("magazine")}
-          className={`px-4 py-2 rounded-lg transition-colors ${
-            template === "magazine"
-              ? "bg-white text-black"
-              : "bg-black/20 text-white hover:bg-black/30"
-          }`}
-        >
-          Magazine
-        </button>
-        <button
-          onClick={() => setTemplate("modern")}
-          className={`px-4 py-2 rounded-lg transition-colors ${
-            template === "modern"
-              ? "bg-white text-black"
-              : "bg-black/20 text-white hover:bg-black/30"
-          }`}
-        >
-          Modern
-        </button>
-        <button
-          onClick={() => setTemplate("minimal")}
-          className={`px-4 py-2 rounded-lg transition-colors ${
-            template === "minimal"
-              ? "bg-white text-black"
-              : "bg-black/20 text-white hover:bg-black/30"
-          }`}
-        >
-          Minimal
-        </button>
-        <button
-          onClick={() => setTemplate("studio")}
-          className={`px-4 py-2 rounded-lg transition-colors ${
-            template === "studio"
-              ? "bg-white text-black"
-              : "bg-black/20 text-white hover:bg-black/30"
-          }`}
-        >
-          Studio
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white hover:bg-white/20 transition-all">
+              <MoreVertical className="w-4 h-4" />
+              <span>Actions</span>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 bg-white/90 backdrop-blur-sm border border-white/20">
+            <DropdownMenuItem onClick={() => router.push(`/proposals/${params.id}`)}>
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              <span>Back to Edit</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleAccept} className="text-blue-600">
+              <Send className="w-4 h-4 mr-2" />
+              <span>Send to Client</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white hover:bg-white/20 transition-all">
+              <Palette className="w-4 h-4" />
+              <span>Theme</span>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-64 p-2 bg-transparent">
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setTemplate("magazine")}
+                className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all ${
+                  template === "magazine"
+                    ? "bg-blue-500/20 border border-blue-500/30"
+                    : "bg-white/10 border border-white/20 hover:bg-white/20"
+                }`}
+              >
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg mb-2" />
+                <span className="text-sm text-white">Magazine</span>
+              </button>
+              <button
+                onClick={() => setTemplate("modern")}
+                className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all ${
+                  template === "modern"
+                    ? "bg-blue-500/20 border border-blue-500/30"
+                    : "bg-white/10 border border-white/20 hover:bg-white/20"
+                }`}
+              >
+                <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-500 rounded-lg mb-2" />
+                <span className="text-sm text-white">Modern</span>
+              </button>
+              <button
+                onClick={() => setTemplate("minimal")}
+                className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all ${
+                  template === "minimal"
+                    ? "bg-blue-500/20 border border-blue-500/30"
+                    : "bg-white/10 border border-white/20 hover:bg-white/20"
+                }`}
+              >
+                <div className="w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-700 rounded-lg mb-2" />
+                <span className="text-sm text-white">Minimal</span>
+              </button>
+              <button
+                onClick={() => setTemplate("studio")}
+                className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all ${
+                  template === "studio"
+                    ? "bg-blue-500/20 border border-blue-500/30"
+                    : "bg-white/10 border border-white/20 hover:bg-white/20"
+                }`}
+              >
+                <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg mb-2" />
+                <span className="text-sm text-white">Studio</span>
+              </button>
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       {template === "magazine" ? (
         <MagazineTemplate {...templateProps} />
