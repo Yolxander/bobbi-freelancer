@@ -168,55 +168,57 @@ export default function ProposalsPage() {
           ) : (
             /* Proposals table */
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">Title</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">Client</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">Project</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">Status</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">Created</th>
-                    <th className="px-6 py-4 text-right text-sm font-medium text-gray-700">Actions</th>
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Title
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Client
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Project
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Valid Until
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="bg-white divide-y divide-gray-200">
                   {filteredProposals.map((proposal) => (
-                    <tr key={proposal.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4">
-                        <Link
-                          href={`/proposals/${proposal.id}`}
-                          className="text-sm font-medium text-gray-900 hover:text-gray-700 flex items-center gap-2"
-                        >
-                          <FileText className="w-4 h-4 text-gray-400" />
-                          {proposal.title}
-                        </Link>
+                    <tr key={proposal.id}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">{proposal.title}</div>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2 text-sm text-gray-700">
-                          <User className="w-4 h-4 text-gray-400" />
-                          {proposal.client_name}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{proposal.client?.name || 'N/A'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{proposal.project?.name || 'N/A'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {proposal.content?.timeline_end 
+                            ? new Date(proposal.content.timeline_end).toLocaleDateString()
+                            : 'N/A'}
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2 text-sm text-gray-700">
-                          <Building className="w-4 h-4 text-gray-400" />
-                          {proposal.project_name}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                            proposal.status
-                          )}`}
-                        >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          proposal.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
+                          proposal.status === 'sent' ? 'bg-blue-100 text-blue-800' :
+                          proposal.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
                           {proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}
                         </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2 text-sm text-gray-700">
-                          <Clock className="w-4 h-4 text-gray-400" />
-                          {new Date(proposal.created_at).toLocaleDateString()}
-                        </div>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
