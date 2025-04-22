@@ -24,6 +24,15 @@ const dummyProposals: Proposal[] = [
         'Mid-Project': 2000,
         'Final Payment': 2000
       }),
+      terms_and_conditions: JSON.stringify({
+        'Payment Terms': '50% upfront, 50% upon completion',
+        'Cancellation Policy': 'No refunds after 50% completion'
+      }),
+      client_responsibilities: JSON.stringify([
+        'Provide content and images',
+        'Review and approve designs',
+        'Provide feedback within 48 hours'
+      ]),
       signature: JSON.stringify({ provider: '', client: '' })
     },
     client: {
@@ -494,6 +503,7 @@ export const acceptProposal = async (id: string): Promise<Proposal> => {
     throw new Error(errorData.message || 'Failed to accept proposal');
   }
   const data = await response.json();
+  
   return {
     id: data.id,
     title: data.title,
@@ -505,86 +515,94 @@ export const acceptProposal = async (id: string): Promise<Proposal> => {
     content: {
       id: data.content.id,
       proposal_id: data.content.proposal_id,
-      scope_of_work: data.content.scope_of_work,
-      deliverables: data.content.deliverables,
-      timeline_start: data.content.timeline_start,
-      timeline_end: data.content.timeline_end,
-      pricing: data.content.pricing,
-      payment_schedule: data.content.payment_schedule,
-      signature: data.content.signature
+      scope_of_work: data.content.scope_of_work || '',
+      deliverables: data.content.deliverables || '[]',
+      timeline_start: data.content.timeline_start || '',
+      timeline_end: data.content.timeline_end || '',
+      pricing: data.content.pricing || '[]',
+      payment_schedule: data.content.payment_schedule || '{}',
+      terms_and_conditions: data.content.terms_and_conditions || '{}',
+      client_responsibilities: data.content.client_responsibilities || '[]',
+      signature: data.content.signature || '{}',
+      created_at: data.content.created_at,
+      updated_at: data.content.updated_at
     },
     client: data.client,
-    project: data.project
+    project: data.project,
+    created_at: data.created_at,
+    updated_at: data.updated_at
   };
 };
 
 // Update the rejectProposal function to use new property names
-export const rejectProposal = async (id: string): Promise<Proposal> => {
+export async function rejectProposal(id: string): Promise<Proposal> {
   const response = await fetch(`${API_BASE_URL}/proposals/${id}/reject`, {
     method: 'POST',
-  });
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Failed to reject proposal');
+    throw new Error('Failed to reject proposal')
   }
-  const data = await response.json();
+
+  const data = await response.json()
+  
   return {
-    id: data.id,
-    title: data.title,
-    client_id: data.client_id,
-    project_id: data.project_id,
-    status: data.status,
-    is_template: data.is_template,
-    current_version: data.current_version,
+    ...data,
     content: {
       id: data.content.id,
       proposal_id: data.content.proposal_id,
-      scope_of_work: data.content.scope_of_work,
-      deliverables: data.content.deliverables,
-      timeline_start: data.content.timeline_start,
-      timeline_end: data.content.timeline_end,
-      pricing: data.content.pricing,
-      payment_schedule: data.content.payment_schedule,
-      signature: data.content.signature
-    },
-    client: data.client,
-    project: data.project
-  };
-};
+      scope_of_work: data.content.scope_of_work || '',
+      deliverables: data.content.deliverables || '',
+      timeline_start: data.content.timeline_start || '',
+      timeline_end: data.content.timeline_end || '',
+      pricing: data.content.pricing || '',
+      payment_schedule: data.content.payment_schedule || '',
+      terms_and_conditions: data.content.terms_and_conditions || '',
+      client_responsibilities: data.content.client_responsibilities || '',
+      signature: data.content.signature || '',
+      created_at: data.content.created_at,
+      updated_at: data.content.updated_at
+    }
+  }
+}
 
 // Update the duplicateProposal function to use new property names
-export const duplicateProposal = async (id: string): Promise<Proposal> => {
+export async function duplicateProposal(id: string): Promise<Proposal> {
   const response = await fetch(`${API_BASE_URL}/proposals/${id}/duplicate`, {
     method: 'POST',
-  });
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Failed to duplicate proposal');
+    throw new Error('Failed to duplicate proposal')
   }
-  const data = await response.json();
+
+  const data = await response.json()
+  
   return {
-    id: data.id,
-    title: data.title,
-    client_id: data.client_id,
-    project_id: data.project_id,
-    status: data.status,
-    is_template: data.is_template,
-    current_version: data.current_version,
+    ...data,
     content: {
       id: data.content.id,
       proposal_id: data.content.proposal_id,
-      scope_of_work: data.content.scope_of_work,
-      deliverables: data.content.deliverables,
-      timeline_start: data.content.timeline_start,
-      timeline_end: data.content.timeline_end,
-      pricing: data.content.pricing,
-      payment_schedule: data.content.payment_schedule,
-      signature: data.content.signature
-    },
-    client: data.client,
-    project: data.project
-  };
-};
+      scope_of_work: data.content.scope_of_work || '',
+      deliverables: data.content.deliverables || '',
+      timeline_start: data.content.timeline_start || '',
+      timeline_end: data.content.timeline_end || '',
+      pricing: data.content.pricing || '',
+      payment_schedule: data.content.payment_schedule || '',
+      terms_and_conditions: data.content.terms_and_conditions || '',
+      client_responsibilities: data.content.client_responsibilities || '',
+      signature: data.content.signature || '',
+      created_at: data.content.created_at,
+      updated_at: data.content.updated_at
+    }
+  }
+}
 
 // Attachments
 export const getAttachments = async (proposalId: string): Promise<Attachment[]> => {

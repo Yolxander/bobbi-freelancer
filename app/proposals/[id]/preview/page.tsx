@@ -187,8 +187,7 @@ export default function ProposalPreviewPage() {
 
     try {
       const updatedProposal = await acceptProposal(proposal.id)
-      // After successful acceptance, redirect to success page
-      router.push(`/proposals/${proposal.id}/accepted`)
+
     } catch (err) {
       console.error("Failed to accept proposal:", err)
       setError("Failed to accept proposal")
@@ -200,8 +199,7 @@ export default function ProposalPreviewPage() {
 
     try {
       const updatedProposal = await rejectProposal(proposal.id)
-      // After successful rejection, redirect to rejection page
-      router.push(`/proposals/${proposal.id}/rejected`)
+
     } catch (err) {
       console.error("Failed to reject proposal:", err)
       setError("Failed to reject proposal")

@@ -20,15 +20,19 @@ export interface PricingItem {
 }
 
 export interface ProposalContent {
-  title: string
-  description: string
-  deliverables: string[]
-  pricing: PricingItem[]
-  payment_schedule: Record<string, number>
-  signature: {
-    provider: string
-    client: string
-  }
+  id: string
+  proposal_id: string
+  scope_of_work: string
+  deliverables: string
+  timeline_start: string
+  timeline_end: string
+  pricing: string
+  payment_schedule: string
+  terms_and_conditions: string
+  client_responsibilities: string
+  signature: string
+  created_at: string
+  updated_at: string
 }
 
 export interface PaymentScheduleItem {
