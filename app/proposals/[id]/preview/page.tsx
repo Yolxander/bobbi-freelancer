@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { getProposal, addSignature, acceptProposal, rejectProposal } from "@/app/actions/proposal-actions"
+import { getProposal, addSignature, acceptProposal, rejectProposal, sendProposal } from "@/app/actions/proposal-actions"
 import { useAuth } from "@/lib/auth-context"
 import { MagazineTemplate } from "@/app/components/proposal-templates/MagazineTemplate"
 import { ModernTemplate } from "@/app/components/proposal-templates/ModernTemplate"
@@ -15,7 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronLeft, Send, MoreVertical, Palette } from "lucide-react"
+import { ChevronLeft, Send, MoreVertical, Palette, CheckCircle2 } from "lucide-react"
 
 export default function ProposalPreviewPage() {
   const router = useRouter()
@@ -28,6 +28,8 @@ export default function ProposalPreviewPage() {
   const [clientSignature, setClientSignature] = useState("")
   const [parsedContent, setParsedContent] = useState<ParsedContent | null>(null)
   const [template, setTemplate] = useState<"magazine" | "modern" | "minimal" | "studio">("modern")
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [proposalLink, setProposalLink] = useState<string>("")
 
   useEffect(() => {
     const fetchProposal = async () => {
@@ -186,11 +188,14 @@ export default function ProposalPreviewPage() {
     if (!proposal) return
 
     try {
-      const updatedProposal = await acceptProposal(proposal.id)
-
+      const result = await sendProposal(proposal.id)
+      if (result.success) {
+        setProposalLink(result.clientUrl)
+        setShowSuccessModal(true)
+      }
     } catch (err) {
-      console.error("Failed to accept proposal:", err)
-      setError("Failed to accept proposal")
+      console.error("Failed to send proposal:", err)
+      setError("Failed to send proposal")
     }
   }
 
@@ -350,6 +355,56 @@ export default function ProposalPreviewPage() {
 
        
       </div>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className={`p-6 max-w-md w-full mx-4 rounded-xl backdrop-blur-xl ${
+            template === "minimal" 
+              ? "bg-white/20 border border-white/20" 
+              : "bg-[#1a237e]/20 border border-white/20"
+          }`}>
+            <div className="flex flex-col items-center text-center">
+              <CheckCircle2 className={`w-12 h-12 mb-4 ${
+                template === "minimal" ? "text-gray-900" : "text-white"
+              }`} />
+              <h3 className={`text-xl font-semibold mb-2 ${
+                template === "minimal" ? "text-gray-900" : "text-white"
+              }`}>
+                Proposal Sent Successfully!
+              </h3>
+              <p className={`mb-6 ${
+                template === "minimal" ? "text-gray-700" : "text-white/90"
+              }`}>
+                The proposal link has been sent to the client. They can now review and sign it online.
+              </p>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => window.open(proposalLink, "_blank")}
+                  className={`px-4 py-2 rounded-xl transition-all backdrop-blur-sm ${
+                    template === "minimal"
+                      ? "bg-gray-900/80 text-white hover:bg-gray-900 border border-gray-800/20"
+                      : "bg-white/20 text-white hover:bg-white/30 border border-white/20"
+                  }`}
+                >
+                  See Proposal
+                </button>
+                <button
+                  onClick={() => setShowSuccessModal(false)}
+                  className={`px-4 py-2 rounded-xl transition-all backdrop-blur-sm ${
+                    template === "minimal"
+                      ? "bg-white/20 text-gray-900 hover:bg-white/30 border border-gray-200/20"
+                      : "bg-white/10 text-white hover:bg-white/20 border border-white/20"
+                  }`}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {template === "magazine" ? (
         <MagazineTemplate {...templateProps} />
       ) : template === "modern" ? (
