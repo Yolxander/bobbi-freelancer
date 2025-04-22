@@ -240,9 +240,13 @@ export default function ProposalPreviewPage() {
   return (
     <>
       <div className="fixed top-4 right-4 z-50 flex gap-2">
-      <DropdownMenu>
+        <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white hover:bg-white/20 transition-all">
+            <button className={`flex items-center gap-2 px-4 py-2 backdrop-blur-sm border rounded-xl transition-all ${
+              template === "minimal" 
+                ? "bg-black/10 hover:bg-black/20 border-black/20 text-black" 
+                : "bg-white/10 hover:bg-white/20 border-white/20 text-white"
+            }`}>
               <Palette className="w-4 h-4" />
               <span>Theme</span>
             </button>
@@ -257,7 +261,7 @@ export default function ProposalPreviewPage() {
                     : "border border-[#1a237e]/30"
                 }`}
               >
-            
+          
                 <span className="text-sm text-white">Magazine</span>
               </button>
               <button
@@ -298,7 +302,11 @@ export default function ProposalPreviewPage() {
         </DropdownMenu>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white hover:bg-white/20 transition-all">
+            <button className={`flex items-center gap-2 px-4 py-2 backdrop-blur-sm border rounded-xl transition-all ${
+              template === "minimal" 
+                ? "bg-black/10 hover:bg-black/20 border-black/20 text-black" 
+                : "bg-white/10 hover:bg-white/20 border-white/20 text-white"
+            }`}>
               <MoreVertical className="w-4 h-4" />
               <span>Actions</span>
             </button>
@@ -307,17 +315,25 @@ export default function ProposalPreviewPage() {
             <div className="grid grid-cols-1 gap-2 border-none">
               <button
                 onClick={() => router.push(`/proposals/${params.id}`)}
-                className="flex items-center gap-2 p-3 rounded-lg transition-all backdrop-blur-sm bg-[#1a237e]/20 hover:bg-[#1a237e]/30 border border-[#1a237e]/30"
+                className={`flex items-center gap-2 p-3 rounded-lg transition-all backdrop-blur-sm ${
+                  template === "minimal"
+                    ? "bg-black/10 hover:bg-black/20 border-black/20"
+                    : "bg-[#1a237e]/20 hover:bg-[#1a237e]/30 border-[#1a237e]/30"
+                }`}
               >
-                <ChevronLeft className="w-4 h-4 text-white" />
-                <span className="text-sm text-white">Back to Edit</span>
+                <ChevronLeft className={`w-4 h-4 ${template === "minimal" ? "text-black" : "text-white"}`} />
+                <span className={`text-sm ${template === "minimal" ? "text-black" : "text-white"}`}>Back to Edit</span>
               </button>
               <button
                 onClick={handleAccept}
-                className="flex items-center gap-2 p-3 rounded-lg transition-all backdrop-blur-sm bg-[#B8B2A7]/20 hover:bg-[#B8B2A7]/30 border border-[#B8B2A7]/30"
+                className={`flex items-center gap-2 p-3 rounded-lg transition-all backdrop-blur-sm ${
+                  template === "minimal"
+                    ? "bg-black/10 hover:bg-black/20 border-black/20"
+                    : "bg-[#B8B2A7]/20 hover:bg-[#B8B2A7]/30 border-[#B8B2A7]/30"
+                }`}
               >
-                <Send className="w-4 h-4 text-white" />
-                <span className="text-sm text-white">Send to Client</span>
+                <Send className={`w-4 h-4 ${template === "minimal" ? "text-black" : "text-white"}`} />
+                <span className={`text-sm ${template === "minimal" ? "text-black" : "text-white"}`}>Send to Client</span>
               </button>
             </div>
           </DropdownMenuContent>
