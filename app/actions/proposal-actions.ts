@@ -153,24 +153,32 @@ const versions: Version[] = [
 ];
 
 // Types
+export interface ProposalContent {
+  id?: string;
+  proposal_id?: string;
+  scope_of_work?: string;
+  deliverables: string;
+  timeline_start: string;
+  timeline_end: string;
+  pricing: string;
+  payment_schedule: string;
+  terms_and_conditions: string;
+  client_responsibilities: string;
+  signature: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface Proposal {
-  id: string;
+  id?: string;
   title: string;
   client_id: string;
   project_id: string;
-  status: 'draft' | 'sent' | 'accepted' | 'rejected';
+  status?: 'draft' | 'sent' | 'accepted' | 'rejected';
+  content: ProposalContent;
   is_template?: boolean;
   current_version?: number;
   client_token?: string;
-  content: {
-    scope_of_work?: string;
-    deliverables: string;
-    timeline_start: string;
-    timeline_end: string;
-    pricing: string;
-    payment_schedule: string;
-    signature: string;
-  };
   client?: {
     id: string;
     name: string;
@@ -331,93 +339,105 @@ export const getProposal = async (id: string): Promise<Proposal | null> => {
     content: {
       id: data.content.id,
       proposal_id: data.content.proposal_id,
-      scope_of_work: data.content.scope_of_work,
-      deliverables: data.content.deliverables,
-      timeline_start: data.content.timeline_start,
-      timeline_end: data.content.timeline_end,
-      pricing: data.content.pricing,
-      payment_schedule: data.content.payment_schedule,
-      signature: data.content.signature
+      scope_of_work: data.content.scope_of_work || '',
+      deliverables: data.content.deliverables || '[]',
+      timeline_start: data.content.timeline_start || '',
+      timeline_end: data.content.timeline_end || '',
+      pricing: data.content.pricing || '[]',
+      payment_schedule: data.content.payment_schedule || '{}',
+      terms_and_conditions: data.content.terms_and_conditions || '',
+      client_responsibilities: data.content.client_responsibilities || '{}',
+      signature: data.content.signature || '{}',
+      created_at: data.content.created_at,
+      updated_at: data.content.updated_at
     },
     client: data.client,
     project: data.project
   };
 };
 
-export async function createProposal(data: {
-  title: string;
-  client_id: string;
-  project_id: string;
-  status?: 'draft' | 'sent' | 'accepted' | 'rejected';
-  is_template?: boolean;
-  current_version?: number;
-  content: {
-    scope_of_work: string;
-    deliverables: string;
-    timeline_start: string;
-    timeline_end: string;
-    pricing: string;
-    payment_schedule: string;
-    signature: string;
-  };
-}): Promise<Proposal> {
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
-
+export async function createProposal(data: Partial<Proposal>): Promise<Proposal> {
   try {
-    console.log('Sending raw data to API:', data);
-
     const response = await fetch(`${API_BASE_URL}/proposals`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        title: data.title,
+        client_id: data.client_id,
+        project_id: data.project_id,
+        status: data.status || 'draft',
+        is_template: data.is_template || false,
+        current_version: data.current_version || 1,
+        content: {
+          id: data.content?.id,
+          proposal_id: data.content?.proposal_id,
+          scope_of_work: data.content?.scope_of_work || '',
+          deliverables: data.content?.deliverables || '[]',
+          timeline_start: data.content?.timeline_start || '',
+          timeline_end: data.content?.timeline_end || '',
+          pricing: data.content?.pricing || '[]',
+          payment_schedule: data.content?.payment_schedule || '{}',
+          terms_and_conditions: data.content?.terms_and_conditions || '',
+          client_responsibilities: data.content?.client_responsibilities || '{}',
+          signature: data.content?.signature || '{}'
+        }
+      }),
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      console.error('API Error:', error);
-      throw new Error(error.message || 'Failed to create proposal');
+      throw new Error('Failed to create proposal');
     }
 
-    const result = await response.json();
-    console.log('API Response:', result);
-    return result;
+    const proposal = await response.json();
+    return proposal;
   } catch (error) {
     console.error('Error creating proposal:', error);
     throw error;
   }
 }
 
-export async function updateProposal(id: string, data: {
-  title?: string;
-  client_id?: string;
-  project_id?: string;
-  content?: {
-    scope_of_work?: string;
-    deliverables?: string;
-    timeline_start?: string;
-    timeline_end?: string;
-    pricing?: string;
-    payment_schedule?: string;
-    signature?: string;
-  };
-}): Promise<Proposal> {
-  const response = await fetch(`${API_BASE_URL}/proposals/${id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
+export async function updateProposal(id: string, data: Partial<Proposal>): Promise<Proposal> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/proposals/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title: data.title,
+        client_id: data.client_id,
+        project_id: data.project_id,
+        status: data.status,
+        is_template: data.is_template,
+        current_version: data.current_version,
+        content: {
+          id: data.content?.id,
+          proposal_id: data.content?.proposal_id,
+          scope_of_work: data.content?.scope_of_work || '',
+          deliverables: data.content?.deliverables || '[]',
+          timeline_start: data.content?.timeline_start || '',
+          timeline_end: data.content?.timeline_end || '',
+          pricing: data.content?.pricing || '[]',
+          payment_schedule: data.content?.payment_schedule || '{}',
+          terms_and_conditions: data.content?.terms_and_conditions || '',
+          client_responsibilities: data.content?.client_responsibilities || '{}',
+          signature: data.content?.signature || '{}'
+        }
+      }),
+    });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to update proposal');
+    if (!response.ok) {
+      throw new Error('Failed to update proposal');
+    }
+
+    const proposal = await response.json();
+    return proposal;
+  } catch (error) {
+    console.error('Error updating proposal:', error);
+    throw error;
   }
-
-  return response.json();
 }
 
 export const deleteProposal = async (id: string): Promise<void> => {

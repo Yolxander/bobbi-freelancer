@@ -19,30 +19,37 @@ export default function BudgetInputList({ value, onChange, readOnly = false }: B
 
   useEffect(() => {
     try {
-      const parsedValue = JSON.parse(value)
+      const parsedValue = JSON.parse(value || '[]')
       setItems(Array.isArray(parsedValue) ? parsedValue : [])
     } catch (e) {
+      console.error('Error parsing pricing:', e)
       setItems([])
     }
   }, [value])
 
   const handleAddItem = () => {
-    const newItems = [...items, { item: "", amount: 0 }]
-    setItems(newItems)
-    onChange(JSON.stringify(newItems))
+    if (!readOnly) {
+      const newItems = [...items, { item: "", amount: 0 }]
+      setItems(newItems)
+      onChange(JSON.stringify(newItems))
+    }
   }
 
   const handleRemoveItem = (index: number) => {
-    const newItems = items.filter((_, i) => i !== index)
-    setItems(newItems)
-    onChange(JSON.stringify(newItems))
+    if (!readOnly) {
+      const newItems = items.filter((_, i) => i !== index)
+      setItems(newItems)
+      onChange(JSON.stringify(newItems))
+    }
   }
 
   const handleItemChange = (index: number, field: keyof BudgetItem, value: string | number) => {
-    const newItems = [...items]
-    newItems[index] = { ...newItems[index], [field]: value }
-    setItems(newItems)
-    onChange(JSON.stringify(newItems))
+    if (!readOnly) {
+      const newItems = [...items]
+      newItems[index] = { ...newItems[index], [field]: value }
+      setItems(newItems)
+      onChange(JSON.stringify(newItems))
+    }
   }
 
   const total = items.reduce((sum, item) => sum + (item.amount || 0), 0)

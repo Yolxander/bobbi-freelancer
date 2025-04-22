@@ -29,15 +29,10 @@ import DateRangePicker from "@/components/proposals/DateRangePicker"
 import BudgetInputList from "@/components/proposals/BudgetInputList"
 import SignatureBlock from "@/components/proposals/SignatureBlock"
 import DeliverablesInputList from "@/components/proposals/DeliverablesInputList"
-import { createProposal } from "@/app/actions/proposal-actions"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import PaymentScheduleInput from "@/components/proposals/PaymentScheduleInput"
+import TextEditor from '@/components/proposals/TextEditor'
+import TermsAndConditionsInput from '@/components/proposals/TermsAndConditionsInput'
+import ClientResponsibilitiesInput from '@/components/proposals/ClientResponsibilitiesInput'
 
 interface BudgetItem {
   item: string;
@@ -67,12 +62,18 @@ interface DeliverablesList {
 
 interface PricingList {
   value: string;  // JSON string
-  onChange: (value: Array<{ item: string; amount: number }>) => void;
+  onChange: (value: string) => void;
 }
 
 interface PaymentSchedule {
-  value: string;  // JSON string
-  onChange: (value: Record<string, number>) => void;
+  value: PaymentMilestone[]
+  onChange: (value: PaymentMilestone[]) => void
+}
+
+interface PaymentMilestone {
+  milestone: string
+  amount: number
+  due_date: string
 }
 
 interface SignatureData {
@@ -82,12 +83,14 @@ interface SignatureData {
 
 interface ProposalContent {
   id?: string;
-  scope_of_work?: string;
+  scope_of_work: string;
   deliverables: string;  // JSON string
   timeline_start: string;
   timeline_end: string;
   pricing: string;  // JSON string
   payment_schedule: string;  // JSON string
+  terms_and_conditions: string;
+  client_responsibilities: string;  // JSON string
   signature: string;  // JSON string
 }
 
@@ -97,11 +100,11 @@ interface ProposalData {
   client_id: string;
   project_id: string;
   status: 'draft' | 'sent' | 'accepted' | 'rejected';
+  is_template?: boolean;
+  current_version?: number;
   content: ProposalContent;
   created_at: string;
   updated_at: string;
-  is_template?: boolean;
-  current_version?: number;
 }
 
 export default function ProposalPage() {
@@ -115,16 +118,28 @@ export default function ProposalPage() {
     client_id: '',
     project_id: '',
     status: 'draft',
+    is_template: false,
+    current_version: 1,
     content: {
+      scope_of_work: '',
       deliverables: '[]',
-      pricing: '[]',
-      payment_schedule: '{}',
       timeline_start: '',
       timeline_end: '',
+      pricing: '[]',
+      payment_schedule: '{}',
+      terms_and_conditions: '',
+      client_responsibilities: '{}',
       signature: '{}'
     }
   })
   const [isEditing, setIsEditing] = useState(false)
+  const [paymentSchedule, setPaymentSchedule] = useState<PaymentMilestone[]>(() => {
+    try {
+      return JSON.parse(proposal.content.payment_schedule || '[]')
+    } catch {
+      return []
+    }
+  })
 
   useEffect(() => {
     const fetchProposal = async () => {
@@ -140,18 +155,29 @@ export default function ProposalPage() {
         }
 
         const parsedData = {
-          ...fetchedProposal,
+          title: fetchedProposal.title,
+          client_id: fetchedProposal.client_id,
+          project_id: fetchedProposal.project_id,
+          status: fetchedProposal.status as 'draft' | 'sent' | 'accepted' | 'rejected',
+          is_template: fetchedProposal.is_template,
+          current_version: fetchedProposal.current_version,
           content: {
-            ...fetchedProposal.content,
+            scope_of_work: fetchedProposal.content.scope_of_work || '',
             deliverables: typeof fetchedProposal.content.deliverables === 'string' 
               ? fetchedProposal.content.deliverables 
               : JSON.stringify(fetchedProposal.content.deliverables || []),
+            timeline_start: fetchedProposal.content.timeline_start,
+            timeline_end: fetchedProposal.content.timeline_end,
             pricing: typeof fetchedProposal.content.pricing === 'string'
               ? fetchedProposal.content.pricing
               : JSON.stringify(fetchedProposal.content.pricing || []),
             payment_schedule: typeof fetchedProposal.content.payment_schedule === 'string'
               ? fetchedProposal.content.payment_schedule
-              : JSON.stringify(fetchedProposal.content.payment_schedule || {}),
+              : JSON.stringify(fetchedProposal.content.payment_schedule || []),
+            terms_and_conditions: fetchedProposal.content.terms_and_conditions || '',
+            client_responsibilities: typeof fetchedProposal.content.client_responsibilities === 'string'
+              ? fetchedProposal.content.client_responsibilities
+              : JSON.stringify(fetchedProposal.content.client_responsibilities || {}),
             signature: typeof fetchedProposal.content.signature === 'string'
               ? fetchedProposal.content.signature
               : JSON.stringify(fetchedProposal.content.signature || { provider: '', client: '' })
@@ -199,10 +225,34 @@ export default function ProposalPage() {
           timeline_end: proposal.content.timeline_end,
           pricing: proposal.content.pricing,
           payment_schedule: proposal.content.payment_schedule,
+          terms_and_conditions: proposal.content.terms_and_conditions,
+          client_responsibilities: proposal.content.client_responsibilities,
           signature: proposal.content.signature
         }
       })
-      setProposal(updatedProposal)
+
+      // Convert the response to match our state type
+      const convertedProposal = {
+        title: updatedProposal.title,
+        client_id: updatedProposal.client_id,
+        project_id: updatedProposal.project_id,
+        status: updatedProposal.status as 'draft' | 'sent' | 'accepted' | 'rejected',
+        is_template: updatedProposal.is_template,
+        current_version: updatedProposal.current_version,
+        content: {
+          scope_of_work: updatedProposal.content.scope_of_work || '',
+          deliverables: updatedProposal.content.deliverables,
+          timeline_start: updatedProposal.content.timeline_start,
+          timeline_end: updatedProposal.content.timeline_end,
+          pricing: updatedProposal.content.pricing,
+          payment_schedule: updatedProposal.content.payment_schedule,
+          terms_and_conditions: updatedProposal.content.terms_and_conditions || '',
+          client_responsibilities: updatedProposal.content.client_responsibilities || '{}',
+          signature: updatedProposal.content.signature
+        }
+      }
+      
+      setProposal(convertedProposal)
       setIsEditing(false)
     } catch (error) {
       console.error("Error updating proposal:", error)
@@ -308,23 +358,28 @@ export default function ProposalPage() {
   }
 
   const handlePricingChange: PricingList['onChange'] = (value) => {
-    setProposal(prev => ({
-      ...prev,
-      content: {
-        ...prev.content,
-        pricing: typeof value === 'string' ? value : JSON.stringify(value)
-      }
-    }))
+    if (isEditing) {
+      setProposal(prev => ({
+        ...prev,
+        content: {
+          ...prev.content,
+          pricing: value
+        }
+      }))
+    }
   }
 
   const handlePaymentScheduleChange: PaymentSchedule['onChange'] = (value) => {
-    setProposal(prev => ({
-      ...prev,
-      content: {
-        ...prev.content,
-        payment_schedule: typeof value === 'string' ? value : JSON.stringify(value)
-      }
-    }))
+    if (isEditing) {
+      setPaymentSchedule(value)
+      setProposal({
+        ...proposal,
+        content: {
+          ...proposal.content,
+          payment_schedule: JSON.stringify(value)
+        }
+      })
+    }
   }
 
   const handleSignatureChange: SignatureData['onChange'] = (value) => {
@@ -333,6 +388,38 @@ export default function ProposalPage() {
       content: {
         ...prev.content,
         signature: typeof value === 'string' ? value : JSON.stringify(value)
+      }
+    }))
+  }
+
+  const handleScopeOfWorkChange = (value: string) => {
+    setProposal(prev => ({
+      ...prev,
+      content: {
+        ...prev.content,
+        scope_of_work: value
+      }
+    }))
+  }
+
+  const handleTermsAndConditionsChange = (value: string) => {
+    if (isEditing) {
+      setProposal(prev => ({
+        ...prev,
+        content: {
+          ...prev.content,
+          terms_and_conditions: value
+        }
+      }))
+    }
+  }
+
+  const handleClientResponsibilitiesChange = (value: string) => {
+    setProposal(prev => ({
+      ...prev,
+      content: {
+        ...prev.content,
+        client_responsibilities: value
       }
     }))
   }
@@ -349,27 +436,31 @@ export default function ProposalPage() {
     }
   }
 
-  const parsePaymentSchedule = (value: any) => {
+  const parsePaymentSchedule = (value: any): PaymentMilestone[] => {
     if (!value) return []
     if (Array.isArray(value)) return value
-    if (typeof value === 'object') return value
     try {
-      return JSON.parse(value)
+      const parsed = JSON.parse(value)
+      return Array.isArray(parsed) ? parsed : []
     } catch (e) {
       console.error('Error parsing payment schedule:', e)
       return []
     }
   }
 
-  const parsePricing = (value: any) => {
-    if (!value) return { type: 'fixed', amount: '0', currency: 'USD' }
-    if (typeof value === 'object') return value
-    try {
-      return JSON.parse(value)
-    } catch (e) {
-      console.error('Error parsing pricing:', e)
-      return { type: 'fixed', amount: '0', currency: 'USD' }
+  const parsePricing = (value: any): BudgetItem[] => {
+    if (!value) return []
+    if (Array.isArray(value)) return value
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value)
+        return Array.isArray(parsed) ? parsed : []
+      } catch (e) {
+        console.error('Error parsing pricing:', e)
+        return []
+      }
     }
+    return []
   }
 
   const parseSignature = (value: any) => {
@@ -380,6 +471,45 @@ export default function ProposalPage() {
     } catch (e) {
       console.error('Error parsing signature:', e)
       return { provider: '', client: '' }
+    }
+  }
+
+  const parseTermsAndConditions = (value: any) => {
+    if (!value) return {
+      revisionLimits: '',
+      intellectualProperty: '',
+      confidentiality: '',
+      termination: '',
+      liability: '',
+      governingLaw: ''
+    }
+    try {
+      return JSON.parse(value)
+    } catch (e) {
+      console.error('Error parsing terms and conditions:', e)
+      return {
+        revisionLimits: '',
+        intellectualProperty: '',
+        confidentiality: '',
+        termination: '',
+        liability: '',
+        governingLaw: ''
+      }
+    }
+  }
+
+  const parseClientResponsibilities = (value: any): string[] => {
+    if (!value) return []
+    if (Array.isArray(value)) return value
+    if (typeof value === 'object') return Object.values(value)
+    try {
+      const parsed = JSON.parse(value)
+      if (Array.isArray(parsed)) return parsed
+      if (typeof parsed === 'object') return Object.values(parsed)
+      return []
+    } catch (e) {
+      console.error('Error parsing client responsibilities:', e)
+      return []
     }
   }
 
@@ -437,80 +567,58 @@ export default function ProposalPage() {
   }
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="flex h-screen bg-gray-100">
       <Sidebar />
-
       <div className="flex-1 overflow-auto">
-        <div className="p-6 max-w-7xl mx-auto">
+        <div className="p-8">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <button
-                onClick={() => router.push("/proposals")}
-                className="text-gray-700 hover:text-gray-900 transition-colors"
+                onClick={() => router.push('/proposals')}
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ArrowLeft className="w-5 h-5" />
+                <span>Back to Proposals</span>
               </button>
-              <h1 className="text-2xl font-bold text-gray-900">Proposal Details</h1>
+              <h1 className="text-2xl font-semibold text-gray-900">
+                {isEditing ? 'Edit Proposal' : 'View Proposal'}
+              </h1>
             </div>
-
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               {!isEditing ? (
                 <>
                   <button
-                    onClick={() => router.push(`/proposals/${params.id}/preview`)}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 transition-all"
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
                   >
-                    <Eye className="w-4 h-4" />
-                    <span>Preview</span>
-                  </button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 transition-all">
-                        <MoreVertical className="w-4 h-4" />
-                        <span>More Actions</span>
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuItem onClick={handleExportPDF}>
-                        <Download className="w-4 h-4 mr-2" />
-                        <span>Export PDF</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleSend} className="text-blue-600">
-                        <Send className="w-4 h-4 mr-2" />
-                        <span>Send to Client</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleDelete} className="text-red-600">
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        <span>Delete</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </>
-              ) : null}
-              <button
-                onClick={() => {
-                  if (isEditing) {
-                    handleSave();
-                  } else {
-                    setIsEditing(true);
-                  }
-                }}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors"
-              >
-                {isEditing ? (
-                  <>
-                    <Save className="w-4 h-4" />
-                    <span>Save Changes</span>
-                  </>
-                ) : (
-                  <>
                     <Edit className="w-4 h-4" />
-                    <span>Edit Proposal</span>
-                  </>
-                )}
-              </button>
+                    <span>Edit</span>
+                  </button>
+                  <button
+                    onClick={handleExportPDF}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Export PDF</span>
+                  </button>
+                  <button
+                    onClick={handleSend}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>Send to Client</span>
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleSave}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Save Changes</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -544,7 +652,7 @@ export default function ProposalPage() {
             </div>
 
             {/* Project & Client Selection */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Project</h2>
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-2">
@@ -554,6 +662,7 @@ export default function ProposalPage() {
                       if (!projectId) return
                       setProposal({ ...proposal, project_id: projectId })
                     }}
+                    readOnly={!isEditing}
                   />
                 </div>
               </div>
@@ -566,265 +675,179 @@ export default function ProposalPage() {
                       if (!clientId) return
                       setProposal({ ...proposal, client_id: clientId })
                     }}
+                    readOnly={!isEditing}
                   />
                 </div>
               </div>
             </div>
 
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Scope of Work</label>
-              <textarea
-                className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 min-h-[200px] text-gray-900 transition-colors"
-                value={proposal.content?.scope_of_work || ""}
-                onChange={(e) =>
-                  setProposal({
-                    ...proposal,
-                    content: {
-                      ...proposal.content,
-                      scope_of_work: e.target.value
-                    }
-                  })
-                }
-                readOnly={!isEditing}
-              />
-            </div>
-
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Deliverables</label>
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <DeliverablesInputList
-                  value={parseDeliverables(proposal.content?.deliverables)}
-                  onChange={handleDeliverablesChange}
-                  readOnly={!isEditing}
-                />
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Timeline</label>
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <DateRangePicker
-                  value={{
-                    start: proposal.content.timeline_start ? new Date(proposal.content.timeline_start).toISOString().split('T')[0] : '',
-                    end: proposal.content.timeline_end ? new Date(proposal.content.timeline_end).toISOString().split('T')[0] : ''
-                  }}
-                  onChange={handleTimelineChange}
-                  readOnly={!isEditing}
-                />
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Pricing</label>
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                {proposal.content?.pricing ? (
-                  <div className="flex flex-col gap-2">
-                    {(() => {
-                      try {
-                        const pricing = parsePricing(proposal.content.pricing);
-                        return (
-                          <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium text-gray-900">
-                                {pricing.type === 'fixed' ? 'Fixed Rate' : 'Hourly Rate'}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-gray-700">
-                                {pricing.currency} {pricing.amount}
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      } catch (error) {
-                        console.error('Error parsing pricing:', error);
-                        return <div className="text-gray-500">Invalid pricing format</div>;
-                      }
-                    })()}
-                  </div>
+            {/* Proposal Content */}
+            <div className="mt-8 space-y-6">
+              {/* Scope of Work */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Scope of Work</h3>
+                {isEditing ? (
+                  <TextEditor
+                    value={proposal.content.scope_of_work}
+                    onChange={handleScopeOfWorkChange}
+                  />
                 ) : (
-                  <div className="text-gray-500">No pricing defined</div>
+                  <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: proposal.content.scope_of_work }} />
                 )}
-                {isEditing && (
-                  <div className="mt-4">
-                    <select
-                      className="w-full p-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 mb-2"
-                      value={(() => {
-                        try {
-                          const pricing = parsePricing(proposal.content?.pricing);
-                          return pricing.type;
-                        } catch {
-                          return 'fixed';
-                        }
-                      })()}
-                      onChange={(e) => {
-                        const currentPricing = parsePricing(proposal.content?.pricing || '{"type":"fixed"}');
-                        const newPricing = {
-                          ...currentPricing,
-                          type: e.target.value
-                        };
-                        setProposal({
-                          ...proposal,
-                          content: {
-                            ...proposal.content,
-                            pricing: JSON.stringify(newPricing)
-                          }
-                        });
+              </div>
+
+              {/* Deliverables */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Deliverables</h3>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <DeliverablesInputList
+                    value={parseDeliverables(proposal.content.deliverables)}
+                    onChange={handleDeliverablesChange}
+                    readOnly={!isEditing}
+                  />
+                </div>
+              </div>
+
+              {/* Timeline */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Timeline</h3>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  {isEditing ? (
+                    <DateRangePicker
+                      value={{
+                        start: proposal.content.timeline_start,
+                        end: proposal.content.timeline_end
                       }}
-                    >
-                      <option value="fixed">Fixed Rate</option>
-                      <option value="hourly">Hourly Rate</option>
-                    </select>
-                    <input
-                      type="number"
-                      className="w-full p-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-                      value={(() => {
-                        try {
-                          const pricing = parsePricing(proposal.content?.pricing || '{"amount":"0"}');
-                          return pricing.amount;
-                        } catch {
-                          return '0';
-                        }
-                      })()}
-                      onChange={(e) => {
-                        const currentPricing = parsePricing(proposal.content?.pricing || '{"amount":"0","currency":"USD","type":"fixed"}');
-                        const newPricing = {
-                          ...currentPricing,
-                          amount: e.target.value
-                        };
-                        setProposal({
-                          ...proposal,
-                          content: {
-                            ...proposal.content,
-                            pricing: JSON.stringify(newPricing)
-                          }
-                        });
-                      }}
-                      placeholder="Enter amount"
+                      onChange={handleTimelineChange}
                     />
-                  </div>
-                )}
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span>Start Date:</span>
+                        <span>{new Date(proposal.content.timeline_start).toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>End Date:</span>
+                        <span>{new Date(proposal.content.timeline_end).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
 
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Payment Schedule</label>
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                {proposal.content?.payment_schedule ? (
-                  <div className="flex flex-col gap-2">
-                    {(() => {
-                      try {
-                        // Handle both string and object formats
-                        const schedule = typeof proposal.content.payment_schedule === 'string' 
-                          ? JSON.parse(proposal.content.payment_schedule)
-                          : proposal.content.payment_schedule;
-                        
-                        return Array.isArray(schedule) ? (
-                          schedule.map((item, index) => (
-                            <div key={index} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
-                              <div className="flex flex-col">
-                                <span className="font-medium text-gray-900">{item.milestone}</span>
-                                <span className="text-sm text-gray-500">
-                                  Due: {new Date(item.due_date).toLocaleDateString()}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-gray-700">
-                                  ${item.amount}
-                                </span>
-                              </div>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="text-gray-500">Invalid payment schedule format</div>
-                        );
-                      } catch (error) {
-                        console.error('Error parsing payment schedule:', error);
-                        return <div className="text-gray-500">Invalid payment schedule format</div>;
-                      }
-                    })()}
-                  </div>
-                ) : (
-                  <div className="text-gray-500">No payment schedule defined</div>
-                )}
-                {isEditing && (
-                  <div className="mt-4">
-                    <div className="flex flex-col gap-2">
-                      <input
-                        type="text"
-                        className="w-full p-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-                        placeholder="Milestone description"
-                        onChange={(e) => {
-                          const currentSchedule = typeof proposal.content?.payment_schedule === 'string'
-                            ? JSON.parse(proposal.content.payment_schedule || '[]')
-                            : proposal.content?.payment_schedule || [];
-                          const newSchedule = [...currentSchedule, {
-                            milestone: e.target.value,
-                            amount: 0,
-                            due_date: new Date().toISOString()
-                          }];
+              {/* Pricing */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Pricing</h3>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  {isEditing ? (
+                    <BudgetInputList
+                      value={typeof proposal.content.pricing === 'string' ? proposal.content.pricing : JSON.stringify(proposal.content.pricing)}
+                      onChange={handlePricingChange}
+                    />
+                  ) : (
+                    <div className="space-y-2">
+                      {parsePricing(proposal.content.pricing).map((item, index) => (
+                        <div key={index} className="flex justify-between">
+                          <span>{item.item}</span>
+                          <span>${item.amount.toLocaleString()}</span>
+                        </div>
+                      ))}
+                      <div className="border-t pt-2 font-semibold">
+                        <div className="flex justify-between">
+                          <span>Total</span>
+                          <span>${parsePricing(proposal.content.pricing).reduce((sum, item) => sum + item.amount, 0).toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Payment Schedule */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Payment Schedule</h3>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  {isEditing ? (
+                    <PaymentScheduleInput
+                      value={parsePaymentSchedule(proposal.content.payment_schedule)}
+                      onChange={(value) => {
+                        if (isEditing) {
                           setProposal({
                             ...proposal,
                             content: {
                               ...proposal.content,
-                              payment_schedule: JSON.stringify(newSchedule)
+                              payment_schedule: JSON.stringify(value)
                             }
-                          });
-                        }}
-                      />
-                      <input
-                        type="number"
-                        className="w-full p-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-                        placeholder="Amount"
-                        onChange={(e) => {
-                          const currentSchedule = typeof proposal.content?.payment_schedule === 'string'
-                            ? JSON.parse(proposal.content.payment_schedule || '[]')
-                            : proposal.content?.payment_schedule || [];
-                          if (currentSchedule.length > 0) {
-                            currentSchedule[currentSchedule.length - 1].amount = parseFloat(e.target.value);
-                            setProposal({
-                              ...proposal,
-                              content: {
-                                ...proposal.content,
-                                payment_schedule: JSON.stringify(currentSchedule)
-                              }
-                            });
-                          }
-                        }}
-                      />
-                      <input
-                        type="date"
-                        className="w-full p-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-                        onChange={(e) => {
-                          const currentSchedule = typeof proposal.content?.payment_schedule === 'string'
-                            ? JSON.parse(proposal.content.payment_schedule || '[]')
-                            : proposal.content?.payment_schedule || [];
-                          if (currentSchedule.length > 0) {
-                            currentSchedule[currentSchedule.length - 1].due_date = new Date(e.target.value).toISOString();
-                            setProposal({
-                              ...proposal,
-                              content: {
-                                ...proposal.content,
-                                payment_schedule: JSON.stringify(currentSchedule)
-                              }
-                            });
-                          }
-                        }}
-                      />
+                          })
+                        }
+                      }}
+                    />
+                  ) : (
+                    <div className="space-y-2">
+                      {parsePaymentSchedule(proposal.content.payment_schedule).map((item, index) => (
+                        <div key={index} className="flex justify-between">
+                          <span>{item.milestone}</span>
+                          <div className="flex flex-col items-end">
+                            <span>${item.amount.toLocaleString()}</span>
+                            <span className="text-sm text-gray-500">Due: {new Date(item.due_date).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                      ))}
                     </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Client Responsibilities */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Client Responsibilities</h3>
+                {isEditing ? (
+                  <ClientResponsibilitiesInput
+                    value={proposal.content.client_responsibilities}
+                    onChange={handleClientResponsibilitiesChange}
+                  />
+                ) : (
+                  <div className="prose max-w-none">
+                    {parseClientResponsibilities(proposal.content.client_responsibilities).map((item: string, index: number) => (
+                      <div key={index} className="flex items-start gap-2">
+                        <span>•</span>
+                        <span>{item}</span>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
-            </div>
 
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Signature Section</label>
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <SignatureBlock
-                  value={parseSignature(proposal.content?.signature)}
-                  onChange={handleSignatureChange}
-                  readOnly={!isEditing}
-                />
+              {/* Terms and Conditions */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Terms & Conditions</h3>
+                {isEditing ? (
+                  <TermsAndConditionsInput
+                    value={proposal.content.terms_and_conditions}
+                    onChange={handleTermsAndConditionsChange}
+                  />
+                ) : (
+                  <div className="prose max-w-none space-y-4">
+                    {Object.entries(parseTermsAndConditions(proposal.content.terms_and_conditions)).map(([key, value]) => (
+                      <div key={key}>
+                        <h4 className="font-semibold capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</h4>
+                        <p>{value as string}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Signature */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Signature</h3>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <SignatureBlock
+                    value={parseSignature(proposal.content.signature)}
+                    onChange={handleSignatureChange}
+                    readOnly={!isEditing}
+                  />
+                </div>
               </div>
             </div>
           </div>
