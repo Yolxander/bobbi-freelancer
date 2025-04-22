@@ -205,7 +205,7 @@ export default function ClientProposalView() {
           client_responsibilities: JSON.stringify(parsedContent.client_responsibilities)
         }
       })
-      router.push(`/proposals/${proposal.id}/accepted`)
+    
     } catch (err) {
       console.error("Failed to accept proposal:", err)
       setError("Failed to accept proposal")
@@ -229,7 +229,7 @@ export default function ClientProposalView() {
           client_responsibilities: JSON.stringify(parsedContent.client_responsibilities)
         }
       })
-      router.push(`/proposals/${proposal.id}/rejected`)
+      
     } catch (err) {
       console.error("Failed to reject proposal:", err)
       setError("Failed to reject proposal")

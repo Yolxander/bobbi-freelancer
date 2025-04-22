@@ -21,7 +21,7 @@ import {
   User,
 } from "lucide-react"
 import Sidebar from "@/components/sidebar"
-import { getProposals } from "@/app/actions/proposal-actions"
+import { getProposals, deleteProposal, sendProposal } from "@/app/actions/proposal-actions"
 import { useAuth } from "@/lib/auth-context"
 
 export default function ProposalsPage() {
@@ -70,12 +70,53 @@ export default function ProposalsPage() {
         return "bg-gray-100 text-gray-800"
       case "sent":
         return "bg-blue-100 text-blue-800"
-      case "accepted":
+      case "approved":
         return "bg-green-100 text-green-800"
       case "rejected":
         return "bg-red-100 text-red-800"
       default:
         return "bg-gray-100 text-gray-800"
+    }
+  }
+
+  const handleSend = async (proposalId: string) => {
+    if (!user || !user.providerId) {
+      setError("You must be logged in to send a proposal")
+      return
+    }
+
+    // Validate required fields
+    const proposal = proposals.find(p => p.id === proposalId)
+    if (!proposal?.client_id) {
+      setError("Please select a client")
+      return
+    }
+
+    if (!proposal?.project_id) {
+      setError("Please select a project")
+      return
+    }
+
+    if (!proposal?.title) {
+      setError("Please enter a proposal title")
+      return
+    }
+
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const result = await sendProposal(proposalId)
+      if (result.success) {
+        // Show success message with the client URL
+        alert(`Proposal sent successfully! Client URL: ${result.clientUrl}`)
+        router.push(`/proposals/${proposalId}`)
+      }
+    } catch (error) {
+      console.error("Error sending proposal:", error)
+      setError("Failed to send proposal. Please try again.")
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -211,12 +252,7 @@ export default function ProposalsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          proposal.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
-                          proposal.status === 'sent' ? 'bg-blue-100 text-blue-800' :
-                          proposal.status === 'accepted' ? 'bg-green-100 text-green-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(proposal.status)}`}>
                           {proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}
                         </span>
                       </td>
@@ -244,16 +280,24 @@ export default function ProposalsPage() {
                             <Download className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => router.push(`/proposals/${proposal.id}/send`)}
+                            onClick={() => handleSend(proposal.id)}
                             className="p-2 text-gray-700 hover:text-gray-900 rounded-xl hover:bg-gray-100 transition-colors"
                             title="Send"
                           >
                             <Send className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => {
+                            onClick={async () => {
                               if (confirm("Are you sure you want to delete this proposal?")) {
-                                // Handle delete
+                                try {
+                                  await deleteProposal(proposal.id);
+                                  // Refresh the proposals list
+                                  const data = await getProposals();
+                                  setProposals(data);
+                                } catch (err) {
+                                  setError("Failed to delete proposal");
+                                  console.error(err);
+                                }
                               }
                             }}
                             className="p-2 text-gray-700 hover:text-red-700 rounded-xl hover:bg-gray-100 transition-colors"

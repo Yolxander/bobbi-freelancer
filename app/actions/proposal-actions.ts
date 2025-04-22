@@ -493,79 +493,91 @@ export async function sendProposal(proposalId: string) {
   }
 }
 
-// Update the acceptProposal function to use new property names
-export const acceptProposal = async (id: string): Promise<Proposal> => {
-  const response = await fetch(`${API_BASE_URL}/proposals/${id}/accept`, {
-    method: 'POST',
-  });
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Failed to accept proposal');
+export async function acceptProposal(id: string, data: Partial<Proposal>): Promise<Proposal> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/proposals/${id}/accept`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title: data.title,
+        client_id: data.client_id,
+        project_id: data.project_id,
+        status: data.status, // You will pass status as 'approved' or 'signed'
+        is_template: data.is_template,
+        current_version: data.current_version,
+        content: {
+          id: data.content?.id,
+          proposal_id: data.content?.proposal_id,
+          scope_of_work: data.content?.scope_of_work || '',
+          deliverables: data.content?.deliverables || '[]',
+          timeline_start: data.content?.timeline_start || '',
+          timeline_end: data.content?.timeline_end || '',
+          pricing: data.content?.pricing || '[]',
+          payment_schedule: data.content?.payment_schedule || '{}',
+          terms_and_conditions: data.content?.terms_and_conditions || '',
+          client_responsibilities: data.content?.client_responsibilities || '{}',
+          signature: data.content?.signature || '{}'
+        }
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to accept proposal');
+    }
+
+    const proposal = await response.json();
+    return proposal;
+  } catch (error) {
+    console.error('Error accepting proposal:', error);
+    throw error;
   }
-  const data = await response.json();
-  
-  return {
-    id: data.id,
-    title: data.title,
-    client_id: data.client_id,
-    project_id: data.project_id,
-    status: data.status,
-    is_template: data.is_template,
-    current_version: data.current_version,
-    content: {
-      id: data.content.id,
-      proposal_id: data.content.proposal_id,
-      scope_of_work: data.content.scope_of_work || '',
-      deliverables: data.content.deliverables || '[]',
-      timeline_start: data.content.timeline_start || '',
-      timeline_end: data.content.timeline_end || '',
-      pricing: data.content.pricing || '[]',
-      payment_schedule: data.content.payment_schedule || '{}',
-      terms_and_conditions: data.content.terms_and_conditions || '{}',
-      client_responsibilities: data.content.client_responsibilities || '[]',
-      signature: data.content.signature || '{}',
-      created_at: data.content.created_at,
-      updated_at: data.content.updated_at
-    },
-    client: data.client,
-    project: data.project,
-    created_at: data.created_at,
-    updated_at: data.updated_at
-  };
-};
+}
+
 
 // Update the rejectProposal function to use new property names
-export async function rejectProposal(id: string): Promise<Proposal> {
-  const response = await fetch(`${API_BASE_URL}/proposals/${id}/reject`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
+export async function rejectProposal(id: string, data: Partial<Proposal>): Promise<Proposal> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/proposals/${id}/reject`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title: data.title,
+        client_id: data.client_id,
+        project_id: data.project_id,
+        status: data.status, // You will pass status as 'approved' or 'signed'
+        is_template: data.is_template,
+        current_version: data.current_version,
+        content: {
+          id: data.content?.id,
+          proposal_id: data.content?.proposal_id,
+          scope_of_work: data.content?.scope_of_work || '',
+          deliverables: data.content?.deliverables || '[]',
+          timeline_start: data.content?.timeline_start || '',
+          timeline_end: data.content?.timeline_end || '',
+          pricing: data.content?.pricing || '[]',
+          payment_schedule: data.content?.payment_schedule || '{}',
+          terms_and_conditions: data.content?.terms_and_conditions || '',
+          client_responsibilities: data.content?.client_responsibilities || '{}',
+          signature: data.content?.signature || '{}'
+        }
+      }),
+    });
 
-  if (!response.ok) {
-    throw new Error('Failed to reject proposal')
-  }
-
-  const data = await response.json()
-  
-  return {
-    ...data,
-    content: {
-      id: data.content.id,
-      proposal_id: data.content.proposal_id,
-      scope_of_work: data.content.scope_of_work || '',
-      deliverables: data.content.deliverables || '',
-      timeline_start: data.content.timeline_start || '',
-      timeline_end: data.content.timeline_end || '',
-      pricing: data.content.pricing || '',
-      payment_schedule: data.content.payment_schedule || '',
-      terms_and_conditions: data.content.terms_and_conditions || '',
-      client_responsibilities: data.content.client_responsibilities || '',
-      signature: data.content.signature || '',
-      created_at: data.content.created_at,
-      updated_at: data.content.updated_at
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to accept proposal');
     }
+
+    const proposal = await response.json();
+    return proposal;
+  } catch (error) {
+    console.error('Error accepting proposal:', error);
+    throw error;
   }
 }
 
