@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { getProposal } from "@/app/actions/proposal-actions"
+import { 
+  getProposal, 
+  addSignature, 
+  acceptProposal, 
+  rejectProposal 
+} from "@/app/actions/proposal-actions"
 import { MagazineTemplate } from "@/app/components/proposal-templates/MagazineTemplate"
 import { ModernTemplate } from "@/app/components/proposal-templates/ModernTemplate"
 import { MinimalTemplate } from "@/app/components/proposal-templates/MinimalTemplate"
@@ -60,6 +65,35 @@ export default function ClientProposalView() {
             // Parse all content fields
             const deliverables = parseJSONSafely(data.content.deliverables, [])
             
+            // Parse client responsibilities
+            let clientResponsibilities: string[] = []
+            try {
+              const parsedResponsibilities = parseJSONSafely(data.content.client_responsibilities, {})
+              if (typeof parsedResponsibilities === 'object' && parsedResponsibilities !== null) {
+                // Convert object format to array of strings
+                clientResponsibilities = Object.entries(parsedResponsibilities).map(([key, value]) => 
+                  `${key}: ${value}`
+                )
+              } else if (Array.isArray(parsedResponsibilities)) {
+                clientResponsibilities = parsedResponsibilities
+              } else if (typeof parsedResponsibilities === 'string') {
+                clientResponsibilities = [parsedResponsibilities]
+              }
+            } catch (e) {
+              console.error("Error parsing client responsibilities:", e)
+            }
+
+            // Parse terms and conditions
+            let termsAndConditions: { [key: string]: string } = {}
+            try {
+              const parsedTerms = parseJSONSafely(data.content.terms_and_conditions, {})
+              if (typeof parsedTerms === 'object' && parsedTerms !== null) {
+                termsAndConditions = parsedTerms
+              }
+            } catch (e) {
+              console.error("Error parsing terms and conditions:", e)
+            }
+            
             // Special handling for double-escaped pricing data
             let pricing: Array<{ item: string; amount: number }> = []
             try {
@@ -107,7 +141,9 @@ export default function ClientProposalView() {
               signature,
               timeline_start: data.content.timeline_start || "",
               timeline_end: data.content.timeline_end || "",
-              scope_of_work: data.content.scope_of_work || ""
+              scope_of_work: data.content.scope_of_work || "",
+              client_responsibilities: clientResponsibilities,
+              terms_and_conditions: termsAndConditions
             }
 
             console.log("Parsed content:", parsed)
@@ -132,34 +168,16 @@ export default function ClientProposalView() {
     if (!proposal || !parsedContent || !clientSignature) return
 
     try {
-      // Create updated signature object
-      const updatedSignature = {
-        ...parsedContent.signature,
-        client: clientSignature
-      }
-
-      // Convert to string for storage
-      const signatureString = JSON.stringify(updatedSignature)
-
-      // Update the proposal with new signature
-      const response = await fetch(`/api/proposals/${proposal.id}/signature`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          signature: signatureString
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to save signature')
-      }
+      // Add the client signature
+      const signature = await addSignature(proposal.id, user?.id || "", "client", clientSignature)
 
       // Update local state with type safety
       setParsedContent({
         ...parsedContent,
-        signature: updatedSignature
+        signature: {
+          ...parsedContent.signature,
+          client: clientSignature
+        }
       } as ParsedContent)
       
       setIsSigning(false)
@@ -171,12 +189,22 @@ export default function ClientProposalView() {
   }
 
   const handleAccept = async () => {
-    if (!proposal) return
+    if (!proposal || !parsedContent) return
 
     try {
-      // TODO: Implement accept proposal API call
-      console.log("Accepting proposal:", proposal.id)
-      // After successful acceptance, redirect to success page
+      const updatedProposal = await acceptProposal(proposal.id, {
+        ...proposal,
+        status: 'accepted',
+        content: {
+          ...proposal.content,
+          deliverables: JSON.stringify(parsedContent.deliverables),
+          pricing: JSON.stringify(parsedContent.pricing),
+          payment_schedule: JSON.stringify(parsedContent.payment_schedule),
+          signature: JSON.stringify(parsedContent.signature),
+          terms_and_conditions: JSON.stringify(parsedContent.terms_and_conditions),
+          client_responsibilities: JSON.stringify(parsedContent.client_responsibilities)
+        }
+      })
       router.push(`/proposals/${proposal.id}/accepted`)
     } catch (err) {
       console.error("Failed to accept proposal:", err)
@@ -185,12 +213,22 @@ export default function ClientProposalView() {
   }
 
   const handleReject = async () => {
-    if (!proposal) return
+    if (!proposal || !parsedContent) return
 
     try {
-      // TODO: Implement reject proposal API call
-      console.log("Rejecting proposal:", proposal.id)
-      // After successful rejection, redirect to rejection page
+      const updatedProposal = await rejectProposal(proposal.id, {
+        ...proposal,
+        status: 'rejected',
+        content: {
+          ...proposal.content,
+          deliverables: JSON.stringify(parsedContent.deliverables),
+          pricing: JSON.stringify(parsedContent.pricing),
+          payment_schedule: JSON.stringify(parsedContent.payment_schedule),
+          signature: JSON.stringify(parsedContent.signature),
+          terms_and_conditions: JSON.stringify(parsedContent.terms_and_conditions),
+          client_responsibilities: JSON.stringify(parsedContent.client_responsibilities)
+        }
+      })
       router.push(`/proposals/${proposal.id}/rejected`)
     } catch (err) {
       console.error("Failed to reject proposal:", err)
