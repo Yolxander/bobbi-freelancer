@@ -247,50 +247,50 @@ export default function ProposalPreviewPage() {
               <span>Theme</span>
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-64 p-2 bg-transparent border-none">
+          <DropdownMenuContent align="end" className="w-64 p-2 bg-transparent border-none z-50">
             <div className="grid grid-cols-2 gap-2 border-none">
               <button
                 onClick={() => setTemplate("magazine")}
-                className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all ${
+                className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all bg-[#1a237e] ${
                   template === "magazine"
-                    ? "bg-blue-500/20 border border-blue-500/30"
-                    : "bg-white/10 border border-white/20 hover:bg-white/20"
+                    ? "border-2 border-white"
+                    : "border border-[#1a237e]/30"
                 }`}
               >
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg mb-2" />
+            
                 <span className="text-sm text-white">Magazine</span>
               </button>
               <button
                 onClick={() => setTemplate("modern")}
-                className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all ${
+                className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all bg-[#B8B2A7] ${
                   template === "modern"
-                    ? "bg-blue-500/20 border border-blue-500/30"
-                    : "bg-white/10 border border-white/20 hover:bg-white/20"
+                    ? "border-2 border-white"
+                    : "border border-[#B8B2A7]/30"
                 }`}
               >
-                <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-500 rounded-lg mb-2" />
+              
                 <span className="text-sm text-white">Modern</span>
               </button>
               <button
                 onClick={() => setTemplate("minimal")}
-                className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all ${
+                className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all bg-white ${
                   template === "minimal"
-                    ? "bg-blue-500/20 border border-blue-500/30"
-                    : "bg-white/10 border border-white/20 hover:bg-white/20"
+                    ? "border-2 border-gray-800"
+                    : "border border-gray-200"
                 }`}
               >
-                <div className="w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-700 rounded-lg mb-2" />
-                <span className="text-sm text-white">Minimal</span>
+              
+                <span className="text-sm text-gray-800">Minimal</span>
               </button>
               <button
                 onClick={() => setTemplate("studio")}
-                className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all ${
+                className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all bg-[#A39B8B] ${
                   template === "studio"
-                    ? "bg-blue-500/20 border border-blue-500/30"
-                    : "bg-white/10 border border-white/20 hover:bg-white/20"
+                    ? "border-2 border-white"
+                    : "border border-[#A39B8B]/30"
                 }`}
               >
-                <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg mb-2" />
+        
                 <span className="text-sm text-white">Studio</span>
               </button>
             </div>
