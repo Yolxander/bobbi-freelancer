@@ -139,6 +139,46 @@ export function MagazineTemplate({
           </div>
         </div>
 
+        {/* Client Responsibilities Section */}
+        <div className="mb-24">
+          <div className="text-sm text-[#9fa8da] uppercase tracking-wider mb-8">Client Responsibilities</div>
+          <div className="space-y-6">
+            {parsedContent.client_responsibilities.map((item, index) => (
+              <div key={index} className="border-b border-[#9fa8da]/20 pb-6">
+                <div className="flex items-start gap-4">
+                  <div className="text-[#9fa8da] text-xl">0{index + 1}</div>
+                  <div className="text-xl font-light">{item}</div>
+                </div>
+              </div>
+            ))}
+            {parsedContent.client_responsibilities.length === 0 && (
+              <div className="text-[#9fa8da] text-center py-4">
+                No client responsibilities defined
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Terms & Conditions Section */}
+        <div className="mb-24">
+          <div className="text-sm text-[#9fa8da] uppercase tracking-wider mb-8">Terms & Conditions</div>
+          <div className="space-y-8">
+            {Object.entries(parsedContent.terms_and_conditions).map(([key, value], index) => (
+              <div key={index} className="border-b border-[#9fa8da]/20 pb-6">
+                <div className="text-xl font-light mb-2 capitalize">
+                  {key.replace(/([A-Z])/g, ' $1').trim()}
+                </div>
+                <div className="text-[#9fa8da] font-light">{value}</div>
+              </div>
+            ))}
+            {Object.keys(parsedContent.terms_and_conditions).length === 0 && (
+              <div className="text-[#9fa8da] text-center py-4">
+                No terms and conditions defined
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Signature Section */}
         <div className="mb-24">
           <div className="text-sm text-[#9fa8da] uppercase tracking-wider mb-8">Signatures</div>

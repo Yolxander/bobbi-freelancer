@@ -146,11 +146,68 @@ export function StudioTemplate({
           </div>
         </section>
 
+        {/* Client Responsibilities */}
+        <section>
+          <div className="grid grid-cols-12 gap-8">
+            <div className="col-span-3">
+              <div className="text-sm opacity-60 sticky top-12">04 Client Responsibilities</div>
+            </div>
+            <div className="col-span-9">
+              <div className="space-y-8">
+                {parsedContent.client_responsibilities.map((item, index) => (
+                  <div key={index} className="pb-8 border-b border-white/10">
+                    <div className="flex items-baseline gap-8">
+                      <div className="font-mono opacity-40">{String(index + 1).padStart(2, '0')}</div>
+                      <div className="text-xl">{item}</div>
+                    </div>
+                  </div>
+                ))}
+                {parsedContent.client_responsibilities.length === 0 && (
+                  <div className="text-center py-8 opacity-60">
+                    No client responsibilities defined
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Terms & Conditions */}
+        <section>
+          <div className="grid grid-cols-12 gap-8">
+            <div className="col-span-3">
+              <div className="text-sm opacity-60 sticky top-12">05 Terms & Conditions</div>
+            </div>
+            <div className="col-span-9">
+              <div className="space-y-8">
+                {Object.entries(parsedContent.terms_and_conditions).map(([key, value], index) => (
+                  <div key={index} className="pb-8 border-b border-white/10">
+                    <div className="flex items-baseline gap-8">
+                      <div className="font-mono opacity-40">{String(index + 1).padStart(2, '0')}</div>
+                      <div>
+                        <div className="text-xl mb-2 capitalize">
+                          {key.replace(/([A-Z])/g, ' $1').trim()}
+                        </div>
+                        <div className="opacity-80">{value}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {Object.keys(parsedContent.terms_and_conditions).length === 0 && (
+                  <div className="text-center py-8 opacity-60">
+                    No terms and conditions defined
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Signatures */}
         <section>
           <div className="grid grid-cols-12 gap-8">
             <div className="col-span-3">
-              <div className="text-sm opacity-60 sticky top-12">04 Signatures</div>
+              <div className="text-sm opacity-60 sticky top-12">06 Signatures</div>
             </div>
             <div className="col-span-9">
               <div className="grid grid-cols-2 gap-16">

@@ -154,6 +154,53 @@ export function MinimalTemplate({
                 </div>
               </div>
 
+              {/* Client Responsibilities */}
+              <div>
+                <div className="text-2xl text-gray-500 mb-4">
+                  CLIENT RESPONSIBILITIES
+                </div>
+                <div className="space-y-4">
+                  {parsedContent.client_responsibilities.map((item, index) => (
+                    <div key={index} className="flex items-baseline gap-4 border-b border-gray-100 pb-4">
+                      <div className="text-gray-400 font-mono w-6">{String(index + 1).padStart(2, '0')}</div>
+                      <div className="text-lg">{item}</div>
+                    </div>
+                  ))}
+                  {parsedContent.client_responsibilities.length === 0 && (
+                    <div className="text-gray-400 text-center py-4">
+                      No client responsibilities defined
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Terms & Conditions */}
+              <div>
+                <div className="text-2xl text-gray-500 mb-4">
+                  TERMS & CONDITIONS
+                </div>
+                <div className="space-y-6">
+                  {Object.entries(parsedContent.terms_and_conditions).map(([key, value], index) => (
+                    <div key={index} className="border-b border-gray-100 pb-6">
+                      <div className="flex items-baseline gap-4 mb-2">
+                        <div className="text-gray-400 font-mono w-6">{String(index + 1).padStart(2, '0')}</div>
+                        <div>
+                          <div className="text-lg font-medium capitalize">
+                            {key.replace(/([A-Z])/g, ' $1').trim()}
+                          </div>
+                          <div className="text-gray-600 mt-1">{value}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {Object.keys(parsedContent.terms_and_conditions).length === 0 && (
+                    <div className="text-gray-400 text-center py-4">
+                      No terms and conditions defined
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {/* Signatures */}
               <div>
                 <div className="text-2xl text-gray-500 mb-4">
