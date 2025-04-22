@@ -303,15 +303,23 @@ export default function ProposalPreviewPage() {
               <span>Actions</span>
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 bg-white/90 backdrop-blur-sm border border-white/20">
-            <DropdownMenuItem onClick={() => router.push(`/proposals/${params.id}`)}>
-              <ChevronLeft className="w-4 h-4 mr-2" />
-              <span>Back to Edit</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleAccept} className="text-blue-600">
-              <Send className="w-4 h-4 mr-2" />
-              <span>Send to Client</span>
-            </DropdownMenuItem>
+          <DropdownMenuContent align="end" className="w-64 p-2 bg-transparent border-none z-50">
+            <div className="grid grid-cols-1 gap-2 border-none">
+              <button
+                onClick={() => router.push(`/proposals/${params.id}`)}
+                className="flex items-center gap-2 p-3 rounded-lg transition-all backdrop-blur-sm bg-[#1a237e]/20 hover:bg-[#1a237e]/30 border border-[#1a237e]/30"
+              >
+                <ChevronLeft className="w-4 h-4 text-white" />
+                <span className="text-sm text-white">Back to Edit</span>
+              </button>
+              <button
+                onClick={handleAccept}
+                className="flex items-center gap-2 p-3 rounded-lg transition-all backdrop-blur-sm bg-[#B8B2A7]/20 hover:bg-[#B8B2A7]/30 border border-[#B8B2A7]/30"
+              >
+                <Send className="w-4 h-4 text-white" />
+                <span className="text-sm text-white">Send to Client</span>
+              </button>
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
 
