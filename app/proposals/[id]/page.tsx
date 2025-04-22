@@ -22,7 +22,7 @@ import {
 } from "lucide-react"
 import Sidebar from "@/components/sidebar"
 import { useAuth } from "@/lib/auth-context"
-import { getProposal, updateProposal, type Proposal } from "@/app/actions/proposal-actions"
+import { getProposal, updateProposal, sendProposal, type Proposal } from "@/app/actions/proposal-actions"
 import ProjectSelector from "@/components/proposals/ProjectSelector"
 import ClientAutoFill from "@/components/proposals/ClientAutoFill"
 import DateRangePicker from "@/components/proposals/DateRangePicker"
@@ -257,24 +257,12 @@ export default function ProposalPage() {
     setError(null)
 
     try {
-      const newProposal = await createProposal({
-        title: proposal.title,
-        client_id: proposal.client_id,
-        project_id: proposal.project_id,
-        status: proposal.status,
-        is_template: proposal.is_template,
-        current_version: proposal.current_version,
-        content: {
-          scope_of_work: proposal.content.scope_of_work || '',
-          deliverables: proposal.content.deliverables || '[]',
-          timeline_start: proposal.content.timeline_start || '',
-          timeline_end: proposal.content.timeline_end || '',
-          pricing: proposal.content.pricing || '[]',
-          payment_schedule: proposal.content.payment_schedule || '{}',
-          signature: proposal.content.signature || '{"provider":"","client":""}'
-        }
-      })
-      router.push(`/proposals/${newProposal.id}`)
+      const result = await sendProposal(params.id as string)
+      if (result.success) {
+        // Show success message with the client URL
+        alert(`Proposal sent successfully! Client URL: ${result.clientUrl}`)
+        router.push(`/proposals/${params.id}`)
+      }
     } catch (error) {
       console.error("Error sending proposal:", error)
       setError("Failed to send proposal. Please try again.")

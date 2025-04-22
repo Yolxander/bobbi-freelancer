@@ -155,32 +155,29 @@ const versions: Version[] = [
 // Types
 export interface Proposal {
   id: string;
+  title: string;
   client_id: string;
   project_id: string;
-  title: string;
   status: 'draft' | 'sent' | 'accepted' | 'rejected';
-  is_template: boolean;
-  current_version: number;
+  is_template?: boolean;
+  current_version?: number;
+  client_token?: string;
   content: {
-    id: string;
-    proposal_id: string;
-    scope_of_work: string;
-    deliverables: string; // JSON stringified array
+    scope_of_work?: string;
+    deliverables: string;
     timeline_start: string;
     timeline_end: string;
-    pricing: string; // JSON stringified array
-    payment_schedule: string; // JSON stringified object
-    signature: string; // JSON stringified object
-    created_at?: string;
-    updated_at?: string;
+    pricing: string;
+    payment_schedule: string;
+    signature: string;
   };
-  client: {
+  client?: {
     id: string;
     name: string;
     email: string;
     phone: string;
   };
-  project: {
+  project?: {
     id: string;
     name: string;
     description: string;
@@ -434,38 +431,38 @@ export const deleteProposal = async (id: string): Promise<void> => {
 };
 
 // Update the sendProposal function to use new property names
-export const sendProposal = async (id: string): Promise<Proposal> => {
-  const response = await fetch(`${API_BASE_URL}/proposals/${id}/send`, {
-    method: 'POST',
-  });
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Failed to send proposal');
+export async function sendProposal(proposalId: string) {
+  try {
+    const proposal = await getProposal(proposalId)
+    if (!proposal) {
+      throw new Error("Proposal not found")
+    }
+
+    // Generate a unique token for the client view
+    const token = crypto.randomUUID()
+    
+    // Update the proposal with the token and set status to sent
+    const updatedProposal = await updateProposal(proposalId, {
+      title: proposal.title,
+      client_id: proposal.client_id,
+      project_id: proposal.project_id,
+      content: proposal.content,
+      client_token: token
+    })
+
+    // Generate the client view URL with fallback
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const clientUrl = `${baseUrl}/proposals/${proposalId}/client?token=${token}`
+
+    return {
+      success: true,
+      clientUrl
+    }
+  } catch (error) {
+    console.error('Error sending proposal:', error)
+    throw error
   }
-  const data = await response.json();
-  return {
-    id: data.id,
-    title: data.title,
-    client_id: data.client_id,
-    project_id: data.project_id,
-    status: data.status,
-    is_template: data.is_template,
-    current_version: data.current_version,
-    content: {
-      id: data.content.id,
-      proposal_id: data.content.proposal_id,
-      scope_of_work: data.content.scope_of_work,
-      deliverables: data.content.deliverables,
-      timeline_start: data.content.timeline_start,
-      timeline_end: data.content.timeline_end,
-      pricing: data.content.pricing,
-      payment_schedule: data.content.payment_schedule,
-      signature: data.content.signature
-    },
-    client: data.client,
-    project: data.project
-  };
-};
+}
 
 // Update the acceptProposal function to use new property names
 export const acceptProposal = async (id: string): Promise<Proposal> => {
