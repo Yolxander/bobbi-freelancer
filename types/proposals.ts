@@ -9,6 +9,8 @@ export interface Proposal {
     timeline_start: string
     timeline_end: string
     scope_of_work: string
+    client_responsibilities: string | Array<string>
+    terms_and_conditions: string | { [key: string]: string }
   }
   template_id?: number
 }
@@ -27,4 +29,6 @@ export interface ParsedContent {
   timeline_start: string
   timeline_end: string
   scope_of_work: string
+  client_responsibilities: Array<string>
+  terms_and_conditions: { [key: string]: string }
 } 

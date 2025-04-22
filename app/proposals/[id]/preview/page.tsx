@@ -84,9 +84,9 @@ export default function ProposalPreviewPage() {
             // Parse payment schedule
             let paymentSchedule: PaymentScheduleItem[] = []
             try {
-              const parsedSchedule = parseJSONSafely(data.content.payment_schedule, [])
-              if (Array.isArray(parsedSchedule)) {
-                paymentSchedule = parsedSchedule.map(item => ({
+              const rawPaymentSchedule = parseJSONSafely(data.content.payment_schedule, [])
+              if (Array.isArray(rawPaymentSchedule)) {
+                paymentSchedule = rawPaymentSchedule.map(item => ({
                   milestone: item.milestone || '',
                   amount: Number(item.amount) || 0,
                   due_date: item.due_date || ''
@@ -96,21 +96,52 @@ export default function ProposalPreviewPage() {
               console.error("Error parsing payment schedule:", e)
             }
 
-            const signature = parseJSONSafely(data.content.signature, { provider: "", client: "" })
+            // Parse client responsibilities
+            let clientResponsibilities: string[] = []
+            try {
+              const rawResponsibilities = parseJSONSafely(data.content.client_responsibilities, {})
+              if (typeof rawResponsibilities === 'object' && rawResponsibilities !== null) {
+                // Convert object to array of strings
+                clientResponsibilities = Object.entries(rawResponsibilities).map(([key, value]) => {
+                  const formattedKey = key.charAt(0).toUpperCase() + key.slice(1)
+                  return `${formattedKey}: ${value}`
+                })
+              } else if (Array.isArray(rawResponsibilities)) {
+                clientResponsibilities = rawResponsibilities
+              } else if (typeof rawResponsibilities === 'string') {
+                clientResponsibilities = [rawResponsibilities]
+              }
+            } catch (e) {
+              console.error("Error parsing client responsibilities:", e)
+            }
 
-            // Create the parsed content object
-            const parsed: ParsedContent = {
+            // Parse terms and conditions
+            let termsAndConditions: { [key: string]: string } = {}
+            try {
+              const rawTerms = parseJSONSafely(data.content.terms_and_conditions, {})
+              if (typeof rawTerms === 'object' && rawTerms !== null) {
+                termsAndConditions = rawTerms
+              } else if (typeof rawTerms === 'string') {
+                termsAndConditions = { 'General Terms': rawTerms }
+              }
+            } catch (e) {
+              console.error("Error parsing terms and conditions:", e)
+            }
+
+            // Parse signature
+            const signature = parseJSONSafely(data.content.signature, { provider: '', client: '' })
+            
+            setParsedContent({
               deliverables,
               pricing,
               payment_schedule: paymentSchedule,
               signature,
               timeline_start: data.content.timeline_start || "",
               timeline_end: data.content.timeline_end || "",
-              scope_of_work: data.content.scope_of_work || ""
-            }
-
-            console.log("Parsed content:", parsed)
-            setParsedContent(parsed)
+              scope_of_work: data.content.scope_of_work || "",
+              client_responsibilities: clientResponsibilities,
+              terms_and_conditions: termsAndConditions
+            })
           } catch (err) {
             console.error("Error parsing proposal content:", err)
             setError("Invalid proposal data format")

@@ -135,9 +135,43 @@ export function ModernTemplate({
           </div>
         </div>
 
-        {/* Signatures */}
+        {/* Client Responsibilities */}
         <div className="grid grid-cols-12 gap-8 mb-24">
           <div className="col-span-1 text-8xl font-light">6</div>
+          <div className="col-span-11">
+            <h2 className="text-sm uppercase tracking-wider mb-8">Client Responsibilities</h2>
+            <div className="space-y-6">
+              {parsedContent.client_responsibilities.map((item: string, index: number) => (
+                <div key={index} className="flex items-baseline gap-4 border-b border-[#2A2A2A]/10 pb-4">
+                  <span className="text-[#2A2A2A]/40 text-xl">0{index + 1}</span>
+                  <span className="text-xl">{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Terms & Conditions */}
+        <div className="grid grid-cols-12 gap-8 mb-24">
+          <div className="col-span-1 text-8xl font-light">7</div>
+          <div className="col-span-11">
+            <h2 className="text-sm uppercase tracking-wider mb-8">Terms & Conditions</h2>
+            <div className="space-y-8">
+              {Object.entries(parsedContent.terms_and_conditions).map(([key, value], index: number) => (
+                <div key={index} className="border-b border-[#2A2A2A]/10 pb-6">
+                  <h3 className="text-xl font-light mb-2 capitalize">
+                    {key.replace(/([A-Z])/g, ' $1').trim()}
+                  </h3>
+                  <p className="text-[#2A2A2A]/70">{value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Signatures */}
+        <div className="grid grid-cols-12 gap-8 mb-24">
+          <div className="col-span-1 text-8xl font-light">8</div>
           <div className="col-span-11">
             <h2 className="text-sm uppercase tracking-wider mb-8">Signatures</h2>
             <div className="grid grid-cols-2 gap-16">
