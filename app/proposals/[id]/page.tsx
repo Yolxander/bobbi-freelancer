@@ -19,6 +19,7 @@ import {
   Pencil,
   Eye,
   MoreVertical,
+  CheckCircle2,
 } from "lucide-react"
 import Sidebar from "@/components/sidebar"
 import { useAuth } from "@/lib/auth-context"
@@ -99,7 +100,7 @@ interface ProposalData {
   title: string;
   client_id: string;
   project_id: string;
-  status: 'draft' | 'sent' | 'accepted' | 'rejected';
+  status: 'draft' | 'sent' | 'approved' | 'rejected';
   is_template?: boolean;
   current_version?: number;
   content: ProposalContent;
@@ -113,6 +114,8 @@ export default function ProposalPage() {
   const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [proposalLink, setProposalLink] = useState<string>("")
   const [proposal, setProposal] = useState<Omit<ProposalData, 'id' | 'created_at' | 'updated_at'>>({
     title: '',
     client_id: '',
@@ -158,7 +161,7 @@ export default function ProposalPage() {
           title: fetchedProposal.title,
           client_id: fetchedProposal.client_id,
           project_id: fetchedProposal.project_id,
-          status: fetchedProposal.status as 'draft' | 'sent' | 'accepted' | 'rejected',
+          status: fetchedProposal.status as 'draft' | 'sent' | 'approved' | 'rejected',
           is_template: fetchedProposal.is_template,
           current_version: fetchedProposal.current_version,
           content: {
@@ -236,7 +239,7 @@ export default function ProposalPage() {
         title: updatedProposal.title,
         client_id: updatedProposal.client_id,
         project_id: updatedProposal.project_id,
-        status: updatedProposal.status as 'draft' | 'sent' | 'accepted' | 'rejected',
+        status: updatedProposal.status as 'draft' | 'sent' | 'approved' | 'rejected',
         is_template: updatedProposal.is_template,
         current_version: updatedProposal.current_version,
         content: {
@@ -309,9 +312,8 @@ export default function ProposalPage() {
     try {
       const result = await sendProposal(params.id as string)
       if (result.success) {
-        // Show success message with the client URL
-        alert(`Proposal sent successfully! Client URL: ${result.clientUrl}`)
-        router.push(`/proposals/${params.id}`)
+        setProposalLink(result.clientUrl)
+        setShowSuccessModal(true)
       }
     } catch (error) {
       console.error("Error sending proposal:", error)
@@ -327,7 +329,7 @@ export default function ProposalPage() {
         return "bg-yellow-50 text-yellow-700 border-yellow-200"
       case "sent":
         return "bg-blue-50 text-blue-700 border-blue-200"
-      case "accepted":
+      case "approved":
         return "bg-green-50 text-green-700 border-green-200"
       case "rejected":
         return "bg-red-50 text-red-700 border-red-200"
@@ -570,6 +572,34 @@ export default function ProposalPage() {
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
       <div className="flex-1 overflow-auto">
+        {/* Success Modal */}
+        {showSuccessModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+              <div className="flex flex-col items-center text-center">
+                <CheckCircle2 className="w-12 h-12 text-green-500 mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Proposal Sent Successfully!</h3>
+                <p className="text-gray-600 mb-6">
+                  The proposal link has been sent to the client. They can now review and sign it online.
+                </p>
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => window.open(proposalLink, "_blank")}
+                    className="px-4 py-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors"
+                  >
+                    See Proposal
+                  </button>
+                  <button
+                    onClick={() => setShowSuccessModal(false)}
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="p-8">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
