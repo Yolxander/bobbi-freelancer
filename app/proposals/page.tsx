@@ -19,6 +19,7 @@ import {
   Clock,
   Building,
   User,
+  CheckCircle2,
 } from "lucide-react"
 import Sidebar from "@/components/sidebar"
 import { getProposals, deleteProposal, sendProposal } from "@/app/actions/proposal-actions"
@@ -36,6 +37,8 @@ export default function ProposalsPage() {
     start: "",
     end: "",
   })
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [proposalLink, setProposalLink] = useState<string>("")
 
   useEffect(() => {
     const fetchProposals = async () => {
@@ -108,9 +111,8 @@ export default function ProposalsPage() {
     try {
       const result = await sendProposal(proposalId)
       if (result.success) {
-        // Show success message with the client URL
-        alert(`Proposal sent successfully! Client URL: ${result.clientUrl}`)
-        router.push(`/proposals/${proposalId}`)
+        setProposalLink(result.clientUrl)
+        setShowSuccessModal(true)
       }
     } catch (error) {
       console.error("Error sending proposal:", error)
@@ -124,6 +126,34 @@ export default function ProposalsPage() {
     <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <Sidebar />
       <div className="flex-1 overflow-auto">
+        {/* Success Modal */}
+        {showSuccessModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+              <div className="flex flex-col items-center text-center">
+                <CheckCircle2 className="w-12 h-12 text-green-500 mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Proposal Sent Successfully!</h3>
+                <p className="text-gray-600 mb-6">
+                  The proposal link has been sent to the client. They can now review and sign it online.
+                </p>
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => window.open(proposalLink, "_blank")}
+                    className="px-4 py-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors"
+                  >
+                    See Proposal
+                  </button>
+                  <button
+                    onClick={() => setShowSuccessModal(false)}
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="p-6 max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
