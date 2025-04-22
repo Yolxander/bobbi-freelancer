@@ -663,13 +663,13 @@ export async function getSignatures(proposalId: string): Promise<Signature[]> {
   return response.json();
 }
 
-export async function addSignature(proposalId: string, userId: string, type: "provider" | "client"): Promise<Signature> {
+export async function addSignature(proposalId: string, userId: string, type: "provider" | "client", signature: string): Promise<Signature> {
   const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/signatures`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ user_id: userId, type }),
+    body: JSON.stringify({ user_id: userId, type, signature }),
   });
   if (!response.ok) throw new Error('Failed to add signature');
   return response.json();
@@ -732,4 +732,30 @@ export async function filterProposals(filters: {
   const response = await fetch(`${API_BASE_URL}/proposals/filter?${queryParams.toString()}`);
   if (!response.ok) throw new Error('Failed to filter proposals');
   return response.json();
+}
+
+export async function updateProposalSignature(id: string, signature: string): Promise<Proposal> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/proposals/${id}/signature`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ signature }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('API Error:', error);
+      throw new Error(error.message || 'Failed to update proposal signature');
+    }
+
+    const result = await response.json();
+    console.log('API Response:', result);
+    return result;
+  } catch (error) {
+    console.error('Error updating proposal signature:', error);
+    throw error;
+  }
 } 

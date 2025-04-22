@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { getProposal } from "@/app/actions/proposal-actions"
+import { getProposal, addSignature, acceptProposal, rejectProposal } from "@/app/actions/proposal-actions"
 import { useAuth } from "@/lib/auth-context"
 import { MagazineTemplate } from "@/app/components/proposal-templates/MagazineTemplate"
 import { ModernTemplate } from "@/app/components/proposal-templates/ModernTemplate"
@@ -131,34 +131,16 @@ export default function ProposalPreviewPage() {
     if (!proposal || !parsedContent || !clientSignature) return
 
     try {
-      // Create updated signature object
-      const updatedSignature = {
-        ...parsedContent.signature,
-        client: clientSignature
-      }
-
-      // Convert to string for storage
-      const signatureString = JSON.stringify(updatedSignature)
-
-      // Update the proposal with new signature
-      const response = await fetch(`/api/proposals/${proposal.id}/signature`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          signature: signatureString
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to save signature')
-      }
+      // Add the client signature
+      const signature = await addSignature(proposal.id, user?.id || "", "client", clientSignature)
 
       // Update local state with type safety
       setParsedContent({
         ...parsedContent,
-        signature: updatedSignature
+        signature: {
+          ...parsedContent.signature,
+          client: clientSignature
+        }
       } as ParsedContent)
       
       setIsSigning(false)
@@ -173,8 +155,7 @@ export default function ProposalPreviewPage() {
     if (!proposal) return
 
     try {
-      // TODO: Implement accept proposal API call
-      console.log("Accepting proposal:", proposal.id)
+      const updatedProposal = await acceptProposal(proposal.id)
       // After successful acceptance, redirect to success page
       router.push(`/proposals/${proposal.id}/accepted`)
     } catch (err) {
@@ -187,8 +168,7 @@ export default function ProposalPreviewPage() {
     if (!proposal) return
 
     try {
-      // TODO: Implement reject proposal API call
-      console.log("Rejecting proposal:", proposal.id)
+      const updatedProposal = await rejectProposal(proposal.id)
       // After successful rejection, redirect to rejection page
       router.push(`/proposals/${proposal.id}/rejected`)
     } catch (err) {
