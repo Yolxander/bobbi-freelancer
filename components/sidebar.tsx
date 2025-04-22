@@ -96,7 +96,15 @@ export default function Sidebar() {
             href="/dashboard" 
             className="p-3 bg-gray-100 rounded-xl inline-block"
           >
-            <Logo />
+            <div className="flex items-center">
+              <Image
+                src="/platform-logo.png"
+                alt="Platform Logo"
+                width={48}
+                height={48}
+                className="w-12 h-12"
+              />
+            </div>
           </Link>
         </div>
 

@@ -91,7 +91,7 @@ interface ProposalContent {
   signature: string;  // JSON string
 }
 
-interface Proposal {
+interface ProposalData {
   id: string;
   title: string;
   client_id: string;
@@ -110,7 +110,7 @@ export default function ProposalPage() {
   const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [proposal, setProposal] = useState<Omit<Proposal, 'id' | 'created_at' | 'updated_at'>>({
+  const [proposal, setProposal] = useState<Omit<ProposalData, 'id' | 'created_at' | 'updated_at'>>({
     title: '',
     client_id: '',
     project_id: '',
@@ -352,21 +352,46 @@ export default function ProposalPage() {
   const parseDeliverables = (value: any): string[] => {
     if (!value) return []
     if (Array.isArray(value)) return value
+    if (typeof value === 'object') return value
     try {
-      const parsed = JSON.parse(value)
-      return Array.isArray(parsed) ? parsed : []
+      return JSON.parse(value)
     } catch (e) {
       console.error('Error parsing deliverables:', e)
       return []
     }
   }
 
-  const parsePaymentSchedule = (value: string) => {
+  const parsePaymentSchedule = (value: any) => {
+    if (!value) return []
+    if (Array.isArray(value)) return value
+    if (typeof value === 'object') return value
     try {
-      const parsed = JSON.parse(value)
-      return Array.isArray(parsed) ? parsed : []
+      return JSON.parse(value)
     } catch (e) {
+      console.error('Error parsing payment schedule:', e)
       return []
+    }
+  }
+
+  const parsePricing = (value: any) => {
+    if (!value) return { type: 'fixed', amount: '0', currency: 'USD' }
+    if (typeof value === 'object') return value
+    try {
+      return JSON.parse(value)
+    } catch (e) {
+      console.error('Error parsing pricing:', e)
+      return { type: 'fixed', amount: '0', currency: 'USD' }
+    }
+  }
+
+  const parseSignature = (value: any) => {
+    if (!value) return { provider: '', client: '' }
+    if (typeof value === 'object') return value
+    try {
+      return JSON.parse(value)
+    } catch (e) {
+      console.error('Error parsing signature:', e)
+      return { provider: '', client: '' }
     }
   }
 
@@ -608,7 +633,7 @@ export default function ProposalPage() {
                   <div className="flex flex-col gap-2">
                     {(() => {
                       try {
-                        const pricing = JSON.parse(proposal.content.pricing);
+                        const pricing = parsePricing(proposal.content.pricing);
                         return (
                           <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
                             <div className="flex items-center gap-2">
@@ -638,14 +663,14 @@ export default function ProposalPage() {
                       className="w-full p-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 mb-2"
                       value={(() => {
                         try {
-                          const pricing = JSON.parse(proposal.content?.pricing || '{"type":"fixed"}');
+                          const pricing = parsePricing(proposal.content?.pricing);
                           return pricing.type;
                         } catch {
                           return 'fixed';
                         }
                       })()}
                       onChange={(e) => {
-                        const currentPricing = JSON.parse(proposal.content?.pricing || '{"amount":"0","currency":"USD","type":"fixed"}');
+                        const currentPricing = parsePricing(proposal.content?.pricing || '{"type":"fixed"}');
                         const newPricing = {
                           ...currentPricing,
                           type: e.target.value
@@ -667,14 +692,14 @@ export default function ProposalPage() {
                       className="w-full p-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
                       value={(() => {
                         try {
-                          const pricing = JSON.parse(proposal.content?.pricing || '{"amount":"0"}');
+                          const pricing = parsePricing(proposal.content?.pricing || '{"amount":"0"}');
                           return pricing.amount;
                         } catch {
                           return '0';
                         }
                       })()}
                       onChange={(e) => {
-                        const currentPricing = JSON.parse(proposal.content?.pricing || '{"amount":"0","currency":"USD","type":"fixed"}');
+                        const currentPricing = parsePricing(proposal.content?.pricing || '{"amount":"0","currency":"USD","type":"fixed"}');
                         const newPricing = {
                           ...currentPricing,
                           amount: e.target.value
@@ -808,7 +833,7 @@ export default function ProposalPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Signature Section</label>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <SignatureBlock
-                  value={proposal.content?.signature ? JSON.parse(proposal.content.signature) : { provider: "", client: "" }}
+                  value={parseSignature(proposal.content?.signature)}
                   onChange={handleSignatureChange}
                   readOnly={!isEditing}
                 />
