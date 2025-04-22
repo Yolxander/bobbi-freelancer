@@ -240,34 +240,15 @@ export default function ProposalPreviewPage() {
   return (
     <>
       <div className="fixed top-4 right-4 z-50 flex gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white hover:bg-white/20 transition-all">
-              <MoreVertical className="w-4 h-4" />
-              <span>Actions</span>
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 bg-white/90 backdrop-blur-sm border border-white/20">
-            <DropdownMenuItem onClick={() => router.push(`/proposals/${params.id}`)}>
-              <ChevronLeft className="w-4 h-4 mr-2" />
-              <span>Back to Edit</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleAccept} className="text-blue-600">
-              <Send className="w-4 h-4 mr-2" />
-              <span>Send to Client</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <DropdownMenu>
+      <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white hover:bg-white/20 transition-all">
               <Palette className="w-4 h-4" />
               <span>Theme</span>
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-64 p-2 bg-transparent">
-            <div className="grid grid-cols-2 gap-2">
+          <DropdownMenuContent align="end" className="w-64 p-2 bg-transparent border-none">
+            <div className="grid grid-cols-2 gap-2 border-none">
               <button
                 onClick={() => setTemplate("magazine")}
                 className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all ${
@@ -315,6 +296,26 @@ export default function ProposalPreviewPage() {
             </div>
           </DropdownMenuContent>
         </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white hover:bg-white/20 transition-all">
+              <MoreVertical className="w-4 h-4" />
+              <span>Actions</span>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 bg-white/90 backdrop-blur-sm border border-white/20">
+            <DropdownMenuItem onClick={() => router.push(`/proposals/${params.id}`)}>
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              <span>Back to Edit</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleAccept} className="text-blue-600">
+              <Send className="w-4 h-4 mr-2" />
+              <span>Send to Client</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+       
       </div>
       {template === "magazine" ? (
         <MagazineTemplate {...templateProps} />

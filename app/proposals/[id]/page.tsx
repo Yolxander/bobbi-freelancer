@@ -159,6 +159,12 @@ export default function ProposalPage() {
         }
 
         setProposal(parsedData)
+        
+        // Check if we're in edit mode from the URL
+        const searchParams = new URLSearchParams(window.location.search)
+        if (searchParams.get('edit') === 'true') {
+          setIsEditing(true)
+        }
       } catch (err) {
         console.error('Error fetching proposal:', err)
         setError("Failed to load proposal")

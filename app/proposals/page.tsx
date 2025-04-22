@@ -223,14 +223,14 @@ export default function ProposalsPage() {
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
-                            onClick={() => router.push(`/proposals/${proposal.id}`)}
+                            onClick={() => router.push(`/proposals/${proposal.id}/preview`)}
                             className="p-2 text-gray-700 hover:text-gray-900 rounded-xl hover:bg-gray-100 transition-colors"
                             title="View"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => router.push(`/proposals/${proposal.id}/edit`)}
+                            onClick={() => router.push(`/proposals/${proposal.id}?edit=true`)}
                             className="p-2 text-gray-700 hover:text-gray-900 rounded-xl hover:bg-gray-100 transition-colors"
                             title="Edit"
                           >
