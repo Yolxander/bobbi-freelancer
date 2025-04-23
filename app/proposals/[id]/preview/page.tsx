@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { getProposal, addSignature, acceptProposal, rejectProposal, sendProposal } from "@/app/actions/proposal-actions"
+import { getProposal, addSignature, acceptProposal, rejectProposal, sendProposal, convertToTemplate } from "@/app/actions/proposal-actions"
 import { useAuth } from "@/lib/auth-context"
 import { MagazineTemplate } from "@/app/components/proposal-templates/MagazineTemplate"
 import { ModernTemplate } from "@/app/components/proposal-templates/ModernTemplate"
@@ -30,6 +30,15 @@ export default function ProposalPreviewPage() {
   const [template, setTemplate] = useState<"magazine" | "modern" | "minimal" | "studio">("modern")
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [proposalLink, setProposalLink] = useState<string>("")
+  const [isConvertingTemplate, setIsConvertingTemplate] = useState(false)
+
+  // Map template names to IDs
+  const templateIds = {
+    magazine: 1,
+    modern: 2,
+    minimal: 3,
+    studio: 4
+  }
 
   useEffect(() => {
     const fetchProposal = async () => {
@@ -211,6 +220,21 @@ export default function ProposalPreviewPage() {
     }
   }
 
+  const handleTemplateChange = async (newTemplate: "magazine" | "modern" | "minimal" | "studio") => {
+    if (!proposal) return;
+    
+    try {
+      setIsConvertingTemplate(true);
+      await convertToTemplate(proposal.id, templateIds[newTemplate]);
+      setTemplate(newTemplate);
+    } catch (error) {
+      console.error('Failed to convert template:', error);
+      // You might want to show an error message to the user here
+    } finally {
+      setIsConvertingTemplate(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -269,47 +293,47 @@ export default function ProposalPreviewPage() {
           <DropdownMenuContent align="end" className="w-64 p-2 bg-transparent border-none z-50">
             <div className="grid grid-cols-2 gap-2 border-none">
               <button
-                onClick={() => setTemplate("magazine")}
+                onClick={() => handleTemplateChange("magazine")}
+                disabled={isConvertingTemplate}
                 className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all bg-[#1a237e] ${
                   template === "magazine"
                     ? "border-2 border-white"
                     : "border border-[#1a237e]/30"
                 }`}
               >
-          
                 <span className="text-sm text-white">Magazine</span>
               </button>
               <button
-                onClick={() => setTemplate("modern")}
+                onClick={() => handleTemplateChange("modern")}
+                disabled={isConvertingTemplate}
                 className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all bg-[#B8B2A7] ${
                   template === "modern"
                     ? "border-2 border-white"
                     : "border border-[#B8B2A7]/30"
                 }`}
               >
-              
                 <span className="text-sm text-white">Modern</span>
               </button>
               <button
-                onClick={() => setTemplate("minimal")}
+                onClick={() => handleTemplateChange("minimal")}
+                disabled={isConvertingTemplate}
                 className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all bg-white ${
                   template === "minimal"
                     ? "border-2 border-gray-800"
                     : "border border-gray-200"
                 }`}
               >
-              
                 <span className="text-sm text-gray-800">Minimal</span>
               </button>
               <button
-                onClick={() => setTemplate("studio")}
+                onClick={() => handleTemplateChange("studio")}
+                disabled={isConvertingTemplate}
                 className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all bg-[#A39B8B] ${
                   template === "studio"
                     ? "border-2 border-white"
                     : "border border-[#A39B8B]/30"
                 }`}
               >
-        
                 <span className="text-sm text-white">Studio</span>
               </button>
             </div>

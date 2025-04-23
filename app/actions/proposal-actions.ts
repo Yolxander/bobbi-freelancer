@@ -808,4 +808,26 @@ export async function updateProposalSignature(id: string, signature: string): Pr
     console.error('Error updating proposal signature:', error);
     throw error;
   }
+}
+
+export async function convertToTemplate(proposalId: string, templateId: number) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/proposals/${proposalId}/convert-to-template`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ template_id: templateId }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to convert template');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error converting template:', error);
+    throw error;
+  }
 } 
