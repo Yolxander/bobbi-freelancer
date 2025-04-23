@@ -266,21 +266,37 @@ export function MinimalTemplate({
               </div>
 
               {/* Action Buttons */}
-              {showActionButtons && (
+              {showActionButtons && proposal.status !== 'approved' && proposal.status !== 'rejected' && (
                 <div className="flex gap-6">
                   <button
                     onClick={onAccept}
                     disabled={!parsedContent.signature.client}
-                    className="flex-1 px-6 py-4 bg-gray-900 text-white rounded text-xl font-light hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 px-6 py-4 bg-[#2A2A2A] text-white rounded text-xl font-light hover:bg-[#2A2A2A]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Accept Proposal
                   </button>
                   <button
                     onClick={onReject}
-                    className="flex-1 px-6 py-4 border border-gray-200 rounded text-xl font-light hover:bg-gray-50 transition-colors"
+                    className="flex-1 px-6 py-4 border border-[#2A2A2A]/20 rounded text-xl font-light hover:bg-[#2A2A2A]/10 transition-colors"
                   >
                     Reject Proposal
                   </button>
+                </div>
+              )}
+
+              {/* Status Badge */}
+              {proposal.status === 'accepted' && (
+                <div className="mt-8 text-center">
+                  <div className="inline-flex items-center px-6 py-3 bg-green-500/20 text-green-500 rounded-full">
+                    <span className="text-xl font-light">Proposal Accepted</span>
+                  </div>
+                </div>
+              )}
+              {proposal.status === 'rejected' && (
+                <div className="mt-8 text-center">
+                  <div className="inline-flex items-center px-6 py-3 bg-red-500/20 text-red-500 rounded-full">
+                    <span className="text-xl font-light">Proposal Rejected</span>
+                  </div>
                 </div>
               )}
             </div>

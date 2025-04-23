@@ -243,7 +243,7 @@ export function ModernTemplate({
         </div>
 
         {/* Action Buttons */}
-        {showActionButtons && (
+        {showActionButtons && proposal.status !== 'approved' && proposal.status !== 'rejected' && (
           <div className="grid grid-cols-12 gap-8">
             <div className="col-span-1"></div>
             <div className="col-span-11">
@@ -261,6 +261,28 @@ export function ModernTemplate({
                 >
                   Reject Proposal
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Status Badge */}
+        {proposal.status === 'accepted' && (
+          <div className="grid grid-cols-12 gap-8 mt-8">
+            <div className="col-span-1"></div>
+            <div className="col-span-11 text-center">
+              <div className="inline-flex items-center px-6 py-3 bg-green-500/20 text-green-500 rounded-full">
+                <span className="text-xl font-light">Proposal Accepted</span>
+              </div>
+            </div>
+          </div>
+        )}
+        {proposal.status === 'rejected' && (
+          <div className="grid grid-cols-12 gap-8 mt-8">
+            <div className="col-span-1"></div>
+            <div className="col-span-11 text-center">
+              <div className="inline-flex items-center px-6 py-3 bg-red-500/20 text-red-500 rounded-full">
+                <span className="text-xl font-light">Proposal Rejected</span>
               </div>
             </div>
           </div>

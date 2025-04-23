@@ -272,7 +272,7 @@ export function StudioTemplate({
         </section>
 
         {/* Action Buttons */}
-        {showActionButtons && (
+        {showActionButtons && proposal.status !== 'approved' && proposal.status !== 'rejected' && (
           <div className="flex gap-6">
             <button
               onClick={onAccept}
@@ -287,6 +287,22 @@ export function StudioTemplate({
             >
               Reject Proposal
             </button>
+          </div>
+        )}
+
+        {/* Status Badge */}
+        {proposal.status === 'accepted' && (
+          <div className="mt-8 text-center">
+            <div className="inline-flex items-center px-6 py-3 bg-green-500/20 text-green-500 rounded-full">
+              <span className="text-xl font-light">Proposal Accepted</span>
+            </div>
+          </div>
+        )}
+        {proposal.status === 'rejected' && (
+          <div className="mt-8 text-center">
+            <div className="inline-flex items-center px-6 py-3 bg-red-500/20 text-red-500 rounded-full">
+              <span className="text-xl font-light">Proposal Rejected</span>
+            </div>
           </div>
         )}
       </div>

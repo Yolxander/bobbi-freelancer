@@ -322,27 +322,7 @@ export default function NewProposalPage() {
                   </>
                 )}
               </button>
-              <button
-                className="flex items-center gap-2 bg-gray-50 text-gray-700 rounded-xl px-4 py-2 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 border border-gray-200 transition-all"
-                onClick={handlePreview}
-              >
-                <Eye className="w-4 h-4" />
-                <span className="text-sm font-medium">Preview</span>
-              </button>
-              <button
-                className="flex items-center gap-2 bg-gray-50 text-gray-700 rounded-xl px-4 py-2 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 border border-gray-200 transition-all"
-                onClick={handleExportPDF}
-              >
-                <Download className="w-4 h-4" />
-                <span className="text-sm font-medium">Export PDF</span>
-              </button>
-              <button
-                className="flex items-center gap-2 bg-blue-600 text-white rounded-xl px-4 py-2 hover:bg-blue-700 transition-colors"
-                onClick={handleSend}
-              >
-                <Send className="w-4 h-4" />
-                <span className="text-sm font-medium">Send to Client</span>
-              </button>
+            
             </div>
           </div>
 
