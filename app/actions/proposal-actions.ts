@@ -188,6 +188,7 @@ export interface Proposal {
   is_template?: boolean;
   current_version?: number;
   client_token?: string;
+  template_id?: number;
   client?: {
     id: string;
     name: string;
@@ -344,6 +345,7 @@ export const getProposal = async (id: string): Promise<Proposal | null> => {
     project_id: data.project_id,
     status: data.status,
     is_template: data.is_template,
+    template_id: data.template_id,
     current_version: data.current_version,
     content: {
       id: data.content.id,
