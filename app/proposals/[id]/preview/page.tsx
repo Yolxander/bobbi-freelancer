@@ -248,7 +248,8 @@ export default function ProposalPreviewPage() {
       setIsSigning(false)
       setClientSignature("")
     },
-    handleSign
+    handleSign,
+    showActionButtons: false
   }
 
   return (

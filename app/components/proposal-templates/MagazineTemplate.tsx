@@ -12,6 +12,7 @@ interface ProposalTemplateProps {
   onSignatureChange: (value: string) => void
   onCancelSign: () => void
   handleSign: () => void
+  showActionButtons?: boolean
 }
 
 export function MagazineTemplate({
@@ -24,7 +25,8 @@ export function MagazineTemplate({
   clientSignature,
   onSignatureChange,
   onCancelSign,
-  handleSign
+  handleSign,
+  showActionButtons
 }: ProposalTemplateProps) {
   return (
     <div className="min-h-screen bg-[#1a237e] text-white">
@@ -248,21 +250,23 @@ export function MagazineTemplate({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-6">
-          <button
-            onClick={onAccept}
-            disabled={!parsedContent.signature.client}
-            className="flex-1 px-6 py-4 bg-white text-[#1a237e] rounded text-xl font-light hover:bg-[#9fa8da] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Accept Proposal
-          </button>
-          <button
-            onClick={onReject}
-            className="flex-1 px-6 py-4 border border-[#9fa8da]/20 rounded text-xl font-light hover:bg-[#9fa8da]/10 transition-colors"
-          >
-            Reject Proposal
-          </button>
-        </div>
+        {showActionButtons && (
+          <div className="flex gap-6">
+            <button
+              onClick={onAccept}
+              disabled={!parsedContent.signature.client}
+              className="flex-1 px-6 py-4 bg-white text-[#1a237e] rounded text-xl font-light hover:bg-[#9fa8da] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Accept Proposal
+            </button>
+            <button
+              onClick={onReject}
+              className="flex-1 px-6 py-4 border border-[#9fa8da]/20 rounded text-xl font-light hover:bg-[#9fa8da]/10 transition-colors"
+            >
+              Reject Proposal
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

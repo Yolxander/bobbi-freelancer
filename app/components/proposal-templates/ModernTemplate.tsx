@@ -12,6 +12,7 @@ interface ProposalTemplateProps {
   onSignatureChange: (value: string) => void
   onCancelSign: () => void
   handleSign: () => void
+  showActionButtons?: boolean
 }
 
 export function ModernTemplate({
@@ -24,7 +25,8 @@ export function ModernTemplate({
   clientSignature,
   onSignatureChange,
   onCancelSign,
-  handleSign
+  handleSign,
+  showActionButtons
 }: ProposalTemplateProps) {
   return (
     <div className="min-h-screen bg-[#B8B2A7] text-[#2A2A2A]">
@@ -241,26 +243,28 @@ export function ModernTemplate({
         </div>
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-12 gap-8">
-          <div className="col-span-1"></div>
-          <div className="col-span-11">
-            <div className="flex gap-6">
-              <button
-                onClick={onAccept}
-                disabled={!parsedContent.signature.client}
-                className="flex-1 px-6 py-4 bg-[#2A2A2A] text-white rounded-lg text-xl font-light hover:bg-[#2A2A2A]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Accept Proposal
-              </button>
-              <button
-                onClick={onReject}
-                className="flex-1 px-6 py-4 border border-[#2A2A2A]/10 rounded-lg text-xl font-light hover:bg-white/50 transition-colors"
-              >
-                Reject Proposal
-              </button>
+        {showActionButtons && (
+          <div className="grid grid-cols-12 gap-8">
+            <div className="col-span-1"></div>
+            <div className="col-span-11">
+              <div className="flex gap-6">
+                <button
+                  onClick={onAccept}
+                  disabled={!parsedContent.signature.client}
+                  className="flex-1 px-6 py-4 bg-white text-[#2A2A2A] rounded text-xl font-light hover:bg-[#2A2A2A]/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Accept Proposal
+                </button>
+                <button
+                  onClick={onReject}
+                  className="flex-1 px-6 py-4 border border-[#2A2A2A]/20 rounded text-xl font-light hover:bg-[#2A2A2A]/10 transition-colors"
+                >
+                  Reject Proposal
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

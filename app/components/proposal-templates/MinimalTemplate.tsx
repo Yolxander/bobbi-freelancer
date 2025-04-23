@@ -12,6 +12,7 @@ interface ProposalTemplateProps {
   onSignatureChange: (value: string) => void
   onCancelSign: () => void
   handleSign: () => void
+  showActionButtons?: boolean
 }
 
 export function MinimalTemplate({
@@ -24,7 +25,8 @@ export function MinimalTemplate({
   clientSignature,
   onSignatureChange,
   onCancelSign,
-  handleSign
+  handleSign,
+  showActionButtons
 }: ProposalTemplateProps) {
   return (
     <div className="min-h-screen bg-white text-gray-800">
@@ -264,21 +266,23 @@ export function MinimalTemplate({
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-6 pt-8">
-                <button
-                  onClick={onAccept}
-                  disabled={!parsedContent.signature.client}
-                  className="flex-1 px-6 py-4 bg-gray-900 text-white rounded text-xl font-light hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Accept Proposal
-                </button>
-                <button
-                  onClick={onReject}
-                  className="flex-1 px-6 py-4 border border-gray-200 rounded text-xl font-light hover:bg-gray-50 transition-colors"
-                >
-                  Reject Proposal
-                </button>
-              </div>
+              {showActionButtons && (
+                <div className="flex gap-6">
+                  <button
+                    onClick={onAccept}
+                    disabled={!parsedContent.signature.client}
+                    className="flex-1 px-6 py-4 bg-gray-900 text-white rounded text-xl font-light hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Accept Proposal
+                  </button>
+                  <button
+                    onClick={onReject}
+                    className="flex-1 px-6 py-4 border border-gray-200 rounded text-xl font-light hover:bg-gray-50 transition-colors"
+                  >
+                    Reject Proposal
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

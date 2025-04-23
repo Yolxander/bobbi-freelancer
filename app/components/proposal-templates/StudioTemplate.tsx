@@ -12,6 +12,7 @@ interface ProposalTemplateProps {
   onSignatureChange: (value: string) => void
   onCancelSign: () => void
   handleSign: () => void
+  showActionButtons?: boolean
 }
 
 export function StudioTemplate({
@@ -24,7 +25,8 @@ export function StudioTemplate({
   clientSignature,
   onSignatureChange,
   onCancelSign,
-  handleSign
+  handleSign,
+  showActionButtons
 }: ProposalTemplateProps) {
   return (
     <div className="min-h-screen bg-[#A39B8B] text-white">
@@ -270,28 +272,23 @@ export function StudioTemplate({
         </section>
 
         {/* Action Buttons */}
-        <section>
-          <div className="grid grid-cols-12 gap-8">
-            <div className="col-span-3"></div>
-            <div className="col-span-9">
-              <div className="flex gap-6">
-                <button
-                  onClick={onAccept}
-                  disabled={!parsedContent.signature.client}
-                  className="flex-1 px-8 py-4 bg-white text-[#A39B8B] rounded-lg text-xl font-light hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Accept Proposal
-                </button>
-                <button
-                  onClick={onReject}
-                  className="flex-1 px-8 py-4 border border-white/10 rounded-lg text-xl font-light hover:bg-white/5 transition-colors"
-                >
-                  Reject Proposal
-                </button>
-              </div>
-            </div>
+        {showActionButtons && (
+          <div className="flex gap-6">
+            <button
+              onClick={onAccept}
+              disabled={!parsedContent.signature.client}
+              className="flex-1 px-6 py-4 bg-white text-[#A39B8B] rounded text-xl font-light hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Accept Proposal
+            </button>
+            <button
+              onClick={onReject}
+              className="flex-1 px-6 py-4 border border-white/20 rounded text-xl font-light hover:bg-white/10 transition-colors"
+            >
+              Reject Proposal
+            </button>
           </div>
-        </section>
+        )}
       </div>
     </div>
   )

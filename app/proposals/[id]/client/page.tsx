@@ -273,9 +273,9 @@ export default function ClientProposalView() {
       setIsSigning(false)
       setClientSignature("")
     },
-    handleSign
+    handleSign,
+    showActionButtons: true
   }
-
   return (
     <>
       <div className="fixed top-4 right-4 z-50 flex gap-2">
