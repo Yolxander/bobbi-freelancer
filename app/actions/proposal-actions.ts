@@ -285,7 +285,7 @@ export const parseSignature = (signature: string): { provider: string; client: s
 };
 
 // Move API_BASE_URL to the top
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
 
 // Update the getProposals function to use new property names
 export const getProposals = async (): Promise<Proposal[]> => {

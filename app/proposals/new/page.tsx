@@ -167,30 +167,34 @@ export default function NewProposalPage() {
 
     try {
       if (!user) {
+        console.log('No user found');
         showToast('error', 'Please log in to save proposals');
         return;
       }
 
       // Validate required fields
       if (!proposal.title) {
+        console.log('No title provided');
         showToast('error', 'Please enter a title');
         return;
       }
 
       if (!proposal.client_id) {
+        console.log('No client selected');
         showToast('error', 'Please select a client');
         return;
       }
 
       if (!proposal.project_id) {
+        console.log('No project selected');
         showToast('error', 'Please select a project');
         return;
       }
 
       // Send raw proposal data to API
-      console.log('Sending proposal data to API:', proposal);
+      console.log('Sending proposal data to API:', JSON.stringify(proposal, null, 2));
       const newProposal = await createProposal(proposal);
-      console.log('Proposal saved successfully:', newProposal);
+      console.log('Proposal saved successfully:', JSON.stringify(newProposal, null, 2));
 
       addProposal(newProposal);
       showToast('success', 'Proposal saved successfully');
