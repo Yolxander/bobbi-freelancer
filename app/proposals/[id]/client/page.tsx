@@ -35,6 +35,32 @@ export default function ClientProposalView() {
   const [parsedContent, setParsedContent] = useState<ParsedContent | null>(null)
   const [template, setTemplate] = useState<"magazine" | "modern" | "minimal" | "studio">("magazine")
 
+  // Map template names to IDs
+  const templateIds = {
+    magazine: 1,
+    modern: 2,
+    minimal: 3,
+    studio: 4
+  }
+
+  // Reverse mapping of IDs to template names
+  const templateIdToName = {
+    1: "magazine",
+    2: "modern",
+    3: "minimal",
+    4: "studio"
+  } as const
+
+  // Initialize template state based on proposal's template_id
+  useEffect(() => {
+    if (proposal?.template_id) {
+      const templateName = templateIdToName[proposal.template_id as keyof typeof templateIdToName]
+      if (templateName) {
+        setTemplate(templateName)
+      }
+    }
+  }, [proposal?.template_id])
+
   useEffect(() => {
     const fetchProposal = async () => {
       try {
@@ -274,7 +300,7 @@ export default function ClientProposalView() {
       setClientSignature("")
     },
     handleSign,
-    showActionButtons: true
+    showActionButtons: false
   }
   return (
     <>
@@ -354,15 +380,21 @@ export default function ClientProposalView() {
         </DropdownMenu>
       </div>
 
-      {template === "magazine" ? (
-        <MagazineTemplate {...templateProps} />
-      ) : template === "modern" ? (
-        <ModernTemplate {...templateProps} />
-      ) : template === "minimal" ? (
-        <MinimalTemplate {...templateProps} />
-      ) : (
-        <StudioTemplate {...templateProps} />
-      )}
+      {(() => {
+        const templateName = proposal?.template_id ? templateIdToName[proposal.template_id as keyof typeof templateIdToName] : template
+        switch (templateName) {
+          case "magazine":
+            return <MagazineTemplate {...templateProps} />
+          case "modern":
+            return <ModernTemplate {...templateProps} />
+          case "minimal":
+            return <MinimalTemplate {...templateProps} />
+          case "studio":
+            return <StudioTemplate {...templateProps} />
+          default:
+            return <MagazineTemplate {...templateProps} />
+        }
+      })()}
     </>
   )
 } 
