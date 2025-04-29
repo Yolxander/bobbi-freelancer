@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Trash2 } from "lucide-react"
+import { Plus, Save, Trash2 } from "lucide-react"
 
 interface DeliverablesInputListProps {
   value: string[]
@@ -84,7 +84,7 @@ export default function DeliverablesInputList({
             onClick={handleAddItem}
             className="p-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
           >
-            <Plus className="w-4 h-4" />
+            <Save className="w-5 h-5" />
           </button>
         </div>
       )}

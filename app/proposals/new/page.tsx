@@ -529,12 +529,12 @@ export default function NewProposalPage() {
                 onToggle={() => handleSectionToggle('signature')}
               >
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <TextEditor
-                    value={proposal.content.signature}
+                  <SignatureInput
+                    value={JSON.parse(proposal.content.signature || '{"providerName":"","agreementDate":""}')}
                     onChange={(value) =>
                       setProposal({
                         ...proposal,
-                        content: { ...proposal.content, signature: value },
+                        content: { ...proposal.content, signature: JSON.stringify(value) },
                       })
                     }
                   />

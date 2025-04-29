@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Plus, X, Calendar } from "lucide-react"
+import { Save, X, Calendar } from "lucide-react"
 
 interface PaymentMilestone {
   milestone: string
@@ -90,7 +90,7 @@ export default function PaymentScheduleInput({ value, onChange }: PaymentSchedul
             className="flex items-center justify-center w-10 h-10 rounded-lg bg-black text-white hover:bg-gray-800 transition-colors"
             onClick={handleAddMilestone}
           >
-            <Plus className="w-5 h-5" />
+            <Save className="w-5 h-5" />
           </button>
         </div>
       </div>
