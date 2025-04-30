@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const currentPath = pathname
           if (currentPath !== "/onboarding" && currentPath !== "/auth" && currentPath !== "/") {
             // Don't redirect if we're on a valid page like /clients, /projects, etc.
-            const validPaths = ["/clients", "/projects", "/tasks", "/messaging", "/calendar", "/files", "/profile", "/proposals"]
+            const validPaths = ["/clients", "/projects", "/tasks", "/messaging", "/calendar", "/files", "/profile", "/proposals", "/deliverables"]
             const publicPaths = ["/", "/auth", "/about"] // Add about to public paths
             const isValidPath = validPaths.some((path) => currentPath.startsWith(path))
             const isPublicPath = publicPaths.some((path) => currentPath === path)

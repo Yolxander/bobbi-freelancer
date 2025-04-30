@@ -1,147 +1,243 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Calendar, CheckCircle, Clock, FileText } from "lucide-react"
+import { useState } from 'react'
+import { format } from 'date-fns'
+import { toast } from 'sonner'
 import Sidebar from "@/components/sidebar"
-import { useAuth } from "@/lib/auth-context"
-import { useRouter } from "next/navigation"
-import { getProposals, Proposal } from "@/app/actions/proposal-actions"
-import { toast } from "sonner"
+import { FileUp, Calendar, CheckCircle2, Clock, AlertCircle } from "lucide-react"
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "completed":
-      return "bg-green-500"
-    case "in-progress":
-      return "bg-blue-500"
-    case "pending":
-      return "bg-yellow-500"
-    default:
-      return "bg-gray-500"
-  }
+// Dummy data interfaces
+interface Task {
+  id: string
+  title: string
+  status: 'todo' | 'in_progress' | 'completed'
+  priority: 'low' | 'medium' | 'high'
+  dueDate: string
+  description: string
 }
 
-export default function DeliverablesPage() {
-  const { user, loading: authLoading } = useAuth()
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(true)
-  const [proposals, setProposals] = useState<Proposal[]>([])
-  const [error, setError] = useState<string | null>(null)
+interface Deliverable {
+  id: string
+  name: string
+  status: 'pending' | 'in_progress' | 'completed'
+  dueDate: string
+  description: string
+  tasks: Task[]
+  projectId: string
+  projectName: string
+  clientName: string
+}
 
-  useEffect(() => {
-    const fetchProposals = async () => {
-      try {
-        const fetchedProposals = await getProposals()
-        setProposals(fetchedProposals)
-        setError(null)
-      } catch (err) {
-        setError("Failed to load proposals")
-        toast.error("Failed to load proposals")
-      } finally {
-        setIsLoading(false)
+// Dummy data
+const mockDeliverables: Deliverable[] = [
+  {
+    id: '1',
+    name: 'Website Design',
+    status: 'in_progress',
+    dueDate: '2024-04-15',
+    description: 'Complete website design with responsive layout',
+    projectId: 'p1',
+    projectName: 'E-commerce Platform',
+    clientName: 'Acme Corp',
+    tasks: [
+      {
+        id: 't1',
+        title: 'Create wireframes',
+        status: 'completed',
+        priority: 'high',
+        dueDate: '2024-03-20',
+        description: 'Design initial wireframes for all pages'
+      },
+      {
+        id: 't2',
+        title: 'Design UI components',
+        status: 'in_progress',
+        priority: 'medium',
+        dueDate: '2024-03-25',
+        description: 'Create reusable UI components'
       }
-    }
-
-    if (!authLoading && user) {
-      fetchProposals()
-    }
-  }, [authLoading, user])
-
-  useEffect(() => {
-    if (!authLoading) {
-      if (!user) {
-        router.push("/auth")
+    ]
+  },
+  {
+    id: '2',
+    name: 'Mobile App Development',
+    status: 'pending',
+    dueDate: '2024-05-01',
+    description: 'Develop cross-platform mobile application',
+    projectId: 'p2',
+    projectName: 'Fitness Tracker',
+    clientName: 'FitLife Inc',
+    tasks: [
+      {
+        id: 't3',
+        title: 'Set up development environment',
+        status: 'todo',
+        priority: 'high',
+        dueDate: '2024-04-10',
+        description: 'Configure React Native and necessary tools'
+      },
+      {
+        id: 't4',
+        title: 'Design database schema',
+        status: 'todo',
+        priority: 'medium',
+        dueDate: '2024-04-15',
+        description: 'Create database structure for user data'
       }
-    }
-  }, [user, authLoading, router])
-
-  if (authLoading || isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-gray-200 border-t-gray-800 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-500">Loading deliverables...</p>
-        </div>
-      </div>
-    )
+    ]
   }
+]
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="text-center">
-          <p className="text-red-500">{error}</p>
-        </div>
-      </div>
-    )
+export default function DeliverablesPage() {
+  const [deliverables, setDeliverables] = useState<Deliverable[]>(mockDeliverables)
+  const [selectedProject, setSelectedProject] = useState<string>('all')
+  const [selectedStatus, setSelectedStatus] = useState<string>('all')
+
+  const filteredDeliverables = deliverables.filter(deliverable => {
+    const projectMatch = selectedProject === 'all' || deliverable.projectId === selectedProject
+    const statusMatch = selectedStatus === 'all' || deliverable.status === selectedStatus
+    return projectMatch && statusMatch
+  })
+
+  const uniqueProjects = Array.from(new Set(deliverables.map(d => d.projectId)))
+    .map(id => deliverables.find(d => d.projectId === id))
+    .filter(Boolean) as Deliverable[]
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <CheckCircle2 className="w-4 h-4 text-green-500" />
+      case 'in_progress':
+        return <Clock className="w-4 h-4 text-blue-500" />
+      default:
+        return <AlertCircle className="w-4 h-4 text-yellow-500" />
+    }
   }
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <Sidebar />
+      
       <div className="flex-1 overflow-auto">
-        <div className="container mx-auto py-8">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold">Deliverables</h1>
-            <Button>
-              <FileText className="mr-2 h-4 w-4" />
-              New Deliverable
-            </Button>
+        <div className="p-6 max-w-7xl mx-auto">
+          {/* Header Section */}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <FileUp className="w-6 h-6 text-purple-500" />
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Deliverables</h1>
+                <p className="text-gray-500 mt-1">Track and manage your project deliverables</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border">
+                <FileUp className="w-4 h-4 text-gray-500" />
+                <span className="text-sm text-gray-600">{filteredDeliverables.length} items</span>
+              </div>
+            </div>
           </div>
 
-          <div className="grid gap-6">
-            {proposals.map((proposal) => {
-              const content = JSON.parse(proposal.content.deliverables)
-              return (
-                <Card key={proposal.id}>
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-xl">{proposal.title}</CardTitle>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          From proposal: {proposal.title}
-                        </p>
-                      </div>
-                      <Badge className={getStatusColor(proposal.status || "pending")}>
-                        {proposal.status || "pending"}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground mb-4">{proposal.content.scope_of_work}</p>
-                    
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Calendar className="mr-2 h-4 w-4" />
-                        Due: {new Date(proposal.content.timeline_end).toLocaleDateString()}
-                      </div>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Clock className="mr-2 h-4 w-4" />
-                        {content.length} deliverables
-                      </div>
-                    </div>
+          {/* Filters */}
+          <div className="flex gap-4 mb-6">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Project</label>
+              <select
+                className="w-full px-4 py-2 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={selectedProject}
+                onChange={(e) => setSelectedProject(e.target.value)}
+              >
+                <option value="all">All Projects</option>
+                {uniqueProjects.map(project => (
+                  <option key={project.projectId} value={project.projectId}>
+                    {project.projectName}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <select
+                className="w-full px-4 py-2 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+              >
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+          </div>
 
-                    <div className="space-y-2">
-                      <h3 className="font-medium">Deliverables</h3>
-                      {content.map((deliverable: string, index: number) => (
-                        <div key={index} className="flex items-center justify-between p-2 bg-muted rounded-md">
-                          <div className="flex items-center">
-                            <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                            <span>{deliverable}</span>
+          {/* Deliverables Grid */}
+          <div className="grid gap-6">
+            {filteredDeliverables.map(deliverable => (
+              <div key={deliverable.id} className="bg-white rounded-lg border shadow-sm hover:shadow-md transition-shadow">
+                {/* Deliverable Header */}
+                <div className="p-6 border-b">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-900">{deliverable.name}</h2>
+                      <p className="text-sm text-gray-500 mt-1">{deliverable.projectName} • {deliverable.clientName}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {getStatusIcon(deliverable.status)}
+                      <span className={`text-sm font-medium ${
+                        deliverable.status === 'completed' ? 'text-green-600' :
+                        deliverable.status === 'in_progress' ? 'text-blue-600' :
+                        'text-yellow-600'
+                      }`}>
+                        {deliverable.status.replace('_', ' ')}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 mt-3">{deliverable.description}</p>
+                  <div className="flex items-center gap-4 mt-4 text-sm text-gray-500">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      <span>Due {format(new Date(deliverable.dueDate), 'MMM d, yyyy')}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>{deliverable.tasks.filter(t => t.status === 'completed').length} of {deliverable.tasks.length} tasks completed</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tasks Section */}
+                <div className="p-6">
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">Tasks</h3>
+                  <div className="space-y-3">
+                    {deliverable.tasks.map(task => (
+                      <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          {getStatusIcon(task.status)}
+                          <div>
+                            <h4 className="text-sm font-medium text-gray-900">{task.title}</h4>
+                            <p className="text-xs text-gray-500">{task.description}</p>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-1 rounded-full text-xs ${
+                            task.priority === 'high' ? 'bg-red-100 text-red-800' :
+                            task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-green-100 text-green-800'
+                          }`}>
+                            {task.priority}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            Due {format(new Date(task.dueDate), 'MMM d')}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
     </div>
   )
-} 
+}

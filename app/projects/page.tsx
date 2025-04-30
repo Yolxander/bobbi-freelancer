@@ -1,12 +1,13 @@
 "use client"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Briefcase, Plus, Search, Filter, ChevronRight, AlertCircle, User, LayoutGrid, List, X } from "lucide-react"
+import { Briefcase, Plus, Search, Filter, ChevronRight, AlertCircle, User, LayoutGrid, List, X, Folder } from "lucide-react"
 import Sidebar from "@/components/sidebar"
 import { useAuth } from "@/lib/auth-context"
 import { getProjects } from "../actions/project-actions"
 import ProjectModal from "@/components/projects/project-modal"
 import { getClients } from "../actions/client-actions"
+import { format } from "date-fns"
 
 export default function ProjectsPage() {
   const { user, isLoading: authLoading } = useAuth()
@@ -102,7 +103,10 @@ export default function ProjectsPage() {
       <div className="flex-1 overflow-auto">
         <div className="p-6 max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
+            <div className="flex items-center gap-3">
+              <Folder className="w-6 h-6 text-blue-500" />
+              <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
+            </div>
             <div className="flex items-center gap-3">
               <div className="relative">
                 <input
@@ -289,7 +293,7 @@ function ProjectCard({ project, viewMode }) {
               </div>
               <div>
                 <h3 className="font-medium text-lg text-gray-900">{project.name}</h3>
-                <div className="flex items-center">
+                <div className="flex items-center gap-2">
                   {project.client_id ? (
                     <p className="text-sm text-gray-500">{project.client?.name || "No client"}</p>
                   ) : (
@@ -299,23 +303,56 @@ function ProjectCard({ project, viewMode }) {
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div
-                className={`
-                  text-xs font-medium px-2.5 py-0.5 rounded
-                  ${
-                    project.status === "In Progress"
-                      ? "bg-green-100 text-green-700"
-                      : project.status === "Review"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-blue-100 text-blue-700"
-                  }
-                `}
-              >
-                {project.status}
+            <div className="space-y-4">
+              {/* Progress Bar */}
+              <div className="space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Progress</span>
+                  <span className="font-medium text-gray-900">75%</span>
+                </div>
+                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-blue-500 rounded-full" style={{ width: '75%' }}></div>
+                </div>
               </div>
-              <div className="text-sm text-gray-500">
-                <ChevronRight className="w-5 h-5" />
+
+              {/* Tasks Overview */}
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="p-2 bg-green-50 rounded-lg">
+                  <div className="text-lg font-semibold text-green-600">12</div>
+                  <div className="text-xs text-green-700">Completed</div>
+                </div>
+                <div className="p-2 bg-blue-50 rounded-lg">
+                  <div className="text-lg font-semibold text-blue-600">5</div>
+                  <div className="text-xs text-blue-700">In Progress</div>
+                </div>
+                <div className="p-2 bg-yellow-50 rounded-lg">
+                  <div className="text-lg font-semibold text-yellow-600">3</div>
+                  <div className="text-xs text-yellow-700">Pending</div>
+                </div>
+              </div>
+
+              {/* Status and Actions */}
+              <div className="flex items-center justify-between pt-2 border-t">
+                <div
+                  className={`
+                    text-xs font-medium px-2.5 py-0.5 rounded
+                    ${
+                      project.status === "In Progress"
+                        ? "bg-green-100 text-green-700"
+                        : project.status === "Review"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-blue-100 text-blue-700"
+                    }
+                  `}
+                >
+                  {project.status}
+                </div>
+                <div className="flex items-center gap-2 text-gray-500">
+                  <span className="text-xs">Last updated</span>
+                  <span className="text-xs font-medium">
+                    {format(new Date(project.updated_at || project.created_at), 'MMM d')}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -328,7 +365,7 @@ function ProjectCard({ project, viewMode }) {
       <Link href={`/projects/${project.id}`}>
         <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
           <div className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <div
                 className={`w-10 h-10 rounded-lg ${project.color || "bg-blue-100"} flex items-center justify-center shadow-sm`}
               >
@@ -340,17 +377,28 @@ function ProjectCard({ project, viewMode }) {
               </div>
               <div>
                 <h3 className="font-medium text-gray-900">{project.name}</h3>
-                <div className="flex items-center">
+                <div className="flex items-center gap-2">
                   {project.client_id ? (
                     <p className="text-xs text-gray-500">{project.client?.name || "No client"}</p>
                   ) : (
                     <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Personal</span>
                   )}
+                  <span className="text-xs text-gray-400">•</span>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-xs text-gray-500">12 tasks completed</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-blue-500 rounded-full" style={{ width: '75%' }}></div>
+                </div>
+                <span className="text-xs font-medium text-gray-600">75%</span>
+              </div>
               <div
                 className={`
                   text-xs font-medium px-2.5 py-0.5 rounded
