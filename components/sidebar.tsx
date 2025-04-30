@@ -88,7 +88,7 @@ export default function Sidebar() {
         className={`
   ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full md:translate-x-0"} 
   fixed md:static top-0 right-0 h-screen z-40
-  w-[160px] flex flex-col items-center py-6 border-l border-gray-100 bg-white
+  w-[160px] flex flex-col items-center py-6 bg-white
   transition-transform duration-300 ease-in-out
 `}
       >

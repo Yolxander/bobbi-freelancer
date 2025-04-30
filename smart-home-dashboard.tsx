@@ -425,7 +425,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
 
             {/* Projects Overview */}
             {activePills.projects && (
-              <div className="flex-1 rounded-xl overflow-hidden relative bg-white p-6 shadow-sm border border-black">
+              <div className="flex-1 rounded-xl overflow-hidden relative bg-white p-6 shadow-xl">
                 <h2 className="text-xl font-bold mb-4 text-gray-900">Projects Overview</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                   <div className="bg-gray-50 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200">
@@ -541,7 +541,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
               {/* Proposals Card */}
               {activePills.tasks && (
-                <div className="bg-white rounded-xl p-6 relative shadow-sm hover:shadow-md transition-all duration-200 border border-black">
+                <div className="bg-white rounded-xl p-6 relative shadow-xl hover:shadow-md transition-all duration-200">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <div className="flex items-center gap-2">
@@ -600,7 +600,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
 
               {/* Appointments Card */}
               {activePills.pending && (
-                <div className="bg-white rounded-xl p-6 relative shadow-sm hover:shadow-md transition-all duration-200 border border-black">
+                <div className="bg-white rounded-xl p-6 relative shadow-xl hover:shadow-md transition-all duration-200">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <div className="flex items-center gap-2">
@@ -655,7 +655,7 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
           </div>
 
           {/* Right Sidebar */}
-          <div className="col-span-12 md:col-span-4 bg-white rounded-xl p-4 md:p-6 shadow-sm border border-black">
+          <div className="col-span-12 md:col-span-4 bg-white rounded-xl p-4 md:p-6 shadow-xl">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-gray-900">Incoming Tasks</h2>
               <Clock className="w-5 h-5 text-gray-400" />
@@ -1089,8 +1089,8 @@ function StatusPill({ icon, text, onClick, isActive = true }) {
 
   return (
     <div
-      className={`rounded-full px-3 sm:px-4 py-1.5 sm:py-2 flex items-center gap-1 sm:gap-2 cursor-pointer transition-colors shadow-sm hover:shadow-md ${
-        isActive ? "bg-gray-100 hover:bg-gray-200 border border-gray-200" : "bg-gray-50 hover:bg-gray-100"
+      className={`rounded-full px-3 sm:px-4 py-1.5 sm:py-2 flex items-center gap-1 sm:gap-2 cursor-pointer transition-colors shadow-xl hover:shadow-md ${
+        isActive ? "bg-gray-100 hover:bg-gray-200 border border-gray-200 shadow-sm" : "bg-gray-50 hover:bg-gray-100"
       }`}
       onClick={onClick}
     >
