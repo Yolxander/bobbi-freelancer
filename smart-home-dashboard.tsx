@@ -21,6 +21,7 @@ import {
   ArrowUpRight,
   FileCheck,
   FileText,
+  FileUp,
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -128,6 +129,9 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
     tasks: true,
     pending: true,
     clients: true,
+    proposals: true,
+    appointments: true,
+    files: true,
   })
 
   // Update state when props change
@@ -371,55 +375,47 @@ export default function ProviderDashboard({ initialProjects = [], initialClients
               </div>
 
             <div className="ml-0 sm:ml-auto flex flex-wrap items-center gap-2 md:gap-3 mt-2 sm:mt-0">
-        <StatusPill
-          icon={
-            <Briefcase
-              className={`w-4 h-4 ${activePills.projects ? "text-gray-900" : "text-gray-400"}`}
-            />
-          }
-          text={`${projects.length} Projects`}
-          isActive={activePills.projects}
-          onClick={() =>
-            setActivePills({ ...activePills, projects: !activePills.projects })
-          }
-        />
-        <StatusPill
-          icon={
-            <CheckCircle
-              className={`w-4 h-4 ${activePills.tasks ? "text-gray-900" : "text-gray-400"}`}
-            />
-          }
-          text={`${tasks.length} Tasks`}
-          isActive={activePills.tasks}
-          onClick={() =>
-            setActivePills({ ...activePills, tasks: !activePills.tasks })
-          }
-        />
-        <StatusPill
-          icon={
-            <Clock
-              className={`w-4 h-4 ${activePills.pending ? "text-gray-900" : "text-gray-400"}`}
-            />
-          }
-          text={`${tasks.filter((t) => !t.completed && new Date(t.due_date) < new Date()).length} Pending`}
-          isActive={activePills.pending}
-          onClick={() =>
-            setActivePills({ ...activePills, pending: !activePills.pending })
-          }
-        />
-        <StatusPill
-          icon={
-            <Users
-              className={`w-4 h-4 ${activePills.clients ? "text-gray-900" : "text-gray-400"}`}
-            />
-          }
-          text={`${clients.length} Clients`}
-          isActive={activePills.clients}
-          onClick={() =>
-            setActivePills({ ...activePills, clients: !activePills.clients })
-          }
-        />
-      </div>
+              <StatusPill
+                icon={
+                  <Briefcase className={`w-4 h-4 ${activePills.projects ? "text-gray-900" : "text-gray-400"}`} />
+                }
+                text={`${projects.length} Projects`}
+                isActive={activePills.projects}
+                onClick={() =>
+                  setActivePills({ ...activePills, projects: !activePills.projects })
+                }
+              />
+              <StatusPill
+                icon={
+                  <FileText className={`w-4 h-4 ${activePills.proposals ? "text-gray-900" : "text-gray-400"}`} />
+                }
+                text={`${tasks.length} Proposals`}
+                isActive={activePills.proposals}
+                onClick={() =>
+                  setActivePills({ ...activePills, proposals: !activePills.proposals })
+                }
+              />
+              <StatusPill
+                icon={
+                  <Calendar className={`w-4 h-4 ${activePills.appointments ? "text-gray-900" : "text-gray-400"}`} />
+                }
+                text={`${incomingTasks.length} Appointments`}
+                isActive={activePills.appointments}
+                onClick={() =>
+                  setActivePills({ ...activePills, appointments: !activePills.appointments })
+                }
+              />
+              <StatusPill
+                icon={
+                  <FileUp className={`w-4 h-4 ${activePills.files ? "text-gray-900" : "text-gray-400"}`} />
+                }
+                text={`${recentFiles.length} Files`}
+                isActive={activePills.files}
+                onClick={() =>
+                  setActivePills({ ...activePills, files: !activePills.files })
+                }
+              />
+            </div>
 
             </div>
 
