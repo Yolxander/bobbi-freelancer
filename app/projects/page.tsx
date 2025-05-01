@@ -105,7 +105,7 @@ export default function ProjectsPage() {
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
               <Folder className="w-6 h-6 text-blue-500" />
-              <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
             </div>
             <div className="flex items-center gap-3">
               <div className="relative">
@@ -333,20 +333,20 @@ function ProjectCard({ project, viewMode }) {
 
               {/* Status and Actions */}
               <div className="flex items-center justify-between pt-2 border-t">
-                <div
-                  className={`
-                    text-xs font-medium px-2.5 py-0.5 rounded
-                    ${
-                      project.status === "In Progress"
-                        ? "bg-green-100 text-green-700"
-                        : project.status === "Review"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-blue-100 text-blue-700"
-                    }
-                  `}
-                >
-                  {project.status}
-                </div>
+              <div
+                className={`
+                  text-xs font-medium px-2.5 py-0.5 rounded
+                  ${
+                    project.status === "In Progress"
+                      ? "bg-green-100 text-green-700"
+                      : project.status === "Review"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-blue-100 text-blue-700"
+                  }
+                `}
+              >
+                {project.status}
+              </div>
                 <div className="flex items-center gap-2 text-gray-500">
                   <span className="text-xs">Last updated</span>
                   <span className="text-xs font-medium">

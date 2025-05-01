@@ -180,14 +180,14 @@ export default function ProposalsPage() {
                 >
                   <LayoutGrid className="w-4 h-4" />
                 </button>
-              </div>
-              <Link
-                href="/proposals/new"
-                className="flex items-center gap-2 bg-gray-900 text-white rounded-xl px-4 py-2 hover:bg-gray-800 transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                <span className="text-sm font-medium">New Proposal</span>
-              </Link>
+            </div>
+            <Link
+              href="/proposals/new"
+              className="flex items-center gap-2 bg-gray-900 text-white rounded-xl px-4 py-2 hover:bg-gray-800 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="text-sm font-medium">New Proposal</span>
+            </Link>
             </div>
           </div>
 
