@@ -94,7 +94,8 @@ export async function getDeliverables(providerId: string): Promise<Deliverable[]
 
 export async function generateTasks(proposalId: string, deliverableId: string): Promise<Task[]> {
   try {
-    const response = await fetch(`/proposals/${proposalId}/deliverables/${deliverableId}/generate-tasks`, {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
+    const response = await fetch(`${baseUrl}/proposals/${proposalId}/deliverables/${deliverableId}/generate-tasks`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -105,9 +106,21 @@ export async function generateTasks(proposalId: string, deliverableId: string): 
       throw new Error('Failed to generate tasks')
     }
 
-    return response.json()
+    const data = await response.json()
+    console.log('API Response:', data)
+    console.log('Response Type:', typeof data)
+    console.log('Is Array:', Array.isArray(data))
+    
+    // Ensure we always return an array
+    if (!Array.isArray(data)) {
+      console.error('API response is not an array:', data)
+      return []
+    }
+
+    return data
   } catch (error) {
     console.error("Error generating tasks:", error)
-    throw error
+    // Return empty array instead of throwing error to prevent page from breaking
+    return []
   }
 } 

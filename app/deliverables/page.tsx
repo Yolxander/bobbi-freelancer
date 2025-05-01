@@ -38,15 +38,23 @@ export default function DeliverablesPage() {
 
   const handleGenerateTasks = async (proposalId: string, deliverableId: string) => {
     try {
+      if (!proposalId) {
+        console.error('No proposal ID found for deliverable:', deliverableId)
+        setError("Cannot generate tasks: No proposal ID found")
+        return
+      }
+
       setGeneratingTasks(deliverableId)
-          setError(null)
+      setError(null)
+      console.log('Generating tasks with proposalId:', proposalId, 'deliverableId:', deliverableId)
+      
       await generateTasks(proposalId, deliverableId)
       const updatedDeliverables = await getDeliverables(user?.providerId || "")
       setDeliverables(updatedDeliverables)
-        } catch (err) {
+    } catch (err) {
       setError("Failed to generate tasks")
       console.error(err)
-        } finally {
+    } finally {
       setGeneratingTasks(null)
     }
   }
@@ -137,7 +145,7 @@ export default function DeliverablesPage() {
 
               <div className="pt-4 border-t">
                 <button
-                  onClick={() => handleGenerateTasks(deliverable.proposal_id, deliverable.id)}
+                  onClick={() => handleGenerateTasks(deliverable.proposal_content?.proposal?.id, deliverable.id)}
                   disabled={generatingTasks === deliverable.id}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -189,7 +197,7 @@ export default function DeliverablesPage() {
                 {(deliverable.status || 'pending')?.replace("_", " ")}
               </div>
               <button
-                onClick={() => handleGenerateTasks(deliverable.proposal_id, deliverable.id)}
+                onClick={() => handleGenerateTasks(deliverable.proposal_content?.proposal?.id, deliverable.id)}
                 disabled={generatingTasks === deliverable.id}
                 className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
