@@ -20,6 +20,8 @@ import {
   Building,
   User,
   CheckCircle2,
+  LayoutGrid,
+  List,
 } from "lucide-react"
 import Sidebar from "@/components/sidebar"
 import { getProposals, deleteProposal, sendProposal } from "@/app/actions/proposal-actions"
@@ -39,6 +41,7 @@ export default function ProposalsPage() {
   })
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [proposalLink, setProposalLink] = useState<string>("")
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list")
 
   useEffect(() => {
     const fetchProposals = async () => {
@@ -163,13 +166,29 @@ export default function ProposalsPage() {
               </div>
               <h1 className="text-2xl font-bold text-gray-900">Proposals</h1>
             </div>
-            <Link
-              href="/proposals/new"
-              className="flex items-center gap-2 bg-gray-900 text-white rounded-xl px-4 py-2 hover:bg-gray-800 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="text-sm font-medium">New Proposal</span>
-            </Link>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+                <button
+                  className={`p-2 rounded ${viewMode === "list" ? "bg-white shadow-sm" : ""}`}
+                  onClick={() => setViewMode("list")}
+                >
+                  <List className="w-4 h-4" />
+                </button>
+                <button
+                  className={`p-2 rounded ${viewMode === "grid" ? "bg-white shadow-sm" : ""}`}
+                  onClick={() => setViewMode("grid")}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+              </div>
+              <Link
+                href="/proposals/new"
+                className="flex items-center gap-2 bg-gray-900 text-white rounded-xl px-4 py-2 hover:bg-gray-800 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="text-sm font-medium">New Proposal</span>
+              </Link>
+            </div>
           </div>
 
           {/* Filters Card */}
@@ -235,6 +254,97 @@ export default function ProposalsPage() {
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
               <div className="w-12 h-12 border-4 border-gray-200 border-t-gray-800 rounded-full animate-spin"></div>
+            </div>
+          ) : viewMode === "grid" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProposals.map((proposal) => (
+                <div key={proposal.id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-orange-50 rounded-lg">
+                          <FileText className="w-5 h-5 text-orange-500" />
+                        </div>
+                        <div>
+                          <h3 className="font-medium text-gray-900">{proposal.title}</h3>
+                          <p className="text-sm text-gray-500">{proposal.client?.name || 'N/A'}</p>
+                        </div>
+                      </div>
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(proposal.status)}`}>
+                        {proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}
+                      </span>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Building className="w-4 h-4" />
+                        <span>{proposal.project?.name || 'No project'}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Calendar className="w-4 h-4" />
+                        <span>
+                          {proposal.content?.timeline_end 
+                            ? new Date(proposal.content.timeline_end).toLocaleDateString()
+                            : 'No end date'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 pt-4 border-t flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => router.push(`/proposals/${proposal.id}/preview`)}
+                          className="p-2 text-gray-700 hover:text-gray-900 rounded-xl hover:bg-gray-100 transition-colors"
+                          title="View"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => router.push(`/proposals/${proposal.id}?edit=true`)}
+                          className="p-2 text-gray-700 hover:text-gray-900 rounded-xl hover:bg-gray-100 transition-colors"
+                          title="Edit"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => window.open(proposal.pdf_url || "#", "_blank")}
+                          className="p-2 text-gray-700 hover:text-gray-900 rounded-xl hover:bg-gray-100 transition-colors"
+                          title="Download PDF"
+                        >
+                          <Download className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleSend(proposal.id)}
+                          className="p-2 text-gray-700 hover:text-gray-900 rounded-xl hover:bg-gray-100 transition-colors"
+                          title="Send"
+                        >
+                          <Send className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (confirm("Are you sure you want to delete this proposal?")) {
+                              try {
+                                await deleteProposal(proposal.id);
+                                const data = await getProposals();
+                                setProposals(data);
+                              } catch (err) {
+                                setError("Failed to delete proposal");
+                                console.error(err);
+                              }
+                            }
+                          }}
+                          className="p-2 text-gray-700 hover:text-red-700 rounded-xl hover:bg-gray-100 transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             /* Proposals table */
