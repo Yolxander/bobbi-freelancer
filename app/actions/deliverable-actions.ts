@@ -11,6 +11,7 @@ export interface Deliverable {
   timeline_start: string
   timeline_end: string
   tasks: any[]
+  tasks_count: number
   proposal_content: {
     id: string
     proposal_id: string
@@ -92,10 +93,12 @@ export async function getDeliverables(providerId: string): Promise<Deliverable[]
   }
 }
 
-export async function generateTasks(proposalId: string, deliverableId: string): Promise<Task[]> {
+export async function generateTasks(providerId: string, deliverableId: string): Promise<Task[]> {
+  console.log('providerId', providerId)
+  console.log('deliverableId', deliverableId)
   try {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
-    const response = await fetch(`${baseUrl}/proposals/${proposalId}/deliverables/${deliverableId}/generate-tasks`, {
+    const response = await fetch(`${baseUrl}/providers/${providerId}/deliverables/${deliverableId}/generate-tasks`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

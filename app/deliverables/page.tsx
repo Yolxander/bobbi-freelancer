@@ -38,18 +38,19 @@ export default function DeliverablesPage() {
 
   const handleGenerateTasks = async (proposalId: string, deliverableId: string) => {
     try {
-      if (!proposalId) {
-        console.error('No proposal ID found for deliverable:', deliverableId)
-        setError("Cannot generate tasks: No proposal ID found")
+      if (!user?.providerId) {
+        console.error('No provider ID found')
+        setError("Cannot generate tasks: No provider ID found")
         return
       }
 
+  
       setGeneratingTasks(deliverableId)
       setError(null)
-      console.log('Generating tasks with proposalId:', proposalId, 'deliverableId:', deliverableId)
+      console.log('Generating tasks with providerId:', user.providerId, 'deliverableId:', deliverableId)
       
-      await generateTasks(proposalId, deliverableId)
-      const updatedDeliverables = await getDeliverables(user?.providerId || "")
+      await generateTasks(user.providerId, deliverableId)
+      const updatedDeliverables = await getDeliverables(user.providerId)
       setDeliverables(updatedDeliverables)
     } catch (err) {
       setError("Failed to generate tasks")
@@ -83,8 +84,10 @@ export default function DeliverablesPage() {
   }
 
   function DeliverableCard({ deliverable, viewMode }: { deliverable: Deliverable, viewMode: 'card' | 'list' }) {
+    const hasTasks = deliverable.tasks && deliverable.tasks.length > 0
+
     if (viewMode === 'card') {
-    return (
+      return (
         <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 h-full">
           <div className="p-6">
             <div className="flex items-center gap-3 mb-4 h-16">
@@ -144,30 +147,44 @@ export default function DeliverablesPage() {
               </div>
 
               <div className="pt-4 border-t">
-                <button
-                  onClick={() => handleGenerateTasks(deliverable.proposal_content?.proposal?.id, deliverable.id)}
-                  disabled={generatingTasks === deliverable.id}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {generatingTasks === deliverable.id ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Generating Tasks...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-4 h-4" />
-                      <span>Generate Tasks</span>
-                    </>
-                  )}
-                </button>
+                {!hasTasks ? (
+                  <button
+                    onClick={() => handleGenerateTasks(deliverable.proposal_content?.proposal?.id, deliverable.id)}
+                    disabled={generatingTasks === deliverable.id}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {generatingTasks === deliverable.id ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Generating Tasks...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-4 h-4" />
+                        <span>Generate Tasks</span>
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-gray-700">Tasks</h4>
+                    <div className="space-y-2">
+                      {deliverable.tasks.map((task) => (
+                        <div key={task.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                          <div className={`w-2 h-2 rounded-full ${getStatusColor(task.status)}`} />
+                          <span className="text-sm text-gray-700">{task.title}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
+          </div>
         </div>
-      </div>
-    )
+      )
     } else {
-    return (
+      return (
         <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
           <div className="p-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -181,7 +198,7 @@ export default function DeliverablesPage() {
                   <span className="text-xs text-gray-400">•</span>
                   <div className="flex items-center gap-1">
                     <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                    <span className="text-xs text-gray-500">0 tasks</span>
+                    <span className="text-xs text-gray-500">{deliverable.tasks_count || 0} tasks</span>
                   </div>
                 </div>
               </div>
@@ -196,28 +213,42 @@ export default function DeliverablesPage() {
               <div className={`text-xs font-medium px-2.5 py-0.5 rounded ${getStatusColor(deliverable.status || 'pending')}`}>
                 {(deliverable.status || 'pending')?.replace("_", " ")}
               </div>
-              <button
-                onClick={() => handleGenerateTasks(deliverable.proposal_content?.proposal?.id, deliverable.id)}
-                disabled={generatingTasks === deliverable.id}
-                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {generatingTasks === deliverable.id ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Generating...</span>
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-4 h-4" />
-                    <span>Generate Tasks</span>
-                  </>
-                )}
-              </button>
+              {!hasTasks && (
+                <button
+                  onClick={() => handleGenerateTasks(deliverable.proposal_content?.proposal?.id, deliverable.id)}
+                  disabled={generatingTasks === deliverable.id}
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {generatingTasks === deliverable.id ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Generating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" />
+                      <span>Generate Tasks</span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
+          </div>
+          {hasTasks && (
+            <div className="px-4 pb-4">
+              <div className="space-y-2">
+                {deliverable.tasks.map((task) => (
+                  <div key={task.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                    <div className={`w-2 h-2 rounded-full ${getStatusColor(task.status)}`} />
+                    <span className="text-sm text-gray-700">{task.title}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      </div>
-    )
-  }
+      )
+    }
   }
 
   return (
@@ -254,20 +285,20 @@ export default function DeliverablesPage() {
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-700">
               <AlertCircle className="w-5 h-5" />
               <p>{error}</p>
-                  </div>
+            </div>
           )}
 
           {/* Loading state */}
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
               <div className="w-12 h-12 border-4 border-gray-200 border-t-gray-800 rounded-full animate-spin"></div>
-                    </div>
+            </div>
           ) : (
             <div className={`${viewMode === 'card' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}`}>
               {deliverables.map((deliverable) => (
                 <DeliverableCard key={deliverable.id} deliverable={deliverable} viewMode={viewMode} />
-                        ))}
-                      </div>
+              ))}
+            </div>
           )}
         </div>
       </div>
