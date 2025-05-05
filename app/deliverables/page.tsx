@@ -2,17 +2,18 @@
 
 import { useState, useEffect } from "react"
 import { useAuth } from "@/lib/auth-context"
-import { getDeliverables, generateTasks, type Deliverable, type Task } from "@/app/actions/deliverable-actions"
-import { FileText, Plus, AlertCircle, CheckCircle2, Clock, ChevronDown, LayoutGrid, List, ChevronRight } from "lucide-react"
+import { getDeliverables, type Deliverable, type Task } from "@/app/actions/deliverable-actions"
+import { FileText, LayoutGrid, List, ArrowRight } from "lucide-react"
 import Sidebar from "@/components/sidebar"
 import { format } from "date-fns"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 export default function DeliverablesPage() {
   const { user } = useAuth()
   const [deliverables, setDeliverables] = useState<Deliverable[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [generatingTasks, setGeneratingTasks] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card')
 
   useEffect(() => {
@@ -35,30 +36,6 @@ export default function DeliverablesPage() {
 
     fetchDeliverables()
   }, [user?.providerId])
-
-  const handleGenerateTasks = async (proposalId: string, deliverableId: string) => {
-    try {
-      if (!user?.providerId) {
-        console.error('No provider ID found')
-        setError("Cannot generate tasks: No provider ID found")
-        return
-      }
-
-  
-      setGeneratingTasks(deliverableId)
-      setError(null)
-      console.log('Generating tasks with providerId:', user.providerId, 'deliverableId:', deliverableId)
-      
-      await generateTasks(user.providerId, deliverableId)
-      const updatedDeliverables = await getDeliverables(user.providerId)
-      setDeliverables(updatedDeliverables)
-    } catch (err) {
-      setError("Failed to generate tasks")
-      console.error(err)
-    } finally {
-      setGeneratingTasks(null)
-    }
-  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -84,11 +61,24 @@ export default function DeliverablesPage() {
   }
 
   function DeliverableCard({ deliverable, viewMode }: { deliverable: Deliverable, viewMode: 'card' | 'list' }) {
+    const router = useRouter()
     const hasTasks = deliverable.tasks && deliverable.tasks.length > 0
+
+    const handleCardClick = async () => {
+      try {
+        // Navigate to the deliverable details page
+        router.push(`/deliverables/${deliverable.id}`)
+      } catch (error) {
+        console.error('Error navigating to deliverable:', error)
+      }
+    }
 
     if (viewMode === 'card') {
       return (
-        <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 h-full">
+        <div 
+          onClick={handleCardClick}
+          className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 h-full cursor-pointer"
+        >
           <div className="p-6">
             <div className="flex items-center gap-3 mb-4 h-16">
               <div className="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center shadow-sm">
@@ -146,38 +136,18 @@ export default function DeliverablesPage() {
                 </div>
               </div>
 
+              {/* See Details Button */}
               <div className="pt-4 border-t">
-                {!hasTasks ? (
-                  <button
-                    onClick={() => handleGenerateTasks(deliverable.proposal_content?.proposal?.id, deliverable.id)}
-                    disabled={generatingTasks === deliverable.id}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {generatingTasks === deliverable.id ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Generating Tasks...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="w-4 h-4" />
-                        <span>Generate Tasks</span>
-                      </>
-                    )}
-                  </button>
-                ) : (
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium text-gray-700">Tasks</h4>
-                    <div className="space-y-2">
-                      {deliverable.tasks.map((task) => (
-                        <div key={task.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
-                          <div className={`w-2 h-2 rounded-full ${getStatusColor(task.status)}`} />
-                          <span className="text-sm text-gray-700">{task.title}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCardClick();
+                  }}
+                  className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>See Details</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>
@@ -185,7 +155,10 @@ export default function DeliverablesPage() {
       )
     } else {
       return (
-        <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+        <div 
+          onClick={handleCardClick}
+          className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
+        >
           <div className="p-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center shadow-sm">
@@ -213,88 +186,97 @@ export default function DeliverablesPage() {
               <div className={`text-xs font-medium px-2.5 py-0.5 rounded ${getStatusColor(deliverable.status || 'pending')}`}>
                 {(deliverable.status || 'pending')?.replace("_", " ")}
               </div>
-              {!hasTasks && (
-                <button
-                  onClick={() => handleGenerateTasks(deliverable.proposal_content?.proposal?.id, deliverable.id)}
-                  disabled={generatingTasks === deliverable.id}
-                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {generatingTasks === deliverable.id ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Generating...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-4 h-4" />
-                      <span>Generate Tasks</span>
-                    </>
-                  )}
-                </button>
-              )}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCardClick();
+                }}
+                className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2"
+              >
+                <span>See Details</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
-          {hasTasks && (
-            <div className="px-4 pb-4">
-              <div className="space-y-2">
-                {deliverable.tasks.map((task) => (
-                  <div key={task.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
-                    <div className={`w-2 h-2 rounded-full ${getStatusColor(task.status)}`} />
-                    <span className="text-sm text-gray-700">{task.title}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       )
     }
   }
 
-  return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <Sidebar />
-      <div className="flex-1 overflow-auto">
-        <div className="p-6 max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-50 rounded-xl">
-                <FileText className="w-6 h-6 text-purple-500" />
-              </div>
-              <h1 className="text-2xl font-bold text-gray-900">Deliverables</h1>
+  if (isLoading) {
+    return (
+      <div className="flex h-screen bg-white">
+        <Sidebar />
+        <div className="flex-1 overflow-auto bg-gray-50">
+          <div className="p-6 max-w-7xl mx-auto flex items-center justify-center h-screen">
+            <div className="text-center">
+              <div className="w-16 h-16 border-4 border-gray-200 border-t-gray-800 rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-500">Loading deliverables...</p>
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setViewMode('card')}
-                className={`p-2 rounded-lg ${viewMode === 'card' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
-              >
-                <LayoutGrid className="w-5 h-5 text-gray-600" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
-              >
-                <List className="w-5 h-5 text-gray-600" />
-              </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen bg-white">
+        <Sidebar />
+        <div className="flex-1 overflow-auto bg-gray-50">
+          <div className="p-6 max-w-7xl mx-auto">
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FileText className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-700">Error</h3>
+              <p className="text-gray-500 mt-2">{error}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex h-screen bg-white">
+      <Sidebar />
+      <div className="flex-1 overflow-auto bg-gray-50">
+        <div className="p-6 max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold text-gray-900">Deliverables</h1>
+            <div className="flex items-center gap-4">
+              <div className="bg-gray-100 rounded-lg p-1 flex">
+                <button
+                  onClick={() => setViewMode("card")}
+                  className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                    viewMode === "card" ? "bg-white shadow-sm text-gray-900" : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                    viewMode === "list" ? "bg-white shadow-sm text-gray-900" : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  <List className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Error message */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-700">
-              <AlertCircle className="w-5 h-5" />
-              <p>{error}</p>
-            </div>
-          )}
-
-          {/* Loading state */}
-          {isLoading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="w-12 h-12 border-4 border-gray-200 border-t-gray-800 rounded-full animate-spin"></div>
+          {deliverables.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FileText className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No deliverables yet</h3>
+              <p className="text-gray-600">Create a proposal to get started</p>
             </div>
           ) : (
-            <div className={`${viewMode === 'card' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}`}>
+            <div className={viewMode === "card" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
               {deliverables.map((deliverable) => (
                 <DeliverableCard key={deliverable.id} deliverable={deliverable} viewMode={viewMode} />
               ))}

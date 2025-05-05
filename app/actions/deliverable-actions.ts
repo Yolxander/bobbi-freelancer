@@ -54,6 +54,7 @@ export interface Task {
   title: string
   description: string
   status: string
+  priority: string
   due_date: string
   deliverable_id: string
   created_at: string
@@ -125,5 +126,58 @@ export async function generateTasks(providerId: string, deliverableId: string): 
     console.error("Error generating tasks:", error)
     // Return empty array instead of throwing error to prevent page from breaking
     return []
+  }
+}
+
+export async function getDeliverable(id: string) {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
+    const response = await fetch(`${baseUrl}/deliverables/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch deliverable')
+    }
+
+    const data = await response.json()
+    console.log('API Response:', data)
+    return { success: true, data }
+  } catch (error) {
+    console.error('Error fetching deliverable:', error)
+    return { success: false, error: 'Failed to fetch deliverable' }
+  }
+}
+
+export async function updateDeliverable(id: string, deliverable: any) {
+  try {
+    const response = await fetch(`/api/deliverables/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(deliverable),
+    })
+    const data = await response.json()
+    return { success: true, data }
+  } catch (error) {
+    console.error('Error updating deliverable:', error)
+    return { success: false, error: 'Failed to update deliverable' }
+  }
+}
+
+export async function deleteDeliverable(id: string) {
+  try {
+    const response = await fetch(`/api/deliverables/${id}`, {
+      method: 'DELETE',
+    })
+    const data = await response.json()
+    return { success: true, data }
+  } catch (error) {
+    console.error('Error deleting deliverable:', error)
+    return { success: false, error: 'Failed to delete deliverable' }
   }
 } 
