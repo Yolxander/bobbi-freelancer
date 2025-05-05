@@ -15,11 +15,16 @@ import {
   Clock,
   AlertCircle,
   CheckCircle2,
+  LayoutGrid,
+  List,
+  ChevronDown,
+  Sparkles,
 } from "lucide-react"
 import Sidebar from "@/components/sidebar"
 import { useAuth } from "@/lib/auth-context"
 import { getDeliverable, updateDeliverable, deleteDeliverable, generateTasks, type Task } from "@/app/actions/deliverable-actions"
 import { format } from "date-fns"
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 
 export default function DeliverableDetailsPage() {
   const params = useParams()
@@ -34,6 +39,13 @@ export default function DeliverableDetailsPage() {
   const [editedDeliverable, setEditedDeliverable] = useState<any>(null)
   const [generatingTasks, setGeneratingTasks] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("overview")
+  const [taskViewMode, setTaskViewMode] = useState<'list' | 'kanban'>('list')
+  const [isGeneratingTasksModalOpen, setIsGeneratingTasksModalOpen] = useState(false)
+  const [generationOptions, setGenerationOptions] = useState({
+    numberOfTasks: 3,
+    complexity: 'medium',
+    includeSubtasks: false
+  })
 
   useEffect(() => {
     const fetchData = async () => {
@@ -114,6 +126,7 @@ export default function DeliverableDetailsPage() {
       await generateTasks(user.providerId, deliverable.id)
       const updatedDeliverable = await getDeliverable(deliverable.id)
       setDeliverable(updatedDeliverable.data)
+      setIsGeneratingTasksModalOpen(false)
     } catch (err) {
       setError("Failed to generate tasks")
       console.error(err)
@@ -134,6 +147,79 @@ export default function DeliverableDetailsPage() {
         return "bg-gray-100 text-gray-700"
     }
   }
+
+  const handleTaskStatusChange = async (taskId: string, newStatus: string) => {
+    try {
+      // Update task status in the local state first
+      const updatedTasks = deliverable.tasks.map((task: Task) =>
+        task.id === taskId ? { ...task, status: newStatus } : task
+      )
+      setDeliverable({ ...deliverable, tasks: updatedTasks })
+
+      // TODO: Add API call to update task status
+      // await updateTaskStatus(taskId, newStatus)
+    } catch (error) {
+      console.error('Error updating task status:', error)
+      // Revert the change if the API call fails
+      setDeliverable(deliverable)
+    }
+  }
+
+  const handleDragEnd = async (result: any) => {
+    if (!result.destination) return
+
+    const { source, destination } = result
+    if (source.droppableId === destination.droppableId) {
+      // Reorder within the same status
+      const tasks = Array.from(deliverable.tasks)
+      const [removed] = tasks.splice(source.index, 1)
+      tasks.splice(destination.index, 0, removed)
+      setDeliverable({ ...deliverable, tasks })
+    } else {
+      // Move to different status
+      const taskId = result.draggableId
+      const newStatus = destination.droppableId
+      await handleTaskStatusChange(taskId, newStatus)
+    }
+  }
+
+  const getTasksByStatus = (status: string) => {
+    return deliverable?.tasks?.filter((task: Task) => task.status === status) || []
+  }
+
+  const TaskCard = ({ task }: { task: Task }) => (
+    <div className="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors p-4 mb-3">
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <h4 className="font-medium text-gray-900 mb-1">{task.title}</h4>
+          <p className="text-sm text-gray-500 line-clamp-2">{task.description}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${getStatusColor(task.priority)}`}>
+            {task.priority}
+          </div>
+        </div>
+      </div>
+      <div className="mt-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Clock className="w-4 h-4 text-gray-400" />
+          <span className="text-xs text-gray-500">
+            {task.due_date ? format(new Date(task.due_date), 'MMM d, yyyy') : 'No due date'}
+          </span>
+        </div>
+        <select
+          value={task.status}
+          onChange={(e) => handleTaskStatusChange(task.id, e.target.value)}
+          className="text-xs border border-gray-200 rounded-lg px-2 py-1 bg-white hover:border-gray-300 transition-colors"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <option value="todo">To Do</option>
+          <option value="in_progress">In Progress</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+    </div>
+  )
 
   if (loading) {
     return (
@@ -230,9 +316,9 @@ export default function DeliverableDetailsPage() {
                   </button>
                   {!deliverable?.tasks?.length && (
                     <button
-                      onClick={handleGenerateTasks}
+                      onClick={() => setIsGeneratingTasksModalOpen(true)}
                       disabled={generatingTasks === deliverable?.id}
-                      className="px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                       {generatingTasks === deliverable?.id ? (
                         <>
@@ -241,7 +327,7 @@ export default function DeliverableDetailsPage() {
                         </>
                       ) : (
                         <>
-                          <Plus className="w-4 h-4" />
+                          <Sparkles className="w-4 h-4" />
                           <span>Generate Tasks</span>
                         </>
                       )}
@@ -311,7 +397,7 @@ export default function DeliverableDetailsPage() {
                     <h2 className="text-lg font-semibold text-gray-900">Tasks Overview</h2>
                     {!deliverable?.tasks?.length && (
                       <button
-                        onClick={handleGenerateTasks}
+                        onClick={() => setIsGeneratingTasksModalOpen(true)}
                         disabled={generatingTasks === deliverable?.id}
                         className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -322,7 +408,7 @@ export default function DeliverableDetailsPage() {
                           </>
                         ) : (
                           <>
-                            <Plus className="w-4 h-4" />
+                            <Sparkles className="w-4 h-4" />
                             <span>Generate Tasks</span>
                           </>
                         )}
@@ -334,18 +420,11 @@ export default function DeliverableDetailsPage() {
                     <div className="space-y-4">
                       {deliverable.tasks.map((task: Task) => (
                         <div key={task.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                          <div className={`w-3 h-3 rounded-full ${getStatusColor(task.status)}`}></div>
                           <div className="flex-1">
                             <p className="text-sm font-medium text-gray-900">{task.title}</p>
-                            <p className="text-xs text-gray-500">{task.description}</p>
                           </div>
-                          <div className="flex items-center gap-4">
-                            <div className="text-xs text-gray-500">
-                              Priority: <span className="font-medium">{task.priority}</span>
-                            </div>
-                            <div className={`text-xs font-medium px-2.5 py-0.5 rounded ${getStatusColor(task.status)}`}>
-                              {task.status.replace("_", " ")}
-                            </div>
+                          <div className={`text-xs font-medium px-2.5 py-0.5 rounded ${getStatusColor(task.priority)}`}>
+                            {task.priority}
                           </div>
                         </div>
                       ))}
@@ -358,7 +437,7 @@ export default function DeliverableDetailsPage() {
                       <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks yet</h3>
                       <p className="text-gray-600 mb-4">Generate tasks to get started with this deliverable</p>
                       <button
-                        onClick={handleGenerateTasks}
+                        onClick={() => setIsGeneratingTasksModalOpen(true)}
                         disabled={generatingTasks === deliverable?.id}
                         className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -369,7 +448,7 @@ export default function DeliverableDetailsPage() {
                           </>
                         ) : (
                           <>
-                            <Plus className="w-4 h-4" />
+                            <Sparkles className="w-4 h-4" />
                             <span>Generate Tasks</span>
                           </>
                         )}
@@ -434,75 +513,201 @@ export default function DeliverableDetailsPage() {
           )}
 
           {activeTab === "tasks" && (
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-gray-900">Tasks</h2>
-                {!deliverable?.tasks?.length && (
-                  <button
-                    onClick={handleGenerateTasks}
-                    disabled={generatingTasks === deliverable?.id}
-                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {generatingTasks === deliverable?.id ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Generating Tasks...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="w-4 h-4" />
-                        <span>Generate Tasks</span>
-                      </>
-                    )}
-                  </button>
-                )}
+                <div className="flex items-center gap-4">
+                  <div className="bg-gray-100 rounded-lg p-1 flex">
+                    <button
+                      onClick={() => setTaskViewMode("list")}
+                      className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                        taskViewMode === "list" ? "bg-white shadow-sm text-gray-900" : "text-gray-600 hover:text-gray-900"
+                      }`}
+                    >
+                      <List className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setTaskViewMode("kanban")}
+                      className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                        taskViewMode === "kanban" ? "bg-white shadow-sm text-gray-900" : "text-gray-600 hover:text-gray-900"
+                      }`}
+                    >
+                      <LayoutGrid className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setIsGeneratingTasksModalOpen(true)}
+                      disabled={generatingTasks === deliverable?.id}
+                      className="px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                      {generatingTasks === deliverable?.id ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>Generating Tasks...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4" />
+                          <span>Generate Tasks</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => {/* TODO: Implement add task functionality */}}
+                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add Task</span>
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              {deliverable?.tasks?.length > 0 ? (
-                <div className="space-y-4">
-                  {deliverable.tasks.map((task: Task) => (
-                    <div key={task.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                      <div className={`w-3 h-3 rounded-full ${getStatusColor(task.status)}`}></div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">{task.title}</p>
-                        <p className="text-xs text-gray-500">{task.description}</p>
+              {taskViewMode === 'list' ? (
+                <div className="bg-white rounded-xl p-6 shadow-sm">
+                  {deliverable?.tasks?.length > 0 ? (
+                    <div className="space-y-4">
+                      {deliverable.tasks.map((task: Task) => (
+                        <TaskCard key={task.id} task={task} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <FileText className="w-8 h-8 text-gray-400" />
                       </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-xs text-gray-500">
-                          Priority: <span className="font-medium">{task.priority}</span>
-                        </div>
-                        <div className={`text-xs font-medium px-2.5 py-0.5 rounded ${getStatusColor(task.status)}`}>
-                          {task.status.replace("_", " ")}
-                        </div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks yet</h3>
+                      <p className="text-gray-600 mb-4">Generate tasks or add a new task to get started</p>
+                      <div className="flex items-center justify-center gap-4">
+                        <button
+                          onClick={() => setIsGeneratingTasksModalOpen(true)}
+                          disabled={generatingTasks === deliverable?.id}
+                          className="px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                          {generatingTasks === deliverable?.id ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              <span>Generating Tasks...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="w-4 h-4" />
+                              <span>Generate Tasks</span>
+                            </>
+                          )}
+                        </button>
+                        <button
+                          onClick={() => {/* TODO: Implement add task functionality */}}
+                          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-2"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>Add Task</span>
+                        </button>
                       </div>
                     </div>
-                  ))}
+                  )}
                 </div>
               ) : (
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FileText className="w-8 h-8 text-gray-400" />
+                <DragDropContext onDragEnd={handleDragEnd}>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* To Do Column */}
+                    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-medium text-gray-900">To Do</h3>
+                        <span className="text-sm text-gray-500">{getTasksByStatus('todo').length}</span>
+                      </div>
+                      <Droppable droppableId="todo">
+                        {(provided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                            className="space-y-3 min-h-[200px]"
+                          >
+                            {getTasksByStatus('todo').map((task: Task, index: number) => (
+                              <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
+                                {(provided) => (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                  >
+                                    <TaskCard task={task} />
+                                  </div>
+                                )}
+                              </Draggable>
+                            ))}
+                            {provided.placeholder}
+                          </div>
+                        )}
+                      </Droppable>
+                    </div>
+
+                    {/* In Progress Column */}
+                    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-medium text-gray-900">In Progress</h3>
+                        <span className="text-sm text-gray-500">{getTasksByStatus('in_progress').length}</span>
+                      </div>
+                      <Droppable droppableId="in_progress">
+                        {(provided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                            className="space-y-3 min-h-[200px]"
+                          >
+                            {getTasksByStatus('in_progress').map((task: Task, index: number) => (
+                              <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
+                                {(provided) => (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                  >
+                                    <TaskCard task={task} />
+                                  </div>
+                                )}
+                              </Draggable>
+                            ))}
+                            {provided.placeholder}
+                          </div>
+                        )}
+                      </Droppable>
+                    </div>
+
+                    {/* Completed Column */}
+                    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-medium text-gray-900">Completed</h3>
+                        <span className="text-sm text-gray-500">{getTasksByStatus('completed').length}</span>
+                      </div>
+                      <Droppable droppableId="completed">
+                        {(provided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                            className="space-y-3 min-h-[200px]"
+                          >
+                            {getTasksByStatus('completed').map((task: Task, index: number) => (
+                              <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
+                                {(provided) => (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                  >
+                                    <TaskCard task={task} />
+                                  </div>
+                                )}
+                              </Draggable>
+                            ))}
+                            {provided.placeholder}
+                          </div>
+                        )}
+                      </Droppable>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks yet</h3>
-                  <p className="text-gray-600 mb-4">Generate tasks to get started with this deliverable</p>
-                  <button
-                    onClick={handleGenerateTasks}
-                    disabled={generatingTasks === deliverable?.id}
-                    className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {generatingTasks === deliverable?.id ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Generating Tasks...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="w-4 h-4" />
-                        <span>Generate Tasks</span>
-                      </>
-                    )}
-                  </button>
-                </div>
+                </DragDropContext>
               )}
             </div>
           )}
@@ -564,6 +769,93 @@ export default function DeliverableDetailsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Generate Tasks Modal */}
+      {isGeneratingTasksModalOpen && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-8 w-full max-w-2xl shadow-xl">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-xl font-bold text-gray-900">Generate Tasks</h2>
+              <button
+                className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
+                onClick={() => setIsGeneratingTasksModalOpen(false)}
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Number of Tasks</label>
+                <select
+                  value={generationOptions.numberOfTasks}
+                  onChange={(e) => setGenerationOptions({ ...generationOptions, numberOfTasks: Number(e.target.value) })}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
+                >
+                  <option value={3}>3 tasks</option>
+                  <option value={5}>5 tasks</option>
+                  <option value={7}>7 tasks</option>
+                  <option value={10}>10 tasks</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Task Complexity</label>
+                <select
+                  value={generationOptions.complexity}
+                  onChange={(e) => setGenerationOptions({ ...generationOptions, complexity: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-gray-900"
+                >
+                  <option value="simple">Simple</option>
+                  <option value="medium">Medium</option>
+                  <option value="complex">Complex</option>
+                </select>
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="includeSubtasks"
+                  checked={generationOptions.includeSubtasks}
+                  onChange={(e) => setGenerationOptions({ ...generationOptions, includeSubtasks: e.target.checked })}
+                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                />
+                <label htmlFor="includeSubtasks" className="ml-2 block text-sm text-gray-700">
+                  Include subtasks for complex tasks
+                </label>
+              </div>
+
+              <div className="flex justify-end gap-4 mt-8">
+                <button
+                  type="button"
+                  className="px-5 py-3 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors"
+                  onClick={() => setIsGeneratingTasksModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleGenerateTasks}
+                  disabled={generatingTasks === deliverable?.id}
+                  className="px-5 py-3 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {generatingTasks === deliverable?.id ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Generating Tasks...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      <span>Generate Tasks</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
