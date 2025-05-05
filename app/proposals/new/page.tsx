@@ -102,57 +102,17 @@ export default function NewProposalPage() {
   })
 
   const [sections, setSections] = useState<ProposalSection[]>([
-    { 
-      id: 'scope', 
-      title: 'Scope of Work', 
-      description: 'Detailed description of the project work and objectives.',
-      isOpen: true 
-    },
-    { 
-      id: 'deliverables', 
-      title: 'Deliverables', 
-      description: 'List of all items and outcomes to be delivered to the client.',
-      isOpen: true 
-    },
-    { 
-      id: 'timeline', 
-      title: 'Timeline', 
-      description: 'Project start and end dates, including key milestones.',
-      isOpen: true 
-    },
-    { 
-      id: 'pricing', 
-      title: 'Pricing', 
-      description: 'Breakdown of project costs and pricing structure.',
-      isOpen: true 
-    },
-    { 
-      id: 'payment', 
-      title: 'Payment Schedule', 
-      description: 'Payment milestones and terms for the project.',
-      isOpen: true 
-    },
-    { 
-      id: 'client', 
-      title: 'Client Responsibilities', 
-      description: 'What the client must provide and their responsibilities.',
-      isOpen: true 
-    },
-    { 
-      id: 'terms', 
-      title: 'Terms & Conditions', 
-      description: 'Legal and business policies for transparency.',
-      isOpen: true 
-    },
-    { 
-      id: 'signature', 
-      title: 'Signature', 
-      description: 'For formal acceptance of the proposal.',
-      isOpen: true 
-    }
+    { id: 'scope', title: 'Scope of Work', description: 'Detailed description of the project work and objectives.', isOpen: false },
+    { id: 'deliverables', title: 'Deliverables', description: 'List of all items and outcomes to be delivered to the client.', isOpen: true },
+    { id: 'timeline', title: 'Timeline', description: 'Project start and end dates.', isOpen: true },
+    { id: 'pricing', title: 'Pricing', description: 'Total cost and payment details.', isOpen: true },
+    { id: 'payment', title: 'Payment Schedule', description: 'Breakdown of payment milestones.', isOpen: true },
+    { id: 'client', title: 'Client Responsibilities', description: 'What the client needs to provide.', isOpen: true },
+    { id: 'terms', title: 'Terms & Conditions', description: 'Legal terms and conditions.', isOpen: true },
+    { id: 'signature', title: 'Signature', description: 'Provider signature and agreement date.', isOpen: true },
   ])
 
-  const [viewMode, setViewMode] = useState<'list' | 'modal'>('list')
+  const [viewMode, setViewMode] = useState<'list' | 'modal'>('modal')
 
   const handleSectionToggle = (id: string) => {
     setSections(sections.map(section => 
@@ -334,214 +294,14 @@ export default function NewProposalPage() {
             </div>
           )}
 
-          {viewMode === 'modal' ? (
+     
             <ProposalBuilderModal
               proposal={proposal}
               sections={sections}
               onUpdateProposal={(updates) => setProposal((prev) => ({ ...prev, ...updates }))}
               onClose={() => setViewMode('list')}
             />
-          ) : (
-            <div className="space-y-6">
-              {/* Project & Client Selection */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-xl shadow-sm p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Project</h2>
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-2">
-                    <ProjectSelector
-                      value={proposal.project_id || ""}
-                      onChange={handleProjectChange}
-                    />
-                  </div>
-                </div>
-                <div className="bg-white rounded-xl shadow-sm p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Client</h2>
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-2">
-                    <ClientAutoFill
-                      value={proposal.client_id || ""}
-                      onChange={handleClientChange}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Title */}
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <input
-                  type="text"
-                  placeholder="Enter proposal title ...."
-                  className="w-full text-2xl font-bold text-gray-900 bg-transparent focus:outline-none placeholder:text-gray-700 transition-colors"
-                  value={proposal.title}
-                  onChange={(e) => setProposal({ ...proposal, title: e.target.value })}
-                />
-              </div>
-
-              {/* Project Overview */}
-              <ProposalSectionToggle
-                title={sections[0].title}
-                description={sections[0].description}
-                isOpen={sections[0].isOpen}
-                onToggle={() => handleSectionToggle('scope')}
-              >
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <TextEditor
-                    value={proposal.content.scope_of_work}
-                    onChange={(value) =>
-                      setProposal({
-                        ...proposal,
-                        content: { ...proposal.content, scope_of_work: value },
-                      })
-                    }
-                  />
-                </div>
-              </ProposalSectionToggle>
-
-              {/* Scope of Work */}
-              <ProposalSectionToggle
-                title={sections[1].title}
-                description={sections[1].description}
-                isOpen={sections[1].isOpen}
-                onToggle={() => handleSectionToggle('deliverables')}
-              >
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <DeliverablesInputList
-                    value={JSON.parse(proposal.content.deliverables)}
-                    onChange={(value) =>
-                      setProposal({
-                        ...proposal,
-                        content: { ...proposal.content, deliverables: JSON.stringify(value) },
-                      })
-                    }
-                  />
-                </div>
-              </ProposalSectionToggle>
-
-              {/* Timeline */}
-              <ProposalSectionToggle
-                title={sections[2].title}
-                description={sections[2].description}
-                isOpen={sections[2].isOpen}
-                onToggle={() => handleSectionToggle('timeline')}
-              >
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <TimelineInput
-                    startDate={proposal.content.timeline_start}
-                    endDate={proposal.content.timeline_end}
-                    onChange={(value) =>
-                      setProposal({
-                        ...proposal,
-                        content: {
-                          ...proposal.content,
-                          timeline_start: value.start,
-                          timeline_end: value.end
-                        },
-                      })
-                    }
-                  />
-                </div>
-              </ProposalSectionToggle>
-
-              {/* Budget & Pricing */}
-              <ProposalSectionToggle
-                title={sections[3].title}
-                description={sections[3].description}
-                isOpen={sections[3].isOpen}
-                onToggle={() => handleSectionToggle('pricing')}
-              >
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <PricingInput
-                    value={JSON.parse(proposal.content.pricing)}
-                    onChange={(value) =>
-                      setProposal({
-                        ...proposal,
-                        content: { ...proposal.content, pricing: JSON.stringify(value) },
-                      })
-                    }
-                  />
-                </div>
-              </ProposalSectionToggle>
-
-              {/* Payment Schedule */}
-              <ProposalSectionToggle
-                title={sections[4].title}
-                description={sections[4].description}
-                isOpen={sections[4].isOpen}
-                onToggle={() => handleSectionToggle('payment')}
-              >
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <PaymentScheduleInput
-                    value={JSON.parse(proposal.content.payment_schedule)}
-                    onChange={(value) =>
-                      setProposal({
-                        ...proposal,
-                        content: { ...proposal.content, payment_schedule: JSON.stringify(value) },
-                      })
-                    }
-                  />
-                </div>
-              </ProposalSectionToggle>
-
-              {/* Client Responsibilities */}
-              <ProposalSectionToggle
-                title={sections[5].title}
-                description={sections[5].description}
-                isOpen={sections[5].isOpen}
-                onToggle={() => handleSectionToggle('client')}
-              >
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <ClientResponsibilitiesInput
-                    value={proposal.content.client_responsibilities}
-                    onChange={(value) =>
-                      setProposal({
-                        ...proposal,
-                        content: { ...proposal.content, client_responsibilities: value },
-                      })
-                    }
-                  />
-                </div>
-              </ProposalSectionToggle>
-
-              {/* Terms & Conditions */}
-              <ProposalSectionToggle
-                title={sections[6].title}
-                description={sections[6].description}
-                isOpen={sections[6].isOpen}
-                onToggle={() => handleSectionToggle('terms')}
-              >
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <TermsAndConditionsInput
-                    value={proposal.content.terms_and_conditions}
-                    onChange={(value) =>
-                      setProposal({
-                        ...proposal,
-                        content: { ...proposal.content, terms_and_conditions: value },
-                      })
-                    }
-                  />
-                </div>
-              </ProposalSectionToggle>
-
-              {/* Signature Section */}
-              <ProposalSectionToggle
-                title={sections[7].title}
-                description={sections[7].description}
-                isOpen={sections[7].isOpen}
-                onToggle={() => handleSectionToggle('signature')}
-              >
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <SignatureInput
-                    value={JSON.parse(proposal.content.signature || '{"providerName":"","agreementDate":""}')}
-                    onChange={(value) =>
-                      setProposal({
-                        ...proposal,
-                        content: { ...proposal.content, signature: JSON.stringify(value) },
-                      })
-                    }
-                  />
-                </div>
-              </ProposalSectionToggle>
-            </div>
-          )}
+         
         </div>
       </div>
     </div>
