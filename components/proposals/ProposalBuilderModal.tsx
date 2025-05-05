@@ -30,13 +30,15 @@ interface ProposalBuilderModalProps {
   sections: any[]
   onUpdateProposal: (updates: any) => void
   onClose: () => void
+  isEditMode?: boolean
 }
 
 export default function ProposalBuilderModal({ 
   proposal, 
   sections: initialSections,
   onUpdateProposal,
-  onClose 
+  onClose,
+  isEditMode = false
 }: ProposalBuilderModalProps) {
   const router = useRouter()
   const [creationMode, setCreationMode] = useState<'choice' | 'manual' | 'generate'>('choice')
@@ -45,7 +47,7 @@ export default function ProposalBuilderModal({
   const [generatingSection, setGeneratingSection] = useState<string | null>(null)
 
   // Define sections based on creation mode
-  const sections = creationMode === 'generate' 
+  const sections = creationMode === 'generate' && !isEditMode
     ? [
         { 
           id: 'client_request', 
@@ -171,7 +173,9 @@ export default function ProposalBuilderModal({
     if (creationMode === 'choice') {
       return (
         <div className="flex flex-col items-center justify-center h-full space-y-8">
-          <h2 className="text-2xl font-semibold text-gray-900">Choose Creation Method</h2>
+          <h2 className="text-2xl font-semibold text-gray-900">
+            {isEditMode ? 'Choose Edit Method' : 'Choose Creation Method'}
+          </h2>
           <div className="grid grid-cols-2 gap-6 w-full max-w-2xl">
             <Card 
               className="p-6 cursor-pointer hover:shadow-lg transition-shadow"
@@ -179,8 +183,15 @@ export default function ProposalBuilderModal({
             >
               <div className="flex flex-col items-center text-center space-y-4">
                 <Wand2 className="h-12 w-12 text-purple-600" />
-                <h3 className="text-lg font-medium">Generate Proposal</h3>
-                <p className="text-gray-600">Let AI help you create a proposal based on your project description</p>
+                <h3 className="text-lg font-medium">
+                  {isEditMode ? 'Generate Updates' : 'Generate Proposal'}
+                </h3>
+                <p className="text-gray-600">
+                  {isEditMode 
+                    ? "Let AI help you update your proposal based on your project description"
+                    : "Let AI help you create a proposal based on your project description"
+                  }
+                </p>
               </div>
             </Card>
             <Card 
@@ -189,8 +200,15 @@ export default function ProposalBuilderModal({
             >
               <div className="flex flex-col items-center text-center space-y-4">
                 <PenTool className="h-12 w-12 text-blue-600" />
-                <h3 className="text-lg font-medium">Create Manually</h3>
-                <p className="text-gray-600">Build your proposal step by step with full control</p>
+                <h3 className="text-lg font-medium">
+                  {isEditMode ? 'Edit Manually' : 'Create Manually'}
+                </h3>
+                <p className="text-gray-600">
+                  {isEditMode
+                    ? "Edit your proposal step by step with full control"
+                    : "Build your proposal step by step with full control"
+                  }
+                </p>
               </div>
             </Card>
           </div>

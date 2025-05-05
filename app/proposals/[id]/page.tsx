@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { useRouter, useParams, useSearchParams } from "next/navigation"
 import {
   ArrowLeft,
   Download,
@@ -20,6 +20,8 @@ import {
   Eye,
   MoreVertical,
   CheckCircle2,
+  List,
+  LayoutGrid,
 } from "lucide-react"
 import Sidebar from "@/components/sidebar"
 import { useAuth } from "@/lib/auth-context"
@@ -34,6 +36,7 @@ import PaymentScheduleInput from "@/components/proposals/PaymentScheduleInput"
 import TextEditor from '@/components/proposals/TextEditor'
 import TermsAndConditionsInput from '@/components/proposals/TermsAndConditionsInput'
 import ClientResponsibilitiesInput from '@/components/proposals/ClientResponsibilitiesInput'
+import ProposalBuilderModal from "@/components/proposals/ProposalBuilderModal"
 
 interface BudgetItem {
   item: string;
@@ -108,9 +111,17 @@ interface ProposalData {
   updated_at: string;
 }
 
+interface ProposalSection {
+  id: string
+  title: string
+  description?: string
+  isOpen: boolean
+}
+
 export default function ProposalPage() {
   const router = useRouter()
   const params = useParams()
+  const searchParams = useSearchParams()
   const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -143,6 +154,18 @@ export default function ProposalPage() {
       return []
     }
   })
+  const isEditMode = searchParams.get('edit') === 'true'
+  const [viewMode, setViewMode] = useState<'list' | 'modal'>(isEditMode ? 'modal' : 'list')
+  const [sections, setSections] = useState<ProposalSection[]>([
+    { id: 'scope', title: 'Scope of Work', description: 'Detailed description of the project work and objectives.', isOpen: false },
+    { id: 'deliverables', title: 'Deliverables', description: 'List of all items and outcomes to be delivered to the client.', isOpen: true },
+    { id: 'timeline', title: 'Timeline', description: 'Project start and end dates.', isOpen: true },
+    { id: 'pricing', title: 'Pricing', description: 'Total cost and payment details.', isOpen: true },
+    { id: 'payment', title: 'Payment Schedule', description: 'Breakdown of payment milestones.', isOpen: true },
+    { id: 'client', title: 'Client Responsibilities', description: 'What the client needs to provide.', isOpen: true },
+    { id: 'terms', title: 'Terms & Conditions', description: 'Legal terms and conditions.', isOpen: true },
+    { id: 'signature', title: 'Signature', description: 'Provider signature and agreement date.', isOpen: true },
+  ])
 
   useEffect(() => {
     const fetchProposal = async () => {
@@ -190,8 +213,7 @@ export default function ProposalPage() {
         setProposal(parsedData)
         
         // Check if we're in edit mode from the URL
-        const searchParams = new URLSearchParams(window.location.search)
-        if (searchParams.get('edit') === 'true') {
+        if (isEditMode) {
           setIsEditing(true)
         }
       } catch (err) {
@@ -205,7 +227,7 @@ export default function ProposalPage() {
     if (params.id) {
       fetchProposal()
     }
-  }, [params.id])
+  }, [params.id, isEditMode])
 
   const handleSave = async () => {
     if (!proposal.title || !proposal.client_id || !proposal.project_id) {
@@ -515,6 +537,11 @@ export default function ProposalPage() {
     }
   }
 
+  const handlePreview = () => {
+    // This would open a preview modal or navigate to a preview page
+    console.log("Preview proposal")
+  }
+
   if (isLoading) {
     return (
       <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -569,7 +596,7 @@ export default function ProposalPage() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <Sidebar />
       <div className="flex-1 overflow-auto">
         {/* Success Modal */}
@@ -612,275 +639,86 @@ export default function ProposalPage() {
                 <span>Back to Proposals</span>
               </button>
               <h1 className="text-2xl font-semibold text-gray-900">
-                {isEditing ? 'Edit Proposal' : 'View Proposal'}
+                {isEditMode ? 'Edit Proposal' : 'Proposal Details'}
               </h1>
             </div>
             <div className="flex items-center gap-4">
-              {!isEditing ? (
+              <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1 mr-4">
+                <button
+                  className={`p-2 rounded ${viewMode === 'list' ? 'bg-white shadow-sm' : ''}`}
+                  onClick={() => setViewMode('list')}
+                >
+                  <List className="h-4 w-4" />
+                </button>
+                <button
+                  className={`p-2 rounded ${viewMode === 'modal' ? 'bg-white shadow-sm' : ''}`}
+                  onClick={() => setViewMode('modal')}
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </button>
+              </div>
+              {!isEditMode && (
                 <>
                   <button
-                    onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                    type="button"
+                    className="flex items-center gap-2 bg-gray-50 text-gray-700 rounded-xl px-4 py-2 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 border border-gray-200 transition-all"
+                    onClick={handlePreview}
                   >
-                    <Edit className="w-4 h-4" />
-                    <span>Edit</span>
+                    <Eye className="w-4 h-4" />
+                    <span className="text-sm font-medium">Preview</span>
                   </button>
                   <button
+                    type="button"
+                    className="flex items-center gap-2 bg-gray-50 text-gray-700 rounded-xl px-4 py-2 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 border border-gray-200 transition-all"
                     onClick={handleExportPDF}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                   >
                     <Download className="w-4 h-4" />
-                    <span>Export PDF</span>
+                    <span className="text-sm font-medium">Export PDF</span>
                   </button>
                   <button
+                    type="button"
+                    className="flex items-center gap-2 bg-gray-50 text-gray-700 rounded-xl px-4 py-2 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300 border border-gray-200 transition-all"
                     onClick={handleSend}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
+                    disabled={isLoading}
                   >
-                    <Send className="w-4 h-4" />
-                    <span>Send to Client</span>
+                    {isLoading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-gray-700 rounded-full animate-spin" />
+                        <span className="text-sm font-medium">Sending...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        <span className="text-sm font-medium">Send</span>
+                      </>
+                    )}
                   </button>
                 </>
-              ) : (
-                <button
-                  onClick={handleSave}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>Save Changes</span>
-                </button>
               )}
             </div>
           </div>
 
           {/* Error message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 text-red-700">
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 text-red-700 shadow-sm">
               <AlertCircle className="w-5 h-5" />
               <p>{error}</p>
             </div>
           )}
 
-          {/* Proposal Details */}
-          <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                <input
-                  type="text"
-                  className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 text-gray-900 transition-colors"
-                  value={proposal.title}
-                  onChange={(e) => setProposal({ ...proposal, title: e.target.value })}
-                  readOnly={!isEditing}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <div className={`p-2 rounded-lg border ${getStatusColor(proposal.status)} transition-colors`}>
-                  {proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}
-                </div>
-              </div>
+          {viewMode === 'modal' ? (
+            <ProposalBuilderModal
+              proposal={proposal}
+              sections={sections}
+              onUpdateProposal={(updates) => setProposal((prev) => prev ? { ...prev, ...updates } : null)}
+              onClose={() => setViewMode('list')}
+              isEditMode={isEditMode}
+            />
+          ) : (
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              {/* Your existing list view content */}
             </div>
-
-            {/* Project & Client Selection */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Project</h2>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-2">
-                  <ProjectSelector
-                    value={proposal.project_id}
-                    onChange={(projectId) => {
-                      if (!projectId) return
-                      setProposal({ ...proposal, project_id: projectId })
-                    }}
-                    readOnly={!isEditing}
-                  />
-                </div>
-              </div>
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Client</h2>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-2">
-                  <ClientAutoFill
-                    value={proposal.client_id}
-                    onChange={(clientId) => {
-                      if (!clientId) return
-                      setProposal({ ...proposal, client_id: clientId })
-                    }}
-                    readOnly={!isEditing}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Proposal Content */}
-            <div className="mt-8 space-y-6">
-              {/* Scope of Work */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Scope of Work</h3>
-                {isEditing ? (
-                  <TextEditor
-                    value={proposal.content.scope_of_work}
-                    onChange={handleScopeOfWorkChange}
-                  />
-                ) : (
-                  <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: proposal.content.scope_of_work }} />
-                )}
-              </div>
-
-              {/* Deliverables */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Deliverables</h3>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <DeliverablesInputList
-                    value={parseDeliverables(proposal.content.deliverables)}
-                    onChange={handleDeliverablesChange}
-                    readOnly={!isEditing}
-                  />
-                </div>
-              </div>
-
-              {/* Timeline */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Timeline</h3>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  {isEditing ? (
-                    <DateRangePicker
-                      value={{
-                        start: proposal.content.timeline_start,
-                        end: proposal.content.timeline_end
-                      }}
-                      onChange={handleTimelineChange}
-                    />
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span>Start Date:</span>
-                        <span>{new Date(proposal.content.timeline_start).toLocaleDateString()}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>End Date:</span>
-                        <span>{new Date(proposal.content.timeline_end).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Pricing */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Pricing</h3>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  {isEditing ? (
-                    <BudgetInputList
-                      value={typeof proposal.content.pricing === 'string' ? proposal.content.pricing : JSON.stringify(proposal.content.pricing)}
-                      onChange={handlePricingChange}
-                    />
-                  ) : (
-                    <div className="space-y-2">
-                      {parsePricing(proposal.content.pricing).map((item, index) => (
-                        <div key={index} className="flex justify-between">
-                          <span>{item.item}</span>
-                          <span>${item.amount.toLocaleString()}</span>
-                        </div>
-                      ))}
-                      <div className="border-t pt-2 font-semibold">
-                        <div className="flex justify-between">
-                          <span>Total</span>
-                          <span>${parsePricing(proposal.content.pricing).reduce((sum, item) => sum + item.amount, 0).toLocaleString()}</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Payment Schedule */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Payment Schedule</h3>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  {isEditing ? (
-                    <PaymentScheduleInput
-                      value={parsePaymentSchedule(proposal.content.payment_schedule)}
-                      onChange={(value) => {
-                        if (isEditing) {
-                          setProposal({
-                            ...proposal,
-                            content: {
-                              ...proposal.content,
-                              payment_schedule: JSON.stringify(value)
-                            }
-                          })
-                        }
-                      }}
-                    />
-                  ) : (
-                    <div className="space-y-2">
-                      {parsePaymentSchedule(proposal.content.payment_schedule).map((item, index) => (
-                        <div key={index} className="flex justify-between">
-                          <span>{item.milestone}</span>
-                          <div className="flex flex-col items-end">
-                            <span>${item.amount.toLocaleString()}</span>
-                            <span className="text-sm text-gray-500">Due: {new Date(item.due_date).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Client Responsibilities */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Client Responsibilities</h3>
-                {isEditing ? (
-                  <ClientResponsibilitiesInput
-                    value={proposal.content.client_responsibilities}
-                    onChange={handleClientResponsibilitiesChange}
-                  />
-                ) : (
-                  <div className="prose max-w-none">
-                    {parseClientResponsibilities(proposal.content.client_responsibilities).map((item: string, index: number) => (
-                      <div key={index} className="flex items-start gap-2">
-                        <span>•</span>
-                        <span>{item}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Terms and Conditions */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Terms & Conditions</h3>
-                {isEditing ? (
-                  <TermsAndConditionsInput
-                    value={proposal.content.terms_and_conditions}
-                    onChange={handleTermsAndConditionsChange}
-                  />
-                ) : (
-                  <div className="prose max-w-none space-y-4">
-                    {Object.entries(parseTermsAndConditions(proposal.content.terms_and_conditions)).map(([key, value]) => (
-                      <div key={key}>
-                        <h4 className="font-semibold capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</h4>
-                        <p>{value as string}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Signature */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Signature</h3>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <SignatureBlock
-                    value={parseSignature(proposal.content.signature)}
-                    onChange={handleSignatureChange}
-                    readOnly={!isEditing}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
