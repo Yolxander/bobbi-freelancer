@@ -46,7 +46,7 @@ const useCases = [
 
 export function UseCasesSection() {
   return (
-    <section className="py-24">
+    <section id="use-cases" className="py-24 scroll-mt-24">
       <div className="container mx-auto px-4">
         <div className="flex flex-col gap-6">
           {/* Top Row */}

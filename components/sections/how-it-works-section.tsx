@@ -34,7 +34,7 @@ export function HowItWorksSection() {
   const [selectedFeature, setSelectedFeature] = useState(features[0])
 
   return (
-    <div className="bg-[#0A0A0A] rounded-3xl p-16">
+    <div id="how-it-works" className="bg-[#0A0A0A] rounded-3xl p-16 scroll-mt-24">
       <div className="mb-16">
         <h2 className="text-6xl font-light mb-6">
           <span className="text-[#ACFF3D]">How</span>{" "}

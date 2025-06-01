@@ -43,7 +43,7 @@ export function BenefitsSection() {
   }
 
   return (
-    <div className="bg-white rounded-[32px] overflow-hidden border-2 border-black shadow-lg w-full mx-auto">
+    <div id="benefits" className="bg-white rounded-[32px] overflow-hidden border-2 border-black shadow-lg w-full mx-auto scroll-mt-24">
       <div className="grid grid-cols-1 md:grid-cols-2">
         {/* Left Column - Freelancer Benefits */}
         <div className="p-8 md:p-12 lg:p-16">
