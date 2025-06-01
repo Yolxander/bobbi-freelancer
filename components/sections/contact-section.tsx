@@ -1,23 +1,22 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
-import { MessageSquare, FileUp, Calendar, FileText } from "lucide-react"
+import { User, FileText, Calendar, CreditCard } from "lucide-react"
 
 const services = [
-  "Transparent Progress View",
-  "Less Back-and-Forth",
-  "Confidence at Every Step",
-  "One Link, All Updates",
+  "Professional Profile",
+  "Client Intake Form",
+  "Project Management",
+  "Payment Processing",
 ]
 
 export function BenefitsSection() {
   const [selectedServices, setSelectedServices] = useState<string[]>([
-    "Transparent Progress View",
-    "Less Back-and-Forth",
-    "Confidence at Every Step",
-    "One Link, All Updates",
+    "Professional Profile",
+    "Client Intake Form",
+    "Project Management",
+    "Payment Processing",
   ])
   const [formData, setFormData] = useState({
     name: "",
@@ -55,21 +54,11 @@ export function BenefitsSection() {
           <div className="space-y-8">
             <div className="flex items-start">
               <div className="mr-4 mt-1">
-                <Calendar className="h-6 w-6" />
+                <User className="h-6 w-6" />
               </div>
               <div>
-                <h3 className="text-lg font-medium">Clear Project Timelines</h3>
-                <p className="text-gray-600 mb-2">Always know what's next, what's due, and what's done.</p>
-              </div>
-            </div>
-
-            <div className="flex items-start">
-              <div className="mr-4 mt-1">
-                <MessageSquare className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-medium">Organized Conversations</h3>
-                <p className="text-gray-600 mb-2">Messages tied to projects and tasks — never lose context again.</p>
+                <h3 className="text-lg font-medium">Professional Profile</h3>
+                <p className="text-gray-600 mb-2">Showcase your expertise, portfolio, and rates to attract the right clients.</p>
               </div>
             </div>
 
@@ -78,18 +67,28 @@ export function BenefitsSection() {
                 <FileText className="h-6 w-6" />
               </div>
               <div>
-                <h3 className="text-lg font-medium">Easy Payment Tracking</h3>
-                <p className="text-gray-600 mb-2">Track invoices, payments, and upcoming milestones in one place.</p>
+                <h3 className="text-lg font-medium">Client Intake</h3>
+                <p className="text-gray-600 mb-2">Receive project requests and generate professional proposals with AI assistance.</p>
               </div>
             </div>
 
             <div className="flex items-start">
               <div className="mr-4 mt-1">
-                <FileUp className="h-6 w-6" />
+                <Calendar className="h-6 w-6" />
               </div>
               <div>
-                <h3 className="text-lg font-medium">Proposals and Contracts in Minutes</h3>
-                <p className="text-gray-600 mb-2">Send structured, signable proposals without juggling tools.</p>
+                <h3 className="text-lg font-medium">Project Management</h3>
+                <p className="text-gray-600 mb-2">Keep projects organized with built-in task lists, messaging, and file sharing.</p>
+              </div>
+            </div>
+
+            <div className="flex items-start">
+              <div className="mr-4 mt-1">
+                <CreditCard className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-medium">Payment Processing</h3>
+                <p className="text-gray-600 mb-2">Create invoices, track payments, and manage your finances in one place.</p>
               </div>
             </div>
           </div>
@@ -103,25 +102,25 @@ export function BenefitsSection() {
             <div className="space-y-6">
               <div>
                 <p className="w-full border-b-2 border-black bg-transparent py-2 text-sm">
-                  Clients can see real-time updates without needing to ask.
+                  Easy project submission through your custom intake form.
                 </p>
               </div>
 
               <div>
                 <p className="w-full border-b-2 border-black bg-transparent py-2 text-sm">
-                  Everything important is centralized, no messy email chains.
+                  Clear project scope and pricing in professional proposals.
                 </p>
               </div>
 
               <div>
                 <p className="w-full border-b-2 border-black bg-transparent py-2 text-sm">
-                  Clients stay informed and feel secure about project status.
+                  Real-time project updates and milestone tracking.
                 </p>
               </div>
 
               <div>
                 <p className="w-full border-b-2 border-black bg-transparent py-2 text-sm">
-                  Clients access everything through a clean, simple dashboard.
+                  Secure payment processing and invoice management.
                 </p>
               </div>
 
@@ -167,7 +166,7 @@ export function BenefitsSection() {
                 type="submit"
                 className="w-full bg-[#111827] text-white py-3 rounded-3xl mt-8 hover:bg-black transition-colors"
               >
-                Let's get started!
+                Start Your Journey
               </button>
             </div>
           </div>

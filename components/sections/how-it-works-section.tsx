@@ -1,32 +1,32 @@
 'use client'
 
 import { useState } from 'react'
-import { FileText, LayoutDashboard, Users, FolderGit2, ChevronRight } from 'lucide-react'
+import { User, FileText, LayoutDashboard, CreditCard, ChevronRight } from 'lucide-react'
 
 const features = [
   {
     id: '01',
-    title: 'Proposals That Set the Stage',
-    Icon: FileText,
-    description: 'Create beautiful, structured proposals in minutes. Pull in client details, set timelines, deliverables, pricing, and even collect digital signatures—no PDFs or back-and-forth needed.'
+    title: 'Professional Profile & Portfolio',
+    Icon: User,
+    description: 'Create a compelling profile that showcases your expertise, rates, and past work. Add portfolio items, skills, and testimonials to attract the right clients.'
   },
   {
     id: '02',
-    title: 'Smart Project Management',
-    Icon: LayoutDashboard,
-    description: 'Plan, assign, and track tasks across projects with dynamic boards. Freelancers stay focused. Clients see real progress. Automated updates keep everyone aligned—without chasing emails.'
+    title: 'Client Intake & Proposals',
+    Icon: FileText,
+    description: 'Receive project requests through your custom client form. Generate professional proposals with AI assistance, including scope, pricing, and timeline.'
   },
   {
     id: '03',
-    title: 'Client Dashboard Built In',
-    Icon: Users,
-    description: 'Clients get a clean, real-time view of their project: timelines, tasks, approvals, payments—all in one place. No sign-up hassles. Just one link to stay in the loop.'
+    title: 'Project Workspace',
+    Icon: LayoutDashboard,
+    description: 'Manage projects with built-in task lists, messaging, and file sharing. Keep everything organized and accessible for both you and your clients.'
   },
   {
     id: '04',
-    title: 'File & Version Control',
-    Icon: FolderGit2,
-    description: 'Upload, preview, and organize files by project or task. Share drafts, lock final versions, and keep everything searchable. Goodbye cluttered Drive folders.'
+    title: 'Invoicing & Payments',
+    Icon: CreditCard,
+    description: 'Create and send invoices linked to project milestones. Track payments and manage your finances with integrated payment processing.'
   }
 ]
 
@@ -41,7 +41,7 @@ export function HowItWorksSection() {
           <span className="text-white">It Works</span>
         </h2>
         <p className="text-gray-400 text-xl max-w-2xl">
-          A smarter way to manage projects, clients, and communication — all in one place.
+          A complete platform for managing your freelance business — from profile to payment.
         </p>
       </div>
 

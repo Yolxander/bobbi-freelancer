@@ -9,28 +9,28 @@ export function HomeHeroSection() {
       <div className="col-span-4 pt-12">
         <div className="max-w-xl">
           <div className="inline-flex items-center bg-gray-200/50 rounded-full px-4 py-1 text-sm mb-6">
-            <span className="mr-2">🤝</span>
-            Freelance Collaboration, Reimagined
+            <span className="mr-2">✨</span>
+            Client-First Freelance Platform
           </div>
           <h2 className="text-6xl font-light mb-6">
-            Freelancers and
+            Manage Your
             <br />
-            Clients Working
+            Freelance Business
             <br />
             <span className="relative">
-              Together Better
+              With Confidence
               <span className="absolute -right-12 top-0 text-[#2BD7D7]">✦</span>
             </span>
           </h2>
           <p className="text-gray-600 text-lg mb-8">
-            <span className={orbitron.className}>Bobbi</span> is your shared workspace to create projects, track progress, and communicate effortlessly—so freelancers stay focused and clients stay informed.
+            <span className={orbitron.className}>Bobbi</span> helps you showcase your expertise, manage client projects, and handle payments—all in one place. No job board, just your professional journey.
           </p>
           <div className="flex gap-4">
             <Link 
               href="/auth" 
               className="px-8 py-3 bg-black text-white rounded-full text-[15px] font-medium hover:bg-gray-900 transition-colors"
             >
-              Get Started Free
+              Create Your Profile
             </Link>
             <button 
               className="px-8 py-3 border border-gray-200 rounded-full text-[15px] font-medium hover:bg-gray-50 transition-colors"

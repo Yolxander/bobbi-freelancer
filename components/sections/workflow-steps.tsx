@@ -1,7 +1,7 @@
 const workflowSteps = [
-    { id: 'start', name: 'Kickoff & Setup', color: 'bg-[#D1FF75]' },
-    { id: 'collaborate', name: 'Collaborate & Track', color: 'bg-[#965EF5]' },
-    { id: 'complete', name: 'Delivery & Feedback', color: 'bg-black' },
+    { id: 'profile', name: 'Build Your Profile', color: 'bg-[#D1FF75]' },
+    { id: 'client', name: 'Client Intake', color: 'bg-[#965EF5]' },
+    { id: 'project', name: 'Project Management', color: 'bg-black' },
   ]
   
   export function WorkflowSteps() {

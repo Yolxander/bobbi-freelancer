@@ -7,38 +7,38 @@ const orbitron = Orbitron({ subsets: ['latin'] })
 
 const useCases = [
   {
-    title: 'Simplify Design Feedback\nand Approvals',
-    description: `Share concepts, manage revisions, and track approvals without endless emails. <span class="${orbitron.className}">Bobbi</span> ties every piece of client feedback directly to the right task or design file.`,
+    title: 'Design & Creative\nFreelancers',
+    description: `Manage design projects, share concepts, and collect feedback seamlessly. <span class="${orbitron.className}">Bobbi</span> helps you showcase your portfolio and handle client revisions efficiently.`,
     bgColor: 'bg-[#D1FF75]',
     textColor: 'text-black',
     tags: [
-      { text: 'Clear Revision Tracking', Icon: Target },
-      { text: 'Organized File Versions', Icon: Files },
-      { text: 'Faster Client Approvals', Icon: CheckCircle }
+      { text: 'Portfolio Showcase', Icon: Target },
+      { text: 'Design Feedback', Icon: Files },
+      { text: 'Client Approvals', Icon: CheckCircle }
     ],
     image: '/images/usecase-design.jpg'
   },
   {
-    title: 'Manage Campaigns,\nAssets, and Feedback Smoothly',
-    description: `Upload deliverables, track revisions, and launch campaigns without chasing client approvals. <span class="${orbitron.className}">Bobbi</span>'s dashboard keeps marketing workflows clean and client-ready.`,
+    title: 'Marketing &\nContent Creators',
+    description: `Streamline your content creation workflow and client communication. <span class="${orbitron.className}">Bobbi</span> makes it easy to manage campaigns, track deliverables, and maintain client relationships.`,
     bgColor: 'bg-[#965EF5]',
     textColor: 'text-black',
     tags: [
-      { text: 'Quick Approvals', Icon: Rocket },
-      { text: 'Asset Management', Icon: Film },
-      { text: 'Campaign Timelines', Icon: Calendar }
+      { text: 'Campaign Management', Icon: Rocket },
+      { text: 'Content Calendar', Icon: Film },
+      { text: 'Client Reporting', Icon: Calendar }
     ],
     image: '/images/usecase-marketing.jpg'
   },
   {
-    title: 'Stay on Top of\nEvery Project Timeline',
-    description: `Build websites, apps, or systems across multiple clients without missing a beat. <span class="${orbitron.className}">Bobbi</span> gives developers a structured way to manage tasks, share previews, and stay ahead.`,
+    title: 'Development &\nTechnical Freelancers',
+    description: `Keep your development projects organized and clients informed. <span class="${orbitron.className}">Bobbi</span> provides the tools to manage tasks, share progress, and handle technical documentation.`,
     bgColor: 'bg-white',
     textColor: 'text-black',
     tags: [
-      { text: 'Multi-Project Boards', Icon: Layout },
-      { text: 'Release Notifications', Icon: Bell },
-      { text: 'Organized Task Lists', Icon: ListTodo }
+      { text: 'Project Tracking', Icon: Layout },
+      { text: 'Code Reviews', Icon: Bell },
+      { text: 'Technical Docs', Icon: ListTodo }
     ],
     image: '/images/usecase-dev.jpg'
   }
@@ -61,7 +61,7 @@ export function UseCasesSection() {
                   <ArrowUpRight className="w-6 h-6 text-white" />
                 </div>
                 <p className="text-lg text-white mt-4">
-                  No two projects are alike — and neither are the teams behind them. <span className={orbitron.className}>Bobbi</span> gives freelancers and teams the flexibility to manage work the way they need it: clear timelines, smart file sharing, and effortless client collaboration, all in one place.
+                  Every freelancer has unique needs. <span className={orbitron.className}>Bobbi</span> adapts to your workflow, whether you're a designer, developer, or content creator. Manage your clients, showcase your work, and grow your business—all in one place.
                 </p>
               </div>
             </div>

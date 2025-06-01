@@ -1,66 +1,66 @@
 'use client'
 
-import { FileText, GitBranch, Calendar, FileUp, Clock, Users, ArrowRight } from 'lucide-react'
+import { User, FileText, Calendar, CreditCard, Clock, MessageSquare, ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 
 const mainCategories = [
   {
-    title: 'Proposal\nBuilder',
-    description: 'CREATE PROFESSIONAL\nPROPOSALS IN MINUTES',
+    title: 'Profile & Portfolio\nBuilder',
+    description: 'SHOWCASE YOUR\nEXPERTISE',
     bgColor: 'bg-[#0A0A0A]',
     steps: [
-      'Choose from professional templates',
-      'Customize content and branding',
-      'Add pricing and terms',
-      'Send for client approval'
+      'Create professional profile',
+      'Add portfolio items',
+      'Set your rates',
+      'Collect testimonials'
+    ],
+    Icon: User
+  },
+  {
+    title: 'Client Intake &\nProposals',
+    description: 'MANAGE CLIENT\nREQUESTS',
+    bgColor: 'bg-[#965EF5]',
+    steps: [
+      'Custom client form',
+      'AI proposal assistance',
+      'Scope & pricing',
+      'Digital signatures'
     ],
     Icon: FileText
   },
   {
-    title: 'File & Version\nControl',
-    description: 'MANAGE YOUR FILES WITH\nSEAMLESS VERSION TRACKING',
-    bgColor: 'bg-[#965EF5]',
-    steps: [
-      'Upload project files',
-      'Track version history',
-      'Collaborate with team',
-      'Manage file access'
-    ],
-    Icon: GitBranch
-  },
-  {
-    title: 'Timeline\nEvents',
-    description: 'TRACK PROGRESS AND\nMILESTONES EFFORTLESSLY',
+    title: 'Project &\nPayment Tools',
+    description: 'HANDLE PROJECTS\nAND PAYMENTS',
     bgColor: 'bg-[#D1FF75]',
     steps: [
-      'Set project milestones',
-      'Schedule key events',
-      'Monitor deadlines',
-      'Update progress'
+      'Task management',
+      'File sharing',
+      'Invoice creation',
+      'Payment tracking'
     ],
-    Icon: Calendar
+    Icon: CreditCard
   }
 ]
 
 const subCategories = [
   {
-    name: 'Proposal Builder',
-    Icon: FileText,
+    name: 'Profile Builder',
+    Icon: User,
     bgColor: 'bg-[#EBF3FF]'
   },
   {
-    name: 'File & Version Control',
-    Icon: GitBranch,
+    name: 'Client Intake',
+    Icon: FileText,
     bgColor: 'bg-[#EBFFE7]'
   },
   {
-    name: 'Timeline Events',
+    name: 'Project Tools',
     Icon: Calendar,
     bgColor: 'bg-[#FFF8E7]'
   },
   {
-    name: 'Team Collaboration',
-    Icon: Users,
+    name: 'Payment Tools',
+    Icon: CreditCard,
     bgColor: 'bg-[#FFE7E7]'
   }
 ]
