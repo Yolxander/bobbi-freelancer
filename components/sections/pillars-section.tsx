@@ -7,50 +7,50 @@ const orbitron = Orbitron({ subsets: ['latin'] })
 
 const pillars = [
   {
-    name: "Simplicity First",
-    description: `No complicated setups or bloated features. <span class="${orbitron.className}">Bobbi</span> makes collaboration easy, right out of the box.`,
+    name: "AI-Powered Workflow",
+    description: `Smart automation that helps you draft proposals, break down projects, and manage client communication — all while maintaining your personal touch.`,
     color: "bg-[#2BD7D7]",
     textColor: "text-black"
   },
   {
-    name: "Client-Centric Design",
-    description: "Clients see only what they need — clean updates, clear files, transparent progress — no confusion.",
+    name: "Professional Branding",
+    description: "Present yourself with a polished profile, branded proposals, and seamless client onboarding that builds trust from day one.",
     color: "bg-[#D1FF75]",
     textColor: "text-black"
   },
   {
-    name: "Built-In Project Tools",
-    description: "Proposals, tasks, file sharing, timelines, messaging — all integrated, no extra subscriptions needed.",
+    name: "Unified Workspace",
+    description: "One platform for everything: proposals, contracts, project management, file sharing, and client communication — no more scattered tools.",
     color: "bg-black",
     textColor: "text-white"
   },
   {
-    name: "Designed for Growth",
-    description: `Whether you're managing 1 project or scaling a freelance team, <span class="${orbitron.className}">Bobbi</span> grows with you at every step.`,
+    name: "Smart Project Management",
+    description: `AI-assisted task breakdown, milestone tracking, and automated updates keep your projects on track and clients informed.`,
     color: "bg-[#965EF5]",
     textColor: "text-white"
   },
   {
-    name: "Automation Where It Matters",
-    description: "Smart progress updates, automatic reminders, and project tracking — without adding more work.",
+    name: "Client Experience",
+    description: "Give clients a professional portal to view progress, provide feedback, and manage deliverables — all while maintaining your control.",
     color: "bg-[#D1FF75]",
     textColor: "text-black"
   },
   {
-    name: "Clear Client Collaboration",
-    description: "No more confusing email chains. Clients always know what's happening and what's expected next.",
+    name: "Business Growth",
+    description: "Turn completed projects into testimonials, track your success metrics, and build a portfolio that attracts better clients.",
     color: "bg-black",
     textColor: "text-white"
   },
   {
-    name: "Effortless File Management",
-    description: `Organize, preview, version, and share project files without leaving <span class="${orbitron.className}">Bobbi</span>'s workspace.`,
+    name: "Payment Integration",
+    description: `Seamless invoicing, payment tracking, and automated reminders — get paid faster and keep your finances organized.`,
     color: "bg-[#965EF5]",
     textColor: "text-white"
   },
   {
-    name: "Ready for Every Stage",
-    description: `From first proposal to final delivery, <span class="${orbitron.className}">Bobbi</span> supports every part of the freelancer-client relationship.`,
+    name: "Smart Analytics",
+    description: `Track your performance, identify growth opportunities, and make data-driven decisions to scale your freelance business.`,
     color: "bg-[#2BD7D7]",
     textColor: "text-black"
   }
@@ -64,9 +64,9 @@ export function PillarsSection() {
           <div className="max-w-4xl">
             <div className="inline-flex items-center bg-[#D1FF75] rounded-full px-4 py-1 text-sm text-black mb-6">
               <span className="mr-2">✦</span>
-              Our Features
+              Core Features
             </div>
-            <h2 className="text-4xl md:text-5xl font-light text-black mb-12">What Makes <span className={orbitron.className}>Bobbi</span> Different?</h2>
+            <h2 className="text-4xl md:text-5xl font-light text-black mb-12">Everything You Need to <span className={orbitron.className}>Succeed</span></h2>
           </div>
         </div>
         
@@ -79,7 +79,7 @@ export function PillarsSection() {
             >
               <div className="relative">
                 <h3 className={`text-xl font-medium mb-4 ${pillar.textColor}`}>{pillar.name}</h3>
-                <p className={`${pillar.textColor} line-clamp-3 opacity-80`} dangerouslySetInnerHTML={{ __html: pillar.description }}></p>
+                <p className={`${pillar.textColor} line-clamp-3 opacity-80`}>{pillar.description}</p>
               </div>
             </div>
           ))}
@@ -92,16 +92,16 @@ export function PillarsSection() {
             >
               <div className="relative">
                 <h3 className={`text-xl font-medium mb-4 ${pillar.textColor}`}>{pillar.name}</h3>
-                <p className={`${pillar.textColor} line-clamp-3 opacity-80`} dangerouslySetInnerHTML={{ __html: pillar.description }}></p>
+                <p className={`${pillar.textColor} line-clamp-3 opacity-80`}>{pillar.description}</p>
               </div>
             </div>
           ))}
 
           {/* Center Button */}
           <div className="flex flex-col justify-center items-center text-black border border-black rounded-2xl p-12">
-            <h3 className="text-2xl font-semibold text-center mb-6">Discover Everything <span className={orbitron.className}>Bobbi</span> Offers</h3>
+            <h3 className="text-2xl font-semibold text-center mb-6">Ready to Transform Your <span className={orbitron.className}>Workflow</span>?</h3>
             <button className="inline-flex items-center px-8 py-3 bg-[#D1FF75] text-black rounded-full text-[15px] font-medium hover:bg-[#D1FF75]/90 transition-colors">
-              Explore Features
+              Get Started
               <ArrowRight className="w-4 h-4 ml-2" />
             </button>
           </div>
@@ -113,7 +113,7 @@ export function PillarsSection() {
             >
               <div className="relative">
                 <h3 className={`text-xl font-medium mb-4 ${pillar.textColor}`}>{pillar.name}</h3>
-                <p className={`${pillar.textColor} line-clamp-3 opacity-80`} dangerouslySetInnerHTML={{ __html: pillar.description }}></p>
+                <p className={`${pillar.textColor} line-clamp-3 opacity-80`}>{pillar.description}</p>
               </div>
             </div>
           ))}
@@ -126,7 +126,7 @@ export function PillarsSection() {
             >
               <div className="relative">
                 <h3 className={`text-xl font-medium mb-4 ${pillar.textColor}`}>{pillar.name}</h3>
-                <p className={`${pillar.textColor} line-clamp-3 opacity-80`} dangerouslySetInnerHTML={{ __html: pillar.description }}></p>
+                <p className={`${pillar.textColor} line-clamp-3 opacity-80`}>{pillar.description}</p>
               </div>
             </div>
           ))}
