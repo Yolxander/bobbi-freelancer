@@ -17,10 +17,10 @@ export function AboutHeroSection() {
           </div>
           
           <h1 className="text-4xl md:text-6xl font-light text-white mb-8">
-            Making Freelance Work
+            Empowering Freelancers
             <br />
             <span className="relative inline-block">
-              More Human
+              With AI-Powered Tools
               <svg className="absolute h-3 md:h-4 -bottom-4 left-0 right-0 text-[#2BD7D7]" viewBox="0 0 172 16" fill="none">
                 <path d="M80.0502 0.599609C80.0502 0.599609 158.05 -0.400391 171.05 15.5996" stroke="currentColor" strokeWidth="2"/>
                 <path d="M91.0498 0.599609C91.0498 0.599609 13.0498 -0.400391 0.0498047 15.5996" stroke="currentColor" strokeWidth="2"/>
@@ -29,16 +29,16 @@ export function AboutHeroSection() {
           </h1>
           
           <p className="text-xl text-white mb-12 max-w-2xl mx-auto">
-            We're building tools that help freelancers and clients work together with more trust, transparency, and meaningful collaboration.
+            We're building an AI-powered platform that helps freelancers manage their business, communicate with clients, and deliver exceptional work — all while maintaining their independence and personal touch.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button className="inline-flex items-center px-8 py-3 bg-[#D1FF75] text-black rounded-full text-[15px] font-medium hover:bg-[#D1FF75]/90 transition-colors">
-              Join Our Team
+              Join Bobbi
               <ArrowRight className="w-4 h-4 ml-2" />
             </button>
             <button className="inline-flex items-center px-8 py-3 bg-[#965EF5] text-white rounded-full text-[15px] font-medium hover:bg-[#965EF5]/90 transition-colors">
-              Read Our Story
+              Learn More
             </button>
           </div>
         </div>

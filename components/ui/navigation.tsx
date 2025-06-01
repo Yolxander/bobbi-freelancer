@@ -1,9 +1,14 @@
+'use client'
+
 import { Orbitron } from 'next/font/google'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 const orbitron = Orbitron({ subsets: ['latin'] })
 
 export function Navigation() {
+  const pathname = usePathname()
+
   return (
     <div className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
       <div className="max-w-[1200px] mx-auto bg-white/80 backdrop-blur-md rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] px-6 py-3">
@@ -11,9 +16,22 @@ export function Navigation() {
           <div className="flex items-center gap-12">
             <div className={`${orbitron.className} text-xl tracking-tight`}>Bobbi</div>
             <div className="flex items-center gap-8">
-              <Link href="/" className="text-[15px] text-gray-600 hover:text-gray-900">Home</Link>
-             
-              <Link href="/about" className="text-[15px] text-gray-600 hover:text-gray-900">About</Link>
+              <Link 
+                href="/" 
+                className={`text-[15px] text-gray-600 hover:text-gray-900 relative ${
+                  pathname === '/' ? 'after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-[2px] after:bg-[#D1FF75]' : ''
+                }`}
+              >
+                Home
+              </Link>
+              <Link 
+                href="/about" 
+                className={`text-[15px] text-gray-600 hover:text-gray-900 relative ${
+                  pathname === '/about' ? 'after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-[2px] after:bg-[#D1FF75]' : ''
+                }`}
+              >
+                About
+              </Link>
             </div>
           </div>
 
@@ -30,7 +48,7 @@ export function Navigation() {
                 />
               </div>
             </div>
-            <Link href="/auth" className="px-6 py-2 bg-[#D1FF75] rounded-full text-[15px] text-black font-medium hover:bg-[#D1FF75] transition-colors">
+            <Link href="/auth" className="px-6 py-2 bg-[#D1FF75] rounded-full text-[15px] text-black font-medium hover:bg-[#D1FF75]/90 transition-colors">
               Login
             </Link>
           </div>
