@@ -8,7 +8,7 @@ const orbitron = Orbitron({ subsets: ['latin'] })
 const useCases = [
   {
     title: 'Design & Creative\nFreelancers',
-    description: `Manage design projects, share concepts, and collect feedback seamlessly. <span class="${orbitron.className}">Bobbi</span> helps you showcase your portfolio and handle client revisions efficiently.`,
+    description: `Manage design projects, share concepts, and collect feedback seamlessly. Bobbi helps you showcase your portfolio and handle client revisions efficiently.`,
     bgColor: 'bg-[#D1FF75]',
     textColor: 'text-black',
     tags: [
@@ -20,7 +20,7 @@ const useCases = [
   },
   {
     title: 'Marketing &\nContent Creators',
-    description: `Streamline your content creation workflow and client communication. <span class="${orbitron.className}">Bobbi</span> makes it easy to manage campaigns, track deliverables, and maintain client relationships.`,
+    description: `Streamline your content creation workflow and client communication. Bobbi makes it easy to manage campaigns, track deliverables, and maintain client relationships.`,
     bgColor: 'bg-[#965EF5]',
     textColor: 'text-black',
     tags: [
@@ -32,7 +32,7 @@ const useCases = [
   },
   {
     title: 'Development &\nTechnical Freelancers',
-    description: `Keep your development projects organized and clients informed. <span class="${orbitron.className}">Bobbi</span> provides the tools to manage tasks, share progress, and handle technical documentation.`,
+    description: `Keep your development projects organized and clients informed. Bobbi provides the tools to manage tasks, share progress, and handle technical documentation.`,
     bgColor: 'bg-white',
     textColor: 'text-black',
     tags: [
